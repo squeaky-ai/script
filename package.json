@@ -1,0 +1,13 @@
+{
+  "name": "script",
+  "version": "1.0.0",
+  "description": "Squeaky Script",
+  "main": "src/index.ts",
+  "repository": "git@github.com:squeaky-ai/script.git",
+  "author": "Lewis Monteith <lewismonteith@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "typescript": "^4.2.3"
+  }
+}
