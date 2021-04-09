@@ -12,15 +12,15 @@ declare global {
 }
 
 interface State {
-  viewportX: number;
-  viewportY: number;
-  scrollX: number;
-  scrollY: number;
-  mouseX: number;
-  mouseY: number;
+  viewport_x: number;
+  viewport_y: number;
+  scroll_x: number;
+  scroll_y: number;
+  mouse_x: number;
+  mouse_y: number;
   action: string | null,
   href: string;
-  userAgent: string;
+  useragent: string;
   locale: string;
   html: string;
 }
@@ -56,15 +56,15 @@ interface State {
 
   socket.addEventListener('open', (): void => {
     const state: State = {
-      viewportX: window.innerWidth,
-      viewportY: window.innerHeight,
-      scrollX: window.scrollX,
-      scrollY: window.scrollY,
-      mouseX: 0,
-      mouseY: 0,
+      viewport_x: window.innerWidth,
+      viewport_y: window.innerHeight,
+      scroll_x: window.scrollX,
+      scroll_y: window.scrollY,
+      mouse_x: 0,
+      mouse_y: 0,
       action: null,
       href: location.href,
-      userAgent: navigator.userAgent,
+      useragent: navigator.userAgent,
       locale: navigator.language,
       html: getDomContents(),
     };
@@ -93,13 +93,13 @@ interface State {
     let watch = setInterval(ticker, window._sqSettings!.interval);
 
     window.addEventListener('mousemove', (event: MouseEvent): void => {
-      state.mouseX = event.clientX;
-      state.mouseY = event.clientY; 
+      state.mouse_x = event.clientX;
+      state.mouse_y = event.clientY; 
     });
 
     window.addEventListener('scroll', (_event: Event): void => {
-      state.scrollX = window.scrollX;
-      state.scrollY = window.scrollY;
+      state.scroll_x = window.scrollX;
+      state.scroll_y = window.scrollY;
     });
 
     window.addEventListener('click', (event: MouseEvent): void => {
