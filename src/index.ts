@@ -3,8 +3,10 @@ export {};
 declare global {
   interface Window {
     _sqSettings?: {
+      interval?: number;
       site_id?: string;
       viewier_id?: string;
+      session_id?: string;
     }
   }
 }
@@ -24,17 +26,33 @@ interface State {
 }
 
 (function main() {
+  function generateId(): string {
+    return (new Date().getTime()).toString(36);
+  }
+
+  function getOrCreateViewierId(): string {
+    const id = localStorage.getItem('squeaky_viewer_id') || generateId();
+    localStorage.setItem('squeaky_viewer_id', id);
+    return id;
+  }
+
+  function getOrCreateSessionId(): string {
+    const id = sessionStorage.getItem('squeaky_session_id') || generateId();
+    sessionStorage.setItem('squeaky_session_id', id);
+    return id;
+  }
+
   window._sqSettings = window._sqSettings || {};
+  window._sqSettings.interval = 100;
+  window._sqSettings.viewier_id = getOrCreateViewierId();
+  window._sqSettings.session_id = getOrCreateSessionId();
 
-  const siteId = window._sqSettings.site_id;
-  const viewer = window._sqSettings.viewier_id;
-
-  if (!siteId || !viewer) {
+  if (!window._sqSettings.site_id) {
     console.warn('Squeaky has been incorrectly configured');
     return;
   }
 
-  const socket = new WebSocket(`wss://gateway.squeaky.ai?site_id=${window._sqSettings.site_id}&viewer=${viewer}`);
+  const socket = new WebSocket(`wss://gateway.squeaky.ai?site_id=${window._sqSettings.site_id}&viewer_id=${window._sqSettings.viewier_id}&session_id=${window._sqSettings.session_id}`);
 
   socket.addEventListener('open', (): void => {
     const state: State = {
@@ -72,7 +90,7 @@ interface State {
       return new XMLSerializer().serializeToString(document);
     }
 
-    let watch = setInterval(ticker, 250);
+    let watch = setInterval(ticker, window._sqSettings!.interval);
 
     window.addEventListener('mousemove', (event: MouseEvent): void => {
       state.mouseX = event.clientX;
@@ -111,7 +129,7 @@ interface State {
       const target = document.body;
       registerAction(target, action);
       clearInterval(watch);
-      watch = setInterval(ticker, 250);
+      watch = setInterval(ticker, window._sqSettings!.interval);
     });
 
     window.addEventListener('blur', (): void => {
