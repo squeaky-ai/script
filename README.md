@@ -22,14 +22,13 @@ $ yarn test
 ### Example import
 ```html
 <!-- Squeaky Tracking Code for https://hackerstash.com -->
-  <script>
-    (function(s,q,e,a,k,y){
-      s.sq=s.sq||function(){(s.sq.q=s.sq.q||[]).push(arguments)};
-      s._sqSettings={site_id:'f39d5fc1-097b-4a30-8334-d628623390d4'};
-      k=q.getElementsByTagName('head')[0];
-      y=q.createElement('script');y.async=1;
-      y.src=e+s._sqSettings.site_id;
-      k.appendChild(y);
-    })(window,document,'https://cdn.squeaky.ai/g/0.1.0/script.js?');
-  </script>
+<script>
+  (function(s,q,e,a,u,k,y){
+    s._sqSettings={site_id:'f39d5fc1-097b-4a30-8334-d628623390d4'};
+    u=q.getElementsByTagName('head')[0];
+    k=q.createElement('script');k.async=1;
+    k.src=e+s._sqSettings.site_id;
+    u.appendChild(k);
+  })(window,document,'https://cdn.squeaky.ai/g/0.1.0/script.js?');
+</script>
 ```
