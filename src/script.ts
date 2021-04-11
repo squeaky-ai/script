@@ -25,6 +25,7 @@ interface State {
   locale: string;
   html: string | null;
   position: number;
+  timestamp: number;
 }
 
 (function main(): void {
@@ -93,6 +94,7 @@ interface State {
       locale: navigator.language,
       html: getDomContents(),
       position: 0,
+      timestamp: new Date().valueOf(),
     };
 
     /**
