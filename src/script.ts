@@ -122,6 +122,8 @@ interface State {
         return;
       }
 
+      state.timestamp = (new Date()).valueOf();
+
       const message = JSON.stringify({
         action: 'event',
         payload: state,
