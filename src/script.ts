@@ -39,6 +39,10 @@ interface State {
     return;
   }
 
+  if (window.navigator.doNotTrack) {
+    return;
+  }
+
   const socket = new WebSocket(`wss://gateway.squeaky.ai?site_id=${window._sqSettings.site_id}&viewer_id=${window._sqSettings.viewier_id}&session_id=${window._sqSettings.session_id}`);
 
   /**
