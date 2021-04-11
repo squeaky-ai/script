@@ -24,7 +24,7 @@ interface State {
   useragent: string;
   locale: string;
   html: string | null;
-  timestamp: number;
+  position: number;
 }
 
 (function main(): void {
@@ -92,7 +92,7 @@ interface State {
       useragent: navigator.userAgent,
       locale: navigator.language,
       html: getDomContents(),
-      timestamp: (new Date()).valueOf(),
+      position: 0,
     };
 
     /**
@@ -118,11 +118,11 @@ interface State {
      * @returns {void}
      */
     function ticker(): void {
+      state.position++;
+    
       if (JSON.stringify(state) === window._sqSettings?.prevState) {
         return;
       }
-
-      state.timestamp = (new Date()).valueOf();
 
       const message = JSON.stringify({
         action: 'event',
