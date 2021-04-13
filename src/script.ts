@@ -122,7 +122,7 @@ interface State {
     function ticker(): void {
       state.position++;
     
-      if (JSON.stringify(state) === window._sqSettings?.prevState) {
+      if (JSON.stringify(state) === window._sqSettings?.prevState || socket.readyState !== 1) {
         return;
       }
 
