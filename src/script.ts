@@ -243,4 +243,8 @@ interface State {
       clearInterval(watch);
     });
   });
+
+  socket.addEventListener('close', (event: CloseEvent) => {
+    console.debug('Squeaky connection disconnected (', event.code, ') -> ', event.reason);
+  });
 })();
