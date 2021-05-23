@@ -10,7 +10,7 @@ interface ScrollEvent {
 }
 
 interface CursorEvent {
-  type: 'mouse',
+  type: 'cursor',
   x: number;
   y: number;
 }
@@ -235,7 +235,7 @@ class Squeaky {
    * @return {void}
    */
   private onMouseMove = throttle((event: MouseEvent): void => {
-    this.update({ type: 'mouse', x: event.clientX, y: event.clientY });
+    this.update({ type: 'cursor', x: event.clientX, y: event.clientY });
   }, 50);
 
   /**
