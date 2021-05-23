@@ -1,8 +1,9 @@
 const path = require('path');
 
-module.exports = {
+module.exports = ({ development }) => ({
   devtool: false,
-  mode: 'production',
+  mode: development ? 'development' : 'production',
+  watch: !!development,
   entry: path.join(__dirname, 'src', 'script.ts'),
   output: {
     path: path.join(__dirname, '.build'),
@@ -29,4 +30,4 @@ module.exports = {
       }
     ]
   }
-};
+});
