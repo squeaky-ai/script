@@ -3,6 +3,15 @@ import { Utils } from './utils';
 
 type InteractionEventType = 'click' | 'hover' | 'focus' | 'blur';
 
+interface PageViewEvent {
+  type: 'page_view',
+  path: string;
+  viewport_x: number;
+  viewport_y: number;
+  locale: string;
+  useragent: string;
+}
+
 interface ScrollEvent {
   type: 'scroll',
   x: number;
@@ -20,34 +29,16 @@ interface InteractionEvent {
   selector: string;
 }
 
-
-type Event = ScrollEvent | CursorEvent | InteractionEvent;
+type Event = PageViewEvent | ScrollEvent | CursorEvent | InteractionEvent;
 
 type EventWithTimestamps = Event & { time: number; timestamp: number };
 
-interface State {
-  events: EventWithTimestamps[],
-  viewport_x: number,
-  viewport_y: number,
-  path: string,
-  locale: string,
-  useragent: string
-}
-
 class Squeaky {
-  private state: State = {
-    events: [],
-    viewport_x: window.innerWidth,
-    viewport_y: window.innerHeight,
-    path: location.pathname,
-    locale: navigator.language,
-    useragent: navigator.userAgent,
-  };
-
+  private events: Event[] = [];
   private socket: WebSocket;
   private ticker?: NodeJS.Timer;
   private startedAt = new Date().valueOf();
-  private prevState: string = JSON.stringify(this.state);
+  private prevState: string = JSON.stringify(this.events);
 
   /**
    * Connect to the websocket server and attach the socket
@@ -62,7 +53,8 @@ class Squeaky {
       session_id: this.getOrCreateId('session'),
     });
 
-    this.socket = new WebSocket(`ws://localhost:4000/api/cable?${params.toString()}`);
+    this.socket = new WebSocket(`wss://gateway.squeaky.ai?${params.toString()}`);
+    // this.socket = new WebSocket(`ws://localhost:3001?${params.toString()}`);
     this.socket.addEventListener('open', this.onConnected);
     this.socket.addEventListener('close', this.onDisconnected);
   }
@@ -123,31 +115,33 @@ class Squeaky {
    * @returns {void}
    */
   private tick = (): void => {
-    if (JSON.stringify(this.state) === this.prevState) {
+    if (JSON.stringify(this.events) === this.prevState) {
       return;
     }
 
-    this.send(this.state);
-    this.state.events = [];
-    this.prevState = JSON.stringify(this.state);
+    this.send(this.events);
+    this.events = [];
+    this.prevState = JSON.stringify(this.events);
   }
 
   /**
    * Send the websocket event
    * @private
-   * @param {State} message 
+   * @param {Event[]} events 
    * @return {void}
    */
-  private send = (message: State): void => {
-    console.log(JSON.stringify(message));
-    // TODO!
+  private send = (events: Event[]): void => {
+    this.socket.send(JSON.stringify({
+      action: 'events',
+      events
+    }));
   };
 
   /**
    * Convenient helper to add something to the events list
-   * that adds the timestamps.
+   * that adds the timestamps
    * @private
-   * @param {Omit<Event, 'time' | 'timestamp'>} value 
+   * @param {Event} value 
    * @return {void}
    */
   private update = (value: Event): void => {
@@ -159,7 +153,7 @@ class Squeaky {
       timestamp: now,
     };
 
-    this.state.events.push(event);
+    this.events.push(event);
   };
 
   /**
@@ -171,6 +165,7 @@ class Squeaky {
   private onConnected = (): void => {
     this.install();
     this.start();
+    this.onPageView();
   };
 
   /**
@@ -183,6 +178,24 @@ class Squeaky {
   private onDisconnected = (): void => {
     this.uninstall();
     this.stop();
+  };
+
+  /**
+   * Store an action when a page is visited, this should be
+   * fired on connection as well as on history change for 
+   * single page apps
+   * @private
+   * @returns {void}
+   */
+  private onPageView = (): void => {
+    this.update({
+      type: 'page_view',
+      path: location.pathname,
+      viewport_x: window.innerWidth,
+      viewport_y: window.innerHeight,
+      locale: navigator.language,
+      useragent: navigator.userAgent,
+    });
   };
 
   /**
