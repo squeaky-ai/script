@@ -49,12 +49,11 @@ class Squeaky {
   public constructor(siteId: string) {
     const params = new URLSearchParams({
       site_id: siteId,
-      viewer_id: this.getOrCreateId('viewer'),
-      session_id: this.getOrCreateId('session'),
+      viewer_id: this.getOrCreateId('viewer', localStorage),
+      session_id: this.getOrCreateId('session', sessionStorage),
     });
 
     this.socket = new WebSocket(`wss://gateway.squeaky.ai?${params.toString()}`);
-    // this.socket = new WebSocket(`ws://localhost:3001?${params.toString()}`);
     this.socket.addEventListener('open', this.onConnected);
     this.socket.addEventListener('close', this.onDisconnected);
   }
@@ -258,9 +257,9 @@ class Squeaky {
    * @param {'session' | 'viewer'} type 
    * @returns {string}
    */
-  private getOrCreateId(type: 'session' | 'viewer'): string {
-    const id = sessionStorage.getItem(`squeaky_${type}_id`) || Math.random().toString(36).slice(-6);
-    sessionStorage.setItem(`squeaky_${type}_id`, id);
+  private getOrCreateId(type: 'session' | 'viewer', storage: Storage): string {
+    const id = storage.getItem(`squeaky_${type}_id`) || Math.random().toString(36).slice(-6);
+    storage.setItem(`squeaky_${type}_id`, id);
     return id;
   }
 }
