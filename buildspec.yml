@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+
+  build:
+    commands:
+      - yarn install
+      - yarn build
+
+  post_build:
+    commands:
+      - aws s3 cp ./.build/script.js s3://cdn.squeaky.ai/g/0.1.0/script.js
+
+cache:
+  paths:
+    - node_modules/**/*
