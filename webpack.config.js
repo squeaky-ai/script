@@ -29,5 +29,8 @@ module.exports = ({ development }) => ({
         exclude: /node_modules/
       }
     ]
+  },
+  optimization: {
+    usedExports: true
   }
 });

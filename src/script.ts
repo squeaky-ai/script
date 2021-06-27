@@ -1,6 +1,14 @@
 import { throttle } from 'lodash';
 import { Utils } from './utils';
 
+declare global {
+  interface Window {
+    _sqSettings: {
+      site_id: string;
+    }
+  }
+}
+
 type InteractionEventType = 'click' | 'hover' | 'focus' | 'blur';
 
 interface PageViewEvent {
@@ -264,4 +272,4 @@ class Squeaky {
   }
 }
 
-new Squeaky('63ff4985-f8aa-4a41-9ca5-16933d95f578');
+new Squeaky(window._sqSettings.site_id);
