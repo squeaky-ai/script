@@ -12,7 +12,8 @@ phases:
 
   post_build:
     commands:
-      - aws s3 cp ./.build/script.js s3://cdn.squeaky.ai/g/0.1.0/script.js
+      - VERSION=$(node -p -e "require('./package.json').version")
+      - aws s3 cp ./.build/script.js s3://cdn.squeaky.ai/g/$VERSION/script.js
 
 cache:
   paths:
