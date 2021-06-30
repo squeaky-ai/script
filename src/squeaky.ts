@@ -1,47 +1,11 @@
-import { throttle } from 'lodash';
-import { Utils } from './utils';
+import { cssPath } from '../vendor/css-path';
+import { throttle } from '../vendor/throttle';
+import { TreeMirrorClient } from '../vendor/mutation-summary';
+import type { Event, EventWithTimestamps } from '../types/events';
+import type { NodeData, PositionData, AttributeData, TextData } from '../vendor/mutation-summary';
 
-declare global {
-  interface Window {
-    _sqSettings: {
-      site_id: string;
-    }
-  }
-}
-
-type InteractionEventType = 'click' | 'hover' | 'focus' | 'blur';
-
-interface PageViewEvent {
-  type: 'page_view',
-  path: string;
-  viewport_x: number;
-  viewport_y: number;
-  locale: string;
-  useragent: string;
-}
-
-interface ScrollEvent {
-  type: 'scroll',
-  x: number;
-  y: number;
-}
-
-interface CursorEvent {
-  type: 'cursor',
-  x: number;
-  y: number;
-}
-
-interface InteractionEvent {
-  type: InteractionEventType;
-  selector: string;
-}
-
-type Event = PageViewEvent | ScrollEvent | CursorEvent | InteractionEvent;
-
-type EventWithTimestamps = Event & { time: number; timestamp: number };
-
-class Squeaky {
+export class Squeaky {
+  private client: TreeMirrorClient;
   private events: Event[] = [];
   private socket: WebSocket;
   private ticker?: NodeJS.Timer;
@@ -61,7 +25,7 @@ class Squeaky {
       session_id: this.getOrCreateId('session', sessionStorage),
     });
 
-    this.socket = new WebSocket(`wss://gateway.squeaky.ai?${params.toString()}`);
+    this.socket = new WebSocket(`${WEBSOCKET_SERVER_URL}?${params.toString()}`);
     this.socket.addEventListener('open', this.onConnected);
     this.socket.addEventListener('close', this.onDisconnected);
   }
@@ -73,6 +37,24 @@ class Squeaky {
    * @returns {void}
    */
   public install(): void {
+    this.client = new TreeMirrorClient(document, {
+      initialize: (rootId: number, children: NodeData[]) => {
+        this.update({ 
+          type: 'snapshot',
+          event: 'initialize',
+          snapshot: [rootId, children] 
+        });
+      },
+
+      applyChanged: (removed: NodeData[], addedOrMoved: PositionData[], attributes: AttributeData[], text: TextData[]) => {
+        this.update({ 
+          type: 'snapshot', 
+          event: 'apply_changed',
+          snapshot: [removed, addedOrMoved, attributes, text] 
+        });
+      }
+    });
+
     window.addEventListener('blur', this.onBlur);
     window.addEventListener('focus', this.onFocus);
     window.addEventListener('click', this.onClick);
@@ -87,6 +69,8 @@ class Squeaky {
    * @returns {void}
    */
   public uninstall(): void {
+    this.client?.disconnect();
+
     window.removeEventListener('blur', this.onBlur, true);
     window.removeEventListener('focus', this.onFocus, true);
     window.removeEventListener('click', this.onClick, true);
@@ -213,7 +197,7 @@ class Squeaky {
    * @return {void}
    */
   private onClick = (event: MouseEvent): void => {
-    this.update({ type: 'click', selector: Utils.getCssPath(event.target as Element) });
+    this.update({ type: 'click', selector: cssPath(event.target as Element) });
   };
 
   /**
@@ -244,9 +228,9 @@ class Squeaky {
    * @private
    * @return {void}
    */
-  private onScroll = throttle((): void => {
+  private onScroll = throttle(50, (): void => {
     this.update({ type: 'scroll', x: window.scrollX, y: window.scrollY });
-  }, 50);
+  });
 
   /**
    * Set the current mouse coordinates with a debounce
@@ -254,9 +238,9 @@ class Squeaky {
    * @private
    * @return {void}
    */
-  private onMouseMove = throttle((event: MouseEvent): void => {
+  private onMouseMove = throttle(50, (event: MouseEvent): void => {
     this.update({ type: 'cursor', x: event.clientX, y: event.clientY });
-  }, 50);
+  });
 
   /**
    * Generate a short id if one does not exist in local
@@ -271,5 +255,3 @@ class Squeaky {
     return id;
   }
 }
-
-new Squeaky(window._sqSettings.site_id);
