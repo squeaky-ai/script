@@ -134,9 +134,13 @@ export class Squeaky {
    * @return {void}
    */
   private sendSnapshot = (snapshot: Snapshot): void => {
+    const now = new Date().valueOf();
+
     this.socket.send(JSON.stringify({
       action: 'snapshot',
-      snapshot
+      snapshot,
+      time: now - this.startedAt,
+      timestamp: now
     }));
   };
 
