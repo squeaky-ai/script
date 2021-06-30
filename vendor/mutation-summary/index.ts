@@ -4,4 +4,4 @@ export {
   PositionData,
   AttributeData,
   TextData
-} from './util/tree-mirror';
+} from './src/tree-mirror';

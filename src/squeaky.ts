@@ -1,7 +1,6 @@
 import { cssPath } from '../vendor/css-path';
 import { throttle } from '../vendor/throttle';
 import { TreeMirrorClient } from '../vendor/mutation-summary';
-import type { Snapshot } from '../types/snapshots';
 import type { Event, EventWithTimestamps } from '../types/events';
 import type { NodeData, PositionData, AttributeData, TextData } from '../vendor/mutation-summary';
 
@@ -40,16 +39,18 @@ export class Squeaky {
   public install(): void {
     this.client = new TreeMirrorClient(document, {
       initialize: (rootId: number, children: NodeData[]) => {
-        this.sendSnapshot({ 
-          type: 'initialize', 
-          args: [rootId, children] 
+        this.update({ 
+          type: 'snapshot',
+          event: 'initialize',
+          snapshot: [rootId, children] 
         });
       },
 
       applyChanged: (removed: NodeData[], addedOrMoved: PositionData[], attributes: AttributeData[], text: TextData[]) => {
-        this.sendSnapshot({ 
-          type: 'applyChanged', 
-          args: [removed, addedOrMoved, attributes, text] 
+        this.update({ 
+          type: 'snapshot', 
+          event: 'apply_changed',
+          snapshot: [removed, addedOrMoved, attributes, text] 
         });
       }
     });
@@ -109,7 +110,7 @@ export class Squeaky {
       return;
     }
 
-    this.sendEvents(this.events);
+    this.send(this.events);
     this.events = [];
     this.prevState = JSON.stringify(this.events);
   }
@@ -120,27 +121,10 @@ export class Squeaky {
    * @param {Event[]} events 
    * @return {void}
    */
-  private sendEvents = (events: Event[]): void => {
+  private send = (events: Event[]): void => {
     this.socket.send(JSON.stringify({
       action: 'events',
       events
-    }));
-  };
-
-  /**
-   * Send the websocket snapshot
-   * @private
-   * @param {Snapshot} snapshot 
-   * @return {void}
-   */
-  private sendSnapshot = (snapshot: Snapshot): void => {
-    const now = new Date().valueOf();
-
-    this.socket.send(JSON.stringify({
-      action: 'snapshot',
-      snapshot,
-      time: now - this.startedAt,
-      timestamp: now
     }));
   };
 

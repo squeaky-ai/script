@@ -1,32 +1,33 @@
-export function throttle(delay: number, callback: Function) {
+type ThrottleResponse = <T>(...args: T[]) => void;
+
+export function throttle(delay: number, callback: Function): ThrottleResponse {
 	let timeoutID: NodeJS.Timeout;
 	let cancelled = false;
 
 	let lastExec = 0;
 
-	function clearExistingTimeout(): void {
+	const clearExistingTimeout = (): void => {
 		if (timeoutID) {
 			clearTimeout(timeoutID);
 		}
-	}
+	};
 
-	function cancel() {
+	const cancel = (): void => {
 		clearExistingTimeout();
 		cancelled = true;
-	}
+	};
 
-	function wrapper(...arguments_) {
-		let self = this;
-		let elapsed = Date.now() - lastExec;
+	const wrapper = <T>(...args: T[]) => {
+		const elapsed = Date.now() - lastExec;
 
 		if (cancelled) {
 			return;
 		}
 
-		function exec() {
+		const exec = () => {
 			lastExec = Date.now();
-			callback.apply(self, arguments_);
-		}
+			callback.apply(this, args);
+		};
 
 		if (!timeoutID) {
 			exec();

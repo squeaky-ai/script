@@ -1,5 +1,5 @@
-import { MutationSummary, Summary } from '../src/mutation-summary';
-import type { StringMap, NumberMap, NodeMap, Query } from '../src/mutation-summary';
+import { MutationSummary, Summary } from './mutation-summary';
+import type { StringMap, NumberMap, NodeMap, Query } from './mutation-summary';
 
 export interface NodeData {
   id: number;
@@ -43,10 +43,6 @@ export class TreeMirror {
   }
 
   applyChanged(removed: NodeData[], addedOrMoved: PositionData[], attributes: AttributeData[], text: TextData[]) {
-    // NOTE: Applying the changes can result in an attempting to add a child
-    // to a parent which is presently an ancestor of the parent. This can occur
-    // based on random ordering of moves. The way we handle this is to first
-    // remove all changed nodes from their parents, then apply.
     addedOrMoved.forEach((data: PositionData) => {
       const node = this.deserializeNode(data);
 

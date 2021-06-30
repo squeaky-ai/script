@@ -1,3 +1,5 @@
+import type { NodeData, PositionData, AttributeData, TextData } from '../vendor/mutation-summary';
+
 interface PageViewEvent {
   type: 'page_view',
   path: string;
@@ -24,8 +26,18 @@ interface InteractionEvent {
   selector: string;
 }
 
+interface SnapshotEvent {
+  type: 'snapshot';
+  event: 'initialize' | 'apply_changed';
+  snapshot: SnapshotInitializeArgs | SnapshotApplyChangedArgs;
+}
+
+type SnapshotInitializeArgs = [number, NodeData[]];
+
+type SnapshotApplyChangedArgs = [NodeData[], PositionData[], AttributeData[], TextData[]];
+
 type InteractionEventType = 'click' | 'hover' | 'focus' | 'blur';
 
-export type Event = PageViewEvent | ScrollEvent | CursorEvent | InteractionEvent;
+export type Event = PageViewEvent | ScrollEvent | CursorEvent | InteractionEvent | SnapshotEvent;
 
 export type EventWithTimestamps = Event & { time: number; timestamp: number };

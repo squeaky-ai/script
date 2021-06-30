@@ -68,16 +68,6 @@ export class NodeMap<T> {
   }
 }
 
-/**
- *  var reachableMatchableProduct = [
- *  //  STAYED_OUT,  ENTERED,     STAYED_IN,   EXITED
- *    [ STAYED_OUT,  STAYED_OUT,  STAYED_OUT,  STAYED_OUT ], // STAYED_OUT
- *    [ STAYED_OUT,  ENTERED,     ENTERED,     STAYED_OUT ], // ENTERED
- *    [ STAYED_OUT,  ENTERED,     STAYED_IN,   EXITED     ], // STAYED_IN
- *    [ STAYED_OUT,  STAYED_OUT,  EXITED,      EXITED     ]  // EXITED
- *  ];
- */
-
 enum Movement {
   STAYED_OUT,
   ENTERED,
@@ -142,10 +132,6 @@ class NodeChange {
     this.characterDataOldValue = oldValue;
   }
 
-  // Note: is it possible to receive a removal followed by a removal. This
-  // can occur if the removed node is added to an non-observed node, that
-  // node is added to the observed area, and then the node removed from
-  // it.
   removedFromParent(parent: Node) {
     this.childList = true;
     if (this.added || this.oldParentNode) { this.added = false; }
@@ -157,11 +143,6 @@ class NodeChange {
     this.added = true;
   }
 
-  // An node's oldParent is
-  //   -its present parent, if its parentNode was not changed.
-  //   -null if the first thing that happened to it was an add.
-  //   -the node it was removed from if the first thing that happened to it
-  //      was a remove.
   getOldParent() {
     if (this.childList) {
       if (this.oldParentNode) { return this.oldParentNode; }
@@ -268,7 +249,6 @@ class TreeChanges extends NodeMap<NodeChange> {
     return isReachable;
   }
 
-  // A node wasReachable if its oldParent wasReachable.
   getWasReachable(node: Node): boolean {
     if (node === this.rootNode) { return true; }
     if (!node) { return false; }
@@ -304,7 +284,6 @@ class MutationProjection {
   private characterDataOnly: boolean;
   private matchCache: NumberMap<NodeMap<Movement>>;
 
-  // TOOD(any)
   constructor(public rootNode: Node,
     public mutations: MutationRecord[],
     public selectors: Selector[],
@@ -341,13 +320,10 @@ class MutationProjection {
     const change = this.treeChanges.get(node);
     let reachable = parentReachable;
 
-    // node inherits its parent's reachability change unless
-    // its parentNode was mutated.
     if ((change && change.childList) || reachable == undefined) { reachable = this.treeChanges.reachabilityChange(node); }
 
     if (reachable === Movement.STAYED_OUT) { return; }
 
-    // Cache match results for sub-patterns.
     this.matchabilityChange(node);
 
     if (reachable === Movement.ENTERED) {
@@ -373,7 +349,6 @@ class MutationProjection {
 
     if (reachable === Movement.STAYED_IN) { return; }
 
-    // reachable === ENTERED || reachable === EXITED.
     for (let child = node.firstChild; child; child = child.nextSibling) {
       this.visitNode(child, reachable);
     }
@@ -468,7 +443,7 @@ class MutationProjection {
   }
 
   attributeChangedNodes(includeAttributes: string[]): StringMap<Element[]> {
-    if (!this.treeChanges.anyAttributesChanged) { return {}; } // No attributes mutations occurred.
+    if (!this.treeChanges.anyAttributesChanged) { return {}; }
 
     let attributeFilter: StringMap<boolean>;
     let caseInsensitiveFilter: StringMap<string>;
@@ -528,7 +503,7 @@ class MutationProjection {
   }
 
   getCharacterDataChanged(): Node[] {
-    if (!this.treeChanges.anyCharacterDataChanged) { return []; } // No characterData mutations occurred.
+    if (!this.treeChanges.anyCharacterDataChanged) { return []; }
 
     const nodes = this.treeChanges.keys();
     const result: Node[] = [];
@@ -560,8 +535,6 @@ class MutationProjection {
   }
 
   matchabilityChange(node: Node): Movement {
-    // TODO(rafaelw): Include PI, CDATA?
-    // Only include text nodes.
     if (this.characterDataOnly) {
       switch (node.nodeType) {
         case Node.COMMENT_NODE:
@@ -572,10 +545,8 @@ class MutationProjection {
       }
     }
 
-    // No element filter. Include all nodes.
     if (!this.selectors) { return Movement.STAYED_IN; }
 
-    // Element filter. Exclude non-elements.
     if (node.nodeType !== Node.ELEMENT_NODE) { return Movement.STAYED_OUT; }
 
     const el = <Element>node;
@@ -811,13 +782,8 @@ export class Summary {
   }
 }
 
-// TODO(rafaelw): Allow ':' and '.' as valid name characters.
 const validNameInitialChar = /[a-zA-Z_]+/;
 const validNameNonInitialChar = /[a-zA-Z0-9_\-]+/;
-
-// TODO(rafaelw): Consider allowing backslash in the attrValue.
-// TODO(rafaelw): There's got a to be way to represent this state machine
-// more compactly???
 
 function escapeQuotes(value: string): string {
   return '"' + value.replace(/"/, '\\\"') + '"';
@@ -1268,7 +1234,6 @@ class Selector {
       case QUALIFIER:
       case QUALIFIER_NAME:
       case SELECTOR_SEPARATOR:
-        // Valid end states.
         newSelector();
         break;
       default:
@@ -1352,8 +1317,8 @@ interface Options {
 
 export class MutationSummary {
 
-  public static NodeMap = NodeMap; // exposed for use in TreeMirror.
-  public static parseElementFilter = Selector.parseSelectors; // exposed for testing.
+  public static NodeMap = NodeMap;
+  public static parseElementFilter = Selector.parseSelectors;
 
   public static createQueryValidator: (root: Node, query: Query) => any;
   private connected: boolean;
@@ -1367,8 +1332,8 @@ export class MutationSummary {
   private queryValidators: any[];
 
   private static optionKeys: StringMap<boolean> = {
-    'callback': true, // required
-    'queries': true,  // required
+    'callback': true,
+    'queries': true,
     'rootNode': true,
     'oldPreviousSibling': true,
     'observeOwnChanges': true
@@ -1382,18 +1347,16 @@ export class MutationSummary {
 
     let attributeFilter: StringMap<boolean>;
     function observeAttributes(attributes?: string[]) {
-      if (observerOptions.attributes && !attributeFilter) { return; } // already observing all.
+      if (observerOptions.attributes && !attributeFilter) { return; }
 
       observerOptions.attributes = true;
       observerOptions.attributeOldValue = true;
 
       if (!attributes) {
-        // observe all.
         attributeFilter = undefined;
         return;
       }
 
-      // add to observed.
       attributeFilter = attributeFilter || {};
       attributes.forEach((attribute) => {
         attributeFilter[attribute] = true;
@@ -1449,7 +1412,6 @@ export class MutationSummary {
     for (let i = 0; i < options.queries.length; i++) {
       const request = options.queries[i];
 
-      // all
       if (request.all) {
         if (Object.keys(request).length > 1) { throw Error('Invalid request option. all has no options.'); }
 
@@ -1457,7 +1419,6 @@ export class MutationSummary {
         continue;
       }
 
-      // attribute
       if ('attribute' in request) {
         var query: Query = {
           attribute: validateAttribute(request.attribute)
@@ -1471,7 +1432,6 @@ export class MutationSummary {
         continue;
       }
 
-      // element
       if ('element' in request) {
         let requestOptionCount = Object.keys(request).length;
         var query: Query = {
@@ -1490,7 +1450,6 @@ export class MutationSummary {
         continue;
       }
 
-      // characterData
       if (request.characterData) {
         if (Object.keys(request).length > 1) { throw Error('Invalid request option. characterData has no options.'); }
 
@@ -1562,7 +1521,7 @@ export class MutationSummary {
       return query.all;
     });
 
-    this.queryValidators = []; // TODO(rafaelw): Shouldn't always define this.
+    this.queryValidators = [];
     if (MutationSummary.createQueryValidator) {
       this.queryValidators = this.options.queries.map((query) => {
         return MutationSummary.createQueryValidator(this.root, query);
@@ -1586,7 +1545,6 @@ export class MutationSummary {
 
     if (this.changesToReport(summaries)) { this.callback(summaries); }
 
-    // disconnect() may have been called during the callback.
     if (!this.options.observeOwnChanges && this.connected) {
       this.checkpointQueryValidators();
       this.observer.observe(this.root, this.observerOptions);
