@@ -4,6 +4,7 @@ jspm_packages
 
 # Serverless directories
 .build
+utils/public/script.js
 
 # Other
 .DS_Store

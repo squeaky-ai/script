@@ -7,7 +7,9 @@ module.exports = ({ development }) => ({
   watch: !!development,
   entry: path.join(__dirname, 'src', 'index.ts'),
   output: {
-    path: path.join(__dirname, '.build'),
+    path: development
+      ? path.join(__dirname, 'utils', 'public')
+      : path.join(__dirname, '.build'),
     filename: 'script.js',
     library: {
       type: 'window',

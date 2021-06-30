@@ -10,6 +10,7 @@
   "scripts": {
     "build": "webpack",
     "lint": "yarn eslint . --ext .ts",
+    "server": "ts-node utils/server",
     "watch": "webpack --env development"
   },
   "devDependencies": {
