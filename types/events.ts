@@ -1,5 +1,3 @@
-import type { NodeData, PositionData, AttributeData, TextData } from '../vendor/mutation-summary';
-
 interface PageViewEvent {
   type: 'page_view',
   path: string;
@@ -29,12 +27,8 @@ interface InteractionEvent {
 interface SnapshotEvent {
   type: 'snapshot';
   event: 'initialize' | 'apply_changed';
-  snapshot: SnapshotInitializeArgs | SnapshotApplyChangedArgs;
+  snapshot: string;
 }
-
-type SnapshotInitializeArgs = [number, NodeData[]];
-
-type SnapshotApplyChangedArgs = [NodeData[], PositionData[], AttributeData[], TextData[]];
 
 type InteractionEventType = 'click' | 'hover' | 'focus' | 'blur';
 

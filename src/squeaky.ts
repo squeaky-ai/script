@@ -42,7 +42,7 @@ export class Squeaky {
         this.update({ 
           type: 'snapshot',
           event: 'initialize',
-          snapshot: [rootId, children] 
+          snapshot: JSON.stringify([rootId, children])
         });
       },
 
@@ -50,7 +50,7 @@ export class Squeaky {
         this.update({ 
           type: 'snapshot', 
           event: 'apply_changed',
-          snapshot: [removed, addedOrMoved, attributes, text] 
+          snapshot: JSON.stringify([removed, addedOrMoved, attributes, text])
         });
       }
     });
