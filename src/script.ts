@@ -1,53 +1,11 @@
 import { cssPath } from '../vendor/css-path';
 import { throttle } from '../vendor/throttle';
-import { TreeMirrorClient, NodeData, PositionData, AttributeData, TextData } from '../vendor/mutation-summary';
+import { TreeMirrorClient } from '../vendor/mutation-summary';
+import type { Snapshot } from '../types/snapshots';
+import type { Event, EventWithTimestamps } from '../types/events';
+import type { NodeData, PositionData, AttributeData, TextData } from '../vendor/mutation-summary';
 
-declare global {
-  interface Window {
-    _sqSettings: {
-      site_id: string;
-    }
-  }
-}
-
-type InteractionEventType = 'click' | 'hover' | 'focus' | 'blur';
-
-interface PageViewEvent {
-  type: 'page_view',
-  path: string;
-  viewport_x: number;
-  viewport_y: number;
-  locale: string;
-  useragent: string;
-}
-
-interface ScrollEvent {
-  type: 'scroll',
-  x: number;
-  y: number;
-}
-
-interface CursorEvent {
-  type: 'cursor',
-  x: number;
-  y: number;
-}
-
-interface InteractionEvent {
-  type: InteractionEventType;
-  selector: string;
-}
-
-interface Snapshot {
-  type: 'initialize' | 'applyChanged';
-  args: any; // TODO
-}
-
-type Event = PageViewEvent | ScrollEvent | CursorEvent | InteractionEvent;
-
-type EventWithTimestamps = Event & { time: number; timestamp: number };
-
-class Squeaky {
+export class Squeaky {
   private client: TreeMirrorClient;
   private events: Event[] = [];
   private socket: WebSocket;
@@ -68,8 +26,7 @@ class Squeaky {
       session_id: this.getOrCreateId('session', sessionStorage),
     });
 
-    // this.socket = new WebSocket(`wss://gateway.squeaky.ai?${params.toString()}`);
-    this.socket = new WebSocket(`ws://localhost:5000?${params.toString()}`);
+    this.socket = new WebSocket(`${WEBSOCKET_SERVER_URL}?${params.toString()}`);
     this.socket.addEventListener('open', this.onConnected);
     this.socket.addEventListener('close', this.onDisconnected);
   }
@@ -310,5 +267,3 @@ class Squeaky {
     return id;
   }
 }
-
-new Squeaky(window._sqSettings.site_id);

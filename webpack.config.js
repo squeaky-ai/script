@@ -1,10 +1,11 @@
 const path = require('path');
+const { DefinePlugin } = require('webpack');
 
 module.exports = ({ development }) => ({
   devtool: false,
   mode: development ? 'development' : 'production',
   watch: !!development,
-  entry: path.join(__dirname, 'src', 'script.ts'),
+  entry: path.join(__dirname, 'src', 'index.ts'),
   output: {
     path: path.join(__dirname, '.build'),
     filename: 'script.js',
@@ -32,5 +33,10 @@ module.exports = ({ development }) => ({
   },
   optimization: {
     usedExports: true
-  }
+  },
+  plugins: [
+    new DefinePlugin({
+      WEBSOCKET_SERVER_URL: JSON.stringify(development ? 'ws://localhost:5000' : 'wss://gateway.squeaky.ai'),
+    })
+  ]
 });
