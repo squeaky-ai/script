@@ -7,6 +7,6 @@ declare global {
   }
 }
 
-import { Squeaky } from './script';
+import { Squeaky } from './squeaky';
 
 new Squeaky(window._sqSettings.site_id);
