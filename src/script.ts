@@ -1,5 +1,6 @@
-import { throttle } from 'lodash';
-import { Utils } from './utils';
+import { cssPath } from '../vendor/css-path';
+import { throttle } from '../vendor/throttle';
+import { TreeMirrorClient, NodeData, PositionData, AttributeData, TextData } from '../vendor/mutation-summary';
 
 declare global {
   interface Window {
@@ -37,11 +38,17 @@ interface InteractionEvent {
   selector: string;
 }
 
+interface Snapshot {
+  type: 'initialize' | 'applyChanged';
+  args: any; // TODO
+}
+
 type Event = PageViewEvent | ScrollEvent | CursorEvent | InteractionEvent;
 
 type EventWithTimestamps = Event & { time: number; timestamp: number };
 
 class Squeaky {
+  private client: TreeMirrorClient;
   private events: Event[] = [];
   private socket: WebSocket;
   private ticker?: NodeJS.Timer;
@@ -61,7 +68,8 @@ class Squeaky {
       session_id: this.getOrCreateId('session', sessionStorage),
     });
 
-    this.socket = new WebSocket(`wss://gateway.squeaky.ai?${params.toString()}`);
+    // this.socket = new WebSocket(`wss://gateway.squeaky.ai?${params.toString()}`);
+    this.socket = new WebSocket(`ws://localhost:5000?${params.toString()}`);
     this.socket.addEventListener('open', this.onConnected);
     this.socket.addEventListener('close', this.onDisconnected);
   }
@@ -73,6 +81,22 @@ class Squeaky {
    * @returns {void}
    */
   public install(): void {
+    this.client = new TreeMirrorClient(document, {
+      initialize: (rootId: number, children: NodeData[]) => {
+        this.sendSnapshot({ 
+          type: 'initialize', 
+          args: [rootId, children] 
+        });
+      },
+
+      applyChanged: (removed: NodeData[], addedOrMoved: PositionData[], attributes: AttributeData[], text: TextData[]) => {
+        this.sendSnapshot({ 
+          type: 'applyChanged', 
+          args: [removed, addedOrMoved, attributes, text] 
+        });
+      }
+    });
+
     window.addEventListener('blur', this.onBlur);
     window.addEventListener('focus', this.onFocus);
     window.addEventListener('click', this.onClick);
@@ -87,6 +111,8 @@ class Squeaky {
    * @returns {void}
    */
   public uninstall(): void {
+    this.client?.disconnect();
+
     window.removeEventListener('blur', this.onBlur, true);
     window.removeEventListener('focus', this.onFocus, true);
     window.removeEventListener('click', this.onClick, true);
@@ -126,7 +152,7 @@ class Squeaky {
       return;
     }
 
-    this.send(this.events);
+    this.sendEvents(this.events);
     this.events = [];
     this.prevState = JSON.stringify(this.events);
   }
@@ -137,10 +163,23 @@ class Squeaky {
    * @param {Event[]} events 
    * @return {void}
    */
-  private send = (events: Event[]): void => {
+  private sendEvents = (events: Event[]): void => {
     this.socket.send(JSON.stringify({
       action: 'events',
       events
+    }));
+  };
+
+  /**
+   * Send the websocket snapshot
+   * @private
+   * @param {Snapshot} snapshot 
+   * @return {void}
+   */
+  private sendSnapshot = (snapshot: Snapshot): void => {
+    this.socket.send(JSON.stringify({
+      action: 'snapshot',
+      snapshot
     }));
   };
 
@@ -213,7 +252,7 @@ class Squeaky {
    * @return {void}
    */
   private onClick = (event: MouseEvent): void => {
-    this.update({ type: 'click', selector: Utils.getCssPath(event.target as Element) });
+    this.update({ type: 'click', selector: cssPath(event.target as Element) });
   };
 
   /**
@@ -244,9 +283,9 @@ class Squeaky {
    * @private
    * @return {void}
    */
-  private onScroll = throttle((): void => {
+  private onScroll = throttle(50, (): void => {
     this.update({ type: 'scroll', x: window.scrollX, y: window.scrollY });
-  }, 50);
+  });
 
   /**
    * Set the current mouse coordinates with a debounce
@@ -254,9 +293,9 @@ class Squeaky {
    * @private
    * @return {void}
    */
-  private onMouseMove = throttle((event: MouseEvent): void => {
+  private onMouseMove = throttle(50, (event: MouseEvent): void => {
     this.update({ type: 'cursor', x: event.clientX, y: event.clientY });
-  }, 50);
+  });
 
   /**
    * Generate a short id if one does not exist in local
