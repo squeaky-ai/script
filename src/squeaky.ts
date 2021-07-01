@@ -1,8 +1,8 @@
 import { cssPath } from '../vendor/css-path';
 import { throttle } from '../vendor/throttle';
-import { TreeMirrorClient } from '../vendor/mutation-summary';
+import { TreeMirrorClient } from 'mutation-summary';
 import type { Event, EventWithTimestamps } from '../types/events';
-import type { NodeData, PositionData, AttributeData, TextData } from '../vendor/mutation-summary';
+import type { INodeData, IPositionData, IAttributeData, ITextData } from 'mutation-summary';
 
 export class Squeaky {
   private client: TreeMirrorClient;
@@ -38,7 +38,7 @@ export class Squeaky {
    */
   public install(): void {
     this.client = new TreeMirrorClient(document, {
-      initialize: (rootId: number, children: NodeData[]) => {
+      initialize: (rootId: number, children: INodeData[]) => {
         this.update({ 
           type: 'snapshot',
           event: 'initialize',
@@ -46,14 +46,14 @@ export class Squeaky {
         });
       },
 
-      applyChanged: (removed: NodeData[], addedOrMoved: PositionData[], attributes: AttributeData[], text: TextData[]) => {
+      applyChanged: (removed: INodeData[], addedOrMoved: IPositionData[], attributes: IAttributeData[], text: ITextData[]) => {
         this.update({ 
           type: 'snapshot', 
           event: 'apply_changed',
           snapshot: JSON.stringify([removed, addedOrMoved, attributes, text])
         });
       }
-    });
+    }, []);
 
     window.addEventListener('blur', this.onBlur);
     window.addEventListener('focus', this.onFocus);
