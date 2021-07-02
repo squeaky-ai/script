@@ -4,6 +4,8 @@ import { TreeMirrorClient } from 'mutation-summary';
 import type { Event, EventWithTimestamps } from '../types/events';
 import type { INodeData, IPositionData, IAttributeData, ITextData } from 'mutation-summary';
 
+const FORM_ELEMENTS = ['input', 'select', 'textarea'];
+
 export class Squeaky {
   private client: TreeMirrorClient;
   private events: Event[] = [];
@@ -49,7 +51,7 @@ export class Squeaky {
       applyChanged: (removed: INodeData[], addedOrMoved: IPositionData[], attributes: IAttributeData[], text: ITextData[]) => {
         this.update({ 
           type: 'snapshot', 
-          event: 'apply_changed',
+          event: 'applyChanged',
           snapshot: JSON.stringify([removed, addedOrMoved, attributes, text])
         });
       }
@@ -60,6 +62,9 @@ export class Squeaky {
     window.addEventListener('click', this.onClick);
     window.addEventListener('scroll', this.onScroll);
     window.addEventListener('mousemove', this.onMouseMove);
+    window.addEventListener('mouseover', this.onMouseOver);
+    window.addEventListener('focusin', this.onFocusIn);
+    window.addEventListener('focusout', this.onFocusOut);
   }
 
   /**
@@ -76,6 +81,9 @@ export class Squeaky {
     window.removeEventListener('click', this.onClick, true);
     window.removeEventListener('scroll', this.onScroll, true);
     window.removeEventListener('mousemove', this.onMouseMove, true);
+    window.removeEventListener('mouseover', this.onMouseOver, true);
+    window.removeEventListener('focusin', this.onFocusIn, true);
+    window.removeEventListener('focusout', this.onFocusOut, true);
   }
 
   /**
@@ -121,7 +129,7 @@ export class Squeaky {
    * @param {Event[]} events 
    * @return {void}
    */
-  private send = (events: Event[]): void => {
+  private send = (events: Event[]): void => {  
     this.socket.send(JSON.stringify({
       action: 'events',
       events
@@ -144,6 +152,10 @@ export class Squeaky {
       timestamp: now,
     };
 
+    if (DEBUG) {
+      console.log(event);
+    } 
+    
     this.events.push(event);
   };
 
@@ -180,7 +192,7 @@ export class Squeaky {
    */
   private onPageView = (): void => {
     this.update({
-      type: 'page_view',
+      type: 'pageview',
       path: location.pathname,
       viewport_x: window.innerWidth,
       viewport_y: window.innerHeight,
@@ -197,7 +209,11 @@ export class Squeaky {
    * @return {void}
    */
   private onClick = (event: MouseEvent): void => {
-    this.update({ type: 'click', selector: cssPath(event.target as Element) });
+    const element = event.target as Element;
+
+    if (!FORM_ELEMENTS.includes(element.nodeName.toLowerCase())) {
+      this.update({ type: 'click', selector: cssPath(element), node: element.nodeName.toLowerCase() });
+    }
   };
 
   /**
@@ -207,7 +223,7 @@ export class Squeaky {
    * @return {void}
    */
   private onBlur = (): void => {
-    this.update({ type: 'blur', selector: 'window' });
+    this.update({ type: 'visibility', visible: false });
     this.stop();
   };
 
@@ -218,7 +234,7 @@ export class Squeaky {
    * @return {void}
    */
   private onFocus = (): void => {
-    this.update({ type: 'focus', selector: 'window' });
+    this.update({ type: 'visibility', visible: true });
     this.start();
   };
 
@@ -236,11 +252,57 @@ export class Squeaky {
    * Set the current mouse coordinates with a debounce
    * to reduce some noise
    * @private
+   * @param {MouseEvent} event
    * @return {void}
    */
   private onMouseMove = throttle(50, (event: MouseEvent): void => {
     this.update({ type: 'cursor', x: event.clientX, y: event.clientY });
   });
+
+  /**
+   * Store an action when users focus elements that are known
+   * to be part of a form. This will bubble up so the node types 
+   * need to be strict
+   * @private
+   * @param {MouseEvent} event
+   */
+  private onFocusIn = (event: MouseEvent): void => {
+    const element = event.target as Element;
+
+    if (FORM_ELEMENTS.includes(element.nodeName.toLowerCase())) {
+      this.update({ type: 'focus', selector: cssPath(element), node: element.nodeName.toLowerCase() });
+    }
+  };
+
+  /**
+   * SStore an action when users blur elements that are known
+   * to be part of a form. This will bubble up so the node types 
+   * need to be strict
+   * @private
+   * @param {MouseEvent} event
+   */
+  private onFocusOut = (event: MouseEvent): void => {
+    const element = event.target as Element;
+
+    if (FORM_ELEMENTS.includes(element.nodeName.toLowerCase())) {
+      this.update({ type: 'blur', selector: cssPath(element), node: element.nodeName.toLowerCase() });
+    }
+  };
+
+  /**
+   * Store an action when users hover over elements that 
+   * are of interest
+   * @private
+   * @param {MouseEvent} event
+   */
+  private onMouseOver = (event: MouseEvent): void => {
+    const nodeTypes = ['a'];
+    const element = event.target as Element;
+
+    if (nodeTypes.includes(element.nodeName.toLowerCase())) {
+      this.update({ type: 'hover', selector: cssPath(element), node: element.nodeName.toLowerCase() });
+    }
+  };
 
   /**
    * Generate a short id if one does not exist in local

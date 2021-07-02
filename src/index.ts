@@ -1,5 +1,6 @@
 declare global {
   const WEBSOCKET_SERVER_URL: string;
+  const DEBUG: boolean;
   interface Window {
     _sqSettings: {
       site_id: string;

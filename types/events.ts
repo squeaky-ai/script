@@ -1,5 +1,5 @@
 interface PageViewEvent {
-  type: 'page_view',
+  type: 'pageview',
   path: string;
   viewport_x: number;
   viewport_y: number;
@@ -22,16 +22,28 @@ interface CursorEvent {
 interface InteractionEvent {
   type: InteractionEventType;
   selector: string;
+  node: string;
 }
 
 interface SnapshotEvent {
   type: 'snapshot';
-  event: 'initialize' | 'apply_changed';
+  event: 'initialize' | 'applyChanged';
   snapshot: string;
+}
+
+interface VisibilityEvent {
+  type: 'visibility';
+  visible: boolean;
 }
 
 type InteractionEventType = 'click' | 'hover' | 'focus' | 'blur';
 
-export type Event = PageViewEvent | ScrollEvent | CursorEvent | InteractionEvent | SnapshotEvent;
+export type Event = 
+  PageViewEvent | 
+  ScrollEvent | 
+  CursorEvent | 
+  InteractionEvent | 
+  SnapshotEvent |
+  VisibilityEvent;
 
 export type EventWithTimestamps = Event & { time: number; timestamp: number };

@@ -1,3 +1,5 @@
+'use strict';
+
 const path = require('path');
 const { DefinePlugin } = require('webpack');
 
@@ -7,9 +9,7 @@ module.exports = ({ development }) => ({
   watch: !!development,
   entry: path.join(__dirname, 'src', 'index.ts'),
   output: {
-    path: development
-      ? path.join(__dirname, 'utils', 'public')
-      : path.join(__dirname, '.build'),
+    path: path.join(__dirname, '.build'),
     filename: 'script.js',
     library: {
       type: 'window',
@@ -38,6 +38,7 @@ module.exports = ({ development }) => ({
   },
   plugins: [
     new DefinePlugin({
+      DEBUG: JSON.stringify(!!development),
       WEBSOCKET_SERVER_URL: JSON.stringify(development ? 'ws://localhost:5000/gateway' : 'wss://squeaky.ai/gateway'),
     })
   ]

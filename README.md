@@ -24,7 +24,7 @@ $ yarn test
 <!-- Squeaky Tracking Code for https://hackerstash.com -->
 <script>
   (function(s,q,e,a,u,k,y){
-    s._sqSettings={site_id:'f39d5fc1-097b-4a30-8334-d628623390d4'};
+    s._sqSettings={site_id:'eba391ce-cc12-41d7-8f8a-ddee1e624a74'};
     u=q.getElementsByTagName('head')[0];
     k=q.createElement('script');k.async=1;
     k.src=e+s._sqSettings.site_id;
