@@ -1,7 +1,7 @@
 import { cssPath } from '../vendor/css-path';
 import { throttle } from '../vendor/throttle';
 import { TreeMirrorClient } from 'mutation-summary';
-import type { Event, EventWithTimestamps } from '../types/events';
+import type { Event, EventWithTimestamp } from '../types/events';
 import type { INodeData, IPositionData, IAttributeData, ITextData } from 'mutation-summary';
 
 const FORM_ELEMENTS = ['input', 'select', 'textarea'];
@@ -11,7 +11,6 @@ export class Squeaky {
   private events: Event[] = [];
   private socket: WebSocket;
   private ticker?: NodeJS.Timer;
-  private startedAt = new Date().valueOf();
   private prevState: string = JSON.stringify(this.events);
 
   /**
@@ -146,9 +145,8 @@ export class Squeaky {
   private update = (value: Event): void => {
     const now = new Date().valueOf();
 
-    const event: EventWithTimestamps = {
+    const event: EventWithTimestamp = {
       ...value,
-      time: now - this.startedAt,
       timestamp: now,
     };
 

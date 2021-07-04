@@ -46,4 +46,4 @@ export type Event =
   SnapshotEvent |
   VisibilityEvent;
 
-export type EventWithTimestamps = Event & { time: number; timestamp: number };
+export type EventWithTimestamp = Event & { timestamp: number };
