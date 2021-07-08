@@ -11,6 +11,7 @@ export class Squeaky {
   private events: Event[] = [];
   private socket: WebSocket;
   private ticker?: NodeJS.Timer;
+  private prevPathname?: string;
   private prevState: string = JSON.stringify(this.events);
 
   /**
@@ -48,11 +49,16 @@ export class Squeaky {
       },
 
       applyChanged: (removed: INodeData[], addedOrMoved: IPositionData[], attributes: IAttributeData[], text: ITextData[]) => {
-        this.update({ 
+        this.update({
           type: 'snapshot', 
           event: 'applyChanged',
           snapshot: JSON.stringify([removed, addedOrMoved, attributes, text])
         });
+
+        // Single page apps won't reinitialise between page views
+        if (this.prevPathname !== location.pathname) {
+          this.onPageView();
+        }
       }
     }, []);
 
@@ -189,6 +195,8 @@ export class Squeaky {
    * @returns {void}
    */
   private onPageView = (): void => {
+    this.prevPathname = location.pathname;
+
     this.update({
       type: 'pageview',
       path: location.pathname,
