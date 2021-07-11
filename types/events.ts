@@ -17,6 +17,8 @@ interface CursorEvent {
   type: 'cursor',
   x: number;
   y: number;
+  offset_x: number;
+  offset_y: number;
 }
 
 interface InteractionEvent {

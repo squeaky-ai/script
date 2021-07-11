@@ -262,7 +262,13 @@ export class Squeaky {
    * @return {void}
    */
   private onMouseMove = throttle(50, (event: MouseEvent): void => {
-    this.update({ type: 'cursor', x: event.clientX + window.scrollX, y: event.clientY + window.scrollY });
+    this.update({
+       type: 'cursor', 
+       x: event.clientX, 
+       y: event.clientY,
+       offset_x: window.scrollX,
+       offset_y: window.scrollY
+      });
   });
 
   /**
