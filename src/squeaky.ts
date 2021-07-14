@@ -16,6 +16,11 @@ export class Squeaky {
 
   public onConnected = (): void => {
     rrweb.record({
+      maskAllInputs: true,
+      slimDOMOptions: {
+        script: true,
+        comment: true,
+      },
       emit: (event) => {
         if (DEBUG) {
           console.log(JSON.stringify(event));
