@@ -25,8 +25,8 @@ export class Squeaky {
       emit: (event) => {
         if (event.type === EventType.Meta) {
           // Super hacky but it's less faff than setting up a custom event
-          (event as any).locale = navigator.language;
-          (event as any).useragent = navigator.userAgent;
+          (event as any).data.locale = navigator.language;
+          (event as any).data.useragent = navigator.userAgent;
         }
 
         if (DEBUG) {
