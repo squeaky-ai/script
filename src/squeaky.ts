@@ -1,4 +1,10 @@
 import * as rrweb from 'rrweb';
+import { EventType, eventWithTime } from 'rrweb/typings/types';
+
+type Meta = eventWithTime & {
+  useragent: string;
+  locale: string;
+}
 
 export class Squeaky {
   private socket: WebSocket;
@@ -22,6 +28,12 @@ export class Squeaky {
         comment: true,
       },
       emit: (event) => {
+        if (event.type === EventType.Meta) {
+          // Super hacky but it's less faff than setting up a custom event
+          (event as Meta).locale = navigator.language;
+          (event as Meta).useragent = navigator.userAgent;
+        }
+
         if (DEBUG) {
           console.log(JSON.stringify(event));
         } else {
