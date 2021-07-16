@@ -1,5 +1,4 @@
-import * as rrweb from 'rrweb';
-import { EventType } from 'rrweb';
+import { record, EventType} from 'rrweb';
 
 export class Squeaky {
   private socket: WebSocket;
@@ -16,7 +15,7 @@ export class Squeaky {
   }
 
   public onConnected = (): void => {
-    rrweb.record({
+    record({
       maskAllInputs: true,
       slimDOMOptions: {
         script: true,
