@@ -1,4 +1,4 @@
-import { record, EventType} from 'rrweb';
+import { record, EventType } from 'rrweb';
 
 export class Squeaky {
   private socket: WebSocket;
