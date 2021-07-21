@@ -1,20 +1,24 @@
+import { io, Socket } from 'socket.io-client';
 import { record, EventType } from 'rrweb';
 
 export class Squeaky {
-  private socket: WebSocket;
+  private socket: Socket;
 
-  public constructor(siteId: string) {
-    const params = new URLSearchParams({
-      site_id: siteId,
-      viewer_id: this.getOrCreateId('viewer', localStorage),
-      session_id: this.getOrCreateId('session', sessionStorage),
+  public constructor(site_id: string) {
+    this.socket = io(WEBSOCKET_SERVER_HOST, {
+      path: '/gateway/socket',
+      query: {
+        site_id,
+        viewer_id: this.getOrCreateId('viewer', localStorage),
+        session_id: this.getOrCreateId('session', sessionStorage),
+      },
+      transports: ['websocket']
     });
 
-    this.socket = new WebSocket(`${WEBSOCKET_SERVER_URL}?${params.toString()}`);
-    this.socket.addEventListener('open', this.onConnected);
+    this.socket.on('connect', this.onConnected);
   }
 
-  public onConnected = (): void => {
+  private onConnected = (): void => {
     record({
       maskAllInputs: true,
       slimDOMOptions: {
@@ -29,13 +33,13 @@ export class Squeaky {
         }
 
         if (DEBUG) {
-          console.log(JSON.stringify(event));
+          console.log(event);
         } else {
-          this.socket.send(JSON.stringify(event));
+          this.socket.emit('event', event);
         }
       }
     });
-  }
+  };
 
   private getOrCreateId(type: 'session' | 'viewer', storage: Storage): string {
     const id = storage.getItem(`squeaky_${type}_id`) || Math.random().toString(36).slice(-6);

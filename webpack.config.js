@@ -17,7 +17,7 @@ module.exports = ({ development }) => ({
     }
   },
   resolve: {
-    extensions: ['.ts']
+    extensions: ['.ts', '.js']
   },
   module: {
     rules: [
@@ -39,7 +39,7 @@ module.exports = ({ development }) => ({
   plugins: [
     new DefinePlugin({
       DEBUG: JSON.stringify(!!development),
-      WEBSOCKET_SERVER_URL: JSON.stringify(development ? 'ws://localhost:5000/gateway' : 'wss://squeaky.ai/gateway'),
+      WEBSOCKET_SERVER_HOST: JSON.stringify(development ? 'ws://localhost:5000' : 'wss://squeaky.ai'),
     })
   ]
 });

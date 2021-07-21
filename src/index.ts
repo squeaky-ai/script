@@ -1,5 +1,5 @@
 declare global {
-  const WEBSOCKET_SERVER_URL: string;
+  const WEBSOCKET_SERVER_HOST: string;
   const DEBUG: boolean;
   interface Window {
     _sqSettings: {
