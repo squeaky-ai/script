@@ -42,7 +42,7 @@ export class Squeaky {
   };
 
   private getOrCreateId(type: 'session' | 'viewer', storage: Storage): string {
-    const id = storage.getItem(`squeaky_${type}_id`) || Math.random().toString(36).slice(-6);
+    const id = storage.getItem(`squeaky_${type}_id`) || Math.random().toString(36).slice(-8);
     storage.setItem(`squeaky_${type}_id`, id);
     return id;
   }
