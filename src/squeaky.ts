@@ -5,7 +5,10 @@ export class Squeaky {
   private socket: Socket;
 
   private blockedUserAgents = [
-    'Desktop App',
+    'ahrefsbot',
+    'desktop app',
+    'facebookexternalhit',
+    'webflow'
   ];
 
   public constructor(site_id: string) {
@@ -48,11 +51,9 @@ export class Squeaky {
   };
 
   private get ignore(): boolean {
-    if (this.blockedUserAgents.includes(navigator.userAgent)) {
-      return true;
-    }
-
-    return false;
+    const match = this.blockedUserAgents
+      .find(ua => navigator.userAgent.toLowerCase().includes(ua));
+    return !!match;
   }
 
   private getOrCreateId(type: 'session' | 'viewer', storage: Storage): string {
