@@ -4,7 +4,13 @@ import { record, EventType } from 'rrweb';
 export class Squeaky {
   private socket: Socket;
 
+  private blockedUserAgents = [
+    'Desktop App',
+  ];
+
   public constructor(site_id: string) {
+    if (this.ignore) return;
+
     this.socket = io(WEBSOCKET_SERVER_HOST, {
       path: '/gateway/socket',
       query: {
@@ -40,6 +46,14 @@ export class Squeaky {
       }
     });
   };
+
+  private get ignore(): boolean {
+    if (this.blockedUserAgents.includes(navigator.userAgent)) {
+      return true;
+    }
+
+    return false;
+  }
 
   private getOrCreateId(type: 'session' | 'viewer', storage: Storage): string {
     const id = storage.getItem(`squeaky_${type}_id`) || Math.random().toString(36).slice(-8);
