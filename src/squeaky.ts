@@ -8,15 +8,13 @@ interface State {
 export class Squeaky {
   private site_id: string;
   private socket: Socket;
-  private stop: Function;
   private state: State;
 
   public constructor(site_id: string) {
     this.site_id = site_id;
-    this.state = { previousPath: '' };
+    this.state = { previousPath: location.pathname };
 
     this.install();
-    this.watchForPageChange();
   }
 
   private install = () => {
@@ -33,36 +31,8 @@ export class Squeaky {
     this.socket.on('connect', this.onConnected);
   };
 
-  private watchForPageChange = () => {
-    // Single page apps don't fire a page view and don't
-    // disconnect when they nagigate. This causes events
-    // to stack up into the hundreds of thousands which
-    // the database is not happy with. This fakes the 
-    // process and reconnects every page change.
-    const observer = new MutationObserver(() => {
-      if (location.pathname !== this.state.previousPath) {
-        this.state.previousPath = location.pathname;
-        this.reconnect();
-      }
-    });
-
-    // These might not all be necessary but it's cheap
-    observer.observe(document.body, {
-      characterDataOldValue: true, 
-      subtree: true, 
-      childList: true, 
-      characterData: true
-    });
-  };
-
-  private reconnect = (): void => {
-    this?.stop();
-    this.socket.disconnect();
-    this.install();
-  };
-
   private onConnected = (): void => {
-    this.stop = record({
+    record({
       maskAllInputs: true,
       slimDOMOptions: {
         script: true,
@@ -73,6 +43,25 @@ export class Squeaky {
           // Super hacky but it's less faff than setting up a custom event
           (event as any).data.locale = navigator.language;
           (event as any).data.useragent = navigator.userAgent;
+        }
+
+        if (location.pathname !== this.state.previousPath) {
+          // This is required for single page apps as they don't send a
+          // disconnect/connect every time the page changes. If the url
+          // has changed then we should let the Gateway know or events
+          // will stack up forever!
+          this.state.previousPath = location.pathname;
+          this.socket.emit('snapshot', {
+            type: EventType.Meta,
+            data: {
+              height: window.innerHeight,
+              href: location.href,
+              locale: navigator.language,
+              useragent: navigator.userAgent,
+              width: window.innerWidth,
+            },
+            timestamp: new Date().valueOf(),
+          });
         }
 
         if (DEBUG) {
