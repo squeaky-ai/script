@@ -41,6 +41,7 @@ export class Squeaky {
     // process and reconnects every page change.
     const observer = new MutationObserver(() => {
       if (location.pathname !== this.state.previousPath) {
+        this.state.previousPath = location.pathname;
         this.reconnect();
       }
     });
