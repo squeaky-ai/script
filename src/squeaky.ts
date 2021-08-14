@@ -51,14 +51,10 @@ export class Squeaky {
           // has changed then we should let the Gateway know or events
           // will stack up forever!
           this.state.previousPath = location.pathname;
-          this.socket.emit('snapshot', {
-            type: EventType.Meta,
+          this.socket.emit('pageview', {
+            type: EventType.Custom,
             data: {
-              height: window.innerHeight,
-              href: location.href,
-              locale: navigator.language,
-              useragent: navigator.userAgent,
-              width: window.innerWidth,
+              href: location.href
             },
             timestamp: new Date().valueOf(),
           });
