@@ -65,6 +65,19 @@ export class Squeaky {
         } else {
           this.socket.emit('event', event);
         }
+      },
+      sampling: {
+        mouseInteraction: {
+          MouseUp: false,
+          MouseDown: false,
+          Click: true,
+          ContextMenu: false,
+          DblClick: true,
+          Focus: true,
+          Blur: true,
+          TouchStart: true,
+          TouchEnd: true,
+        }
       }
     });
   };
