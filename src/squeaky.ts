@@ -33,11 +33,6 @@ export class Squeaky {
 
   private onConnected = (): void => {
     record({
-      maskAllInputs: true,
-      slimDOMOptions: {
-        script: true,
-        comment: true,
-      },
       emit: (event) => {
         if (event.type === EventType.Meta) {
           // Super hacky but it's less faff than setting up a custom event
@@ -65,6 +60,13 @@ export class Squeaky {
         } else {
           this.socket.emit('event', event);
         }
+      },
+      blockClass: 'squeaky-hide',
+      maskTextClass: 'squeaky-mask',
+      maskAllInputs: true,
+      slimDOMOptions: {
+        script: true,
+        comment: true,
       },
       sampling: {
         mouseInteraction: {
