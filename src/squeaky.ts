@@ -22,7 +22,7 @@ export class Squeaky {
       path: '/gateway/socket',
       query: {
         site_id: this.site_id,
-        viewer_id: this.getOrCreateId('viewer', localStorage),
+        visitor_id: this.getOrCreateId('visitor', localStorage),
         session_id: this.getOrCreateId('session', sessionStorage),
       },
       transports: ['websocket']
@@ -84,8 +84,8 @@ export class Squeaky {
     });
   };
 
-  private getOrCreateId(type: 'session' | 'viewer', storage: Storage): string {
-    const id = storage.getItem(`squeaky_${type}_id`) || Math.random().toString(36).slice(-8);
+  private getOrCreateId(type: 'session' | 'visitor', storage: Storage): string {
+    const id = storage.getItem(`squeaky_${type}_id`) || Math.random().toString(36).slice(2);
     storage.setItem(`squeaky_${type}_id`, id);
     return id;
   }
