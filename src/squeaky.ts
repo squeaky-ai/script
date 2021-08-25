@@ -5,6 +5,10 @@ interface State {
   previousPath: string;
 }
 
+interface IdentifyInput {
+  [key: string]: string | number;
+}
+
 export class Squeaky {
   private site_id: string;
   private socket: Socket;
@@ -16,6 +20,15 @@ export class Squeaky {
 
     this.install();
   }
+
+  public identify = async (id: string, input: IdentifyInput = {}): Promise<void> => {
+    // Let site owners identify visitors by adding 
+    // some basic attributes to their visitor record
+    this.socket.emit('identify', {
+      id,
+      ...input,
+    });
+  };
 
   private install = () => {
     this.socket = io(WEBSOCKET_SERVER_HOST, {

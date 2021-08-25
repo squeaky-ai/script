@@ -11,10 +11,7 @@ module.exports = ({ development }) => ({
   output: {
     path: path.join(__dirname, '.build'),
     filename: 'script.js',
-    library: {
-      type: 'window',
-      name: 'squeaky'
-    }
+    library: ['squeaky'],
   },
   resolve: {
     extensions: ['.ts', '.js']
