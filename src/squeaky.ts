@@ -24,7 +24,7 @@ export class Squeaky {
       session_id: this.getOrCreateId('session', sessionStorage),
     });
 
-    const consumer = createConsumer(`${WEBSOCKET_SERVER_HOST}/gateway?${params.toString()}`);
+    const consumer = createConsumer(`${WEBSOCKET_SERVER_HOST}/api/gateway?${params.toString()}`);
     
     this.subscription = consumer.subscriptions.create({ channel: 'EventChannel' }, {
       connected: () => {
