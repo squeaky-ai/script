@@ -1,5 +1,5 @@
-import { io, Socket } from 'socket.io-client';
 import { record, EventType } from 'rrweb';
+import { createConsumer, Subscription, Consumer } from '@rails/actioncable';
 
 interface State {
   previousPath: string;
@@ -11,40 +11,40 @@ interface IdentifyInput {
 
 export class Squeaky {
   private site_id: string;
-  private socket: Socket;
+  private subscription: Subscription<Consumer>;
   private state: State;
 
   public constructor(site_id: string) {
     this.site_id = site_id;
     this.state = { previousPath: location.pathname };
 
-    this.install();
+    const params = new URLSearchParams({
+      site_id: this.site_id,
+      visitor_id: this.getOrCreateId('visitor', localStorage),
+      session_id: this.getOrCreateId('session', sessionStorage),
+    });
+
+    const consumer = createConsumer(`${WEBSOCKET_SERVER_HOST}/gateway?${params.toString()}`);
+    
+    this.subscription = consumer.subscriptions.create({ channel: 'EventChannel' }, {
+      connected: () => {
+        this.record();
+      }
+    });
   }
 
   public identify = async (id: string, input: IdentifyInput = {}): Promise<void> => {
     // Let site owners identify visitors by adding 
     // some basic attributes to their visitor record
-    this.socket.emit('identify', {
-      id,
-      ...input,
+    this.subscription.perform('identify', {
+      payload: {
+        id,
+        ...input,
+      }
     });
   };
 
-  private install = () => {
-    this.socket = io(WEBSOCKET_SERVER_HOST, {
-      path: '/gateway/socket',
-      query: {
-        site_id: this.site_id,
-        visitor_id: this.getOrCreateId('visitor', localStorage),
-        session_id: this.getOrCreateId('session', sessionStorage),
-      },
-      transports: ['websocket']
-    });
-
-    this.socket.on('connect', this.onConnected);
-  };
-
-  private onConnected = (): void => {
+  private record = (): void => {
     record({
       emit: (event) => {
         if (event.type === EventType.Meta) {
@@ -59,19 +59,21 @@ export class Squeaky {
           // has changed then we should let the Gateway know or events
           // will stack up forever!
           this.state.previousPath = location.pathname;
-          this.socket.emit('pageview', {
-            type: EventType.Custom,
-            data: {
-              href: location.href
-            },
-            timestamp: new Date().valueOf(),
+          this.subscription.perform('pageview', {
+            payload: { 
+              type: EventType.Custom,
+              data: {
+                href: location.href
+              },
+              timestamp: new Date().valueOf(),
+            }
           });
         }
 
         if (DEBUG) {
           console.log(event);
         } else {
-          this.socket.emit('event', event);
+          this.subscription.perform('event', { payload: event });
         }
       },
       blockClass: 'squeaky-hide',
