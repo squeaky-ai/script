@@ -24,7 +24,7 @@ export class Squeaky {
       session_id: this.getOrCreateId('session', sessionStorage),
     });
 
-    const consumer = createConsumer(`${WEBSOCKET_SERVER_HOST}/api/gateway?${params.toString()}`);
+    const consumer = createConsumer(`${WEBSOCKET_SERVER_HOST}/api/in?${params.toString()}`);
     
     this.subscription = consumer.subscriptions.create({ channel: 'EventChannel' }, {
       connected: () => {
@@ -56,7 +56,7 @@ export class Squeaky {
         if (location.pathname !== this.state.previousPath) {
           // This is required for single page apps as they don't send a
           // disconnect/connect every time the page changes. If the url
-          // has changed then we should let the Gateway know or events
+          // has changed then we should let the API know or events
           // will stack up forever!
           this.state.previousPath = location.pathname;
           this.subscription.perform('pageview', {

@@ -1,6 +1,6 @@
 # Squeaky Script
 
-The script that is loaded by clients to stream events in to Squeaky Gateway.
+The script that is loaded by clients to stream events in to Squeaky API.
 
 ### Requirements
 - Node.js v14.x
