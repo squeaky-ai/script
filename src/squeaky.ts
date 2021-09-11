@@ -1,5 +1,4 @@
 import { record, EventType } from 'rrweb';
-import { createConsumer, Subscription, Consumer } from '@rails/actioncable';
 
 interface State {
   previousPath: string;
@@ -10,9 +9,9 @@ interface IdentifyInput {
 }
 
 export class Squeaky {
-  private site_id: string;
-  private subscription: Subscription<Consumer>;
   private state: State;
+  private site_id: string;
+  private socket: WebSocket;
 
   public constructor(site_id: string) {
     this.site_id = site_id;
@@ -24,24 +23,20 @@ export class Squeaky {
       session_id: this.getOrCreateId('session', sessionStorage),
     });
 
-    const consumer = createConsumer(`${WEBSOCKET_SERVER_HOST}/api/in?${params.toString()}`);
+    this.socket = new WebSocket(`${WEBSOCKET_SERVER_HOST}/gateway/in?${params.toString()}`)
     
-    this.subscription = consumer.subscriptions.create({ channel: 'EventChannel' }, {
-      connected: () => {
-        this.record();
-      }
-    });
+    this.socket.onopen = () => this.record();
+  }
+
+  private send<T>(key: string, value: T) {
+    const payload = JSON.stringify({ key, value });
+    this.socket.send(payload);
   }
 
   public identify = async (id: string, input: IdentifyInput = {}): Promise<void> => {
     // Let site owners identify visitors by adding 
     // some basic attributes to their visitor record
-    this.subscription.perform('identify', {
-      payload: {
-        id,
-        ...input,
-      }
-    });
+    this.send('identify', { id, ...input });
   };
 
   private record = (): void => {
@@ -59,21 +54,19 @@ export class Squeaky {
           // has changed then we should let the API know or events
           // will stack up forever!
           this.state.previousPath = location.pathname;
-          this.subscription.perform('pageview', {
-            payload: { 
-              type: EventType.Custom,
-              data: {
-                href: location.href
-              },
-              timestamp: new Date().valueOf(),
-            }
+          this.send('pageview', {
+            type: EventType.Custom,
+            data: {
+              href: location.href
+            },
+            timestamp: new Date().valueOf(),
           });
         }
 
         if (DEBUG) {
           console.log(event);
         } else {
-          this.subscription.perform('event', { payload: event });
+          this.send('event', event);
         }
       },
       blockClass: 'squeaky-hide',
