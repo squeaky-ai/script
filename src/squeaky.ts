@@ -1,4 +1,5 @@
 import { record, EventType } from 'rrweb';
+import { config } from './config';
 
 interface State {
   previousPath: string;
@@ -12,9 +13,11 @@ export class Squeaky {
   private state: State;
   private site_id: string;
   private socket: WebSocket;
+  private recording: boolean;
 
   public constructor(site_id: string) {
     this.site_id = site_id;
+    this.recording = false;
     this.state = { previousPath: location.pathname };
 
     const params = new URLSearchParams({
@@ -23,14 +26,9 @@ export class Squeaky {
       session_id: this.getOrCreateId('session', sessionStorage),
     });
 
-    this.socket = new WebSocket(`${WEBSOCKET_SERVER_HOST}/gateway/in?${params.toString()}`)
+    this.socket = new WebSocket(`${WEBSOCKET_SERVER_HOST}/gateway/in?${params.toString()}`);
     
-    this.socket.onopen = () => this.record();
-  }
-
-  private send<T>(key: string, value: T) {
-    const payload = JSON.stringify({ key, value });
-    this.socket.send(payload);
+    this.socket.onopen = () => this.install();
   }
 
   public identify = async (id: string, input: IdentifyInput = {}): Promise<void> => {
@@ -39,8 +37,35 @@ export class Squeaky {
     this.send('identify', { id, ...input });
   };
 
+  private send<T>(key: string, value: T) {
+    const payload = JSON.stringify({ key, value });
+    this.socket.send(payload);
+  }
+
+  private install = () => {
+    // There's no point in starting the recording if the user is
+    // not looking at the page. They might have opened a bunch of
+    // tabs in the background, and we're going to have a session
+    // with a bunch of dead time at the start
+    if (document.hasFocus()) {
+      this.record();
+    }
+
+    // If the user does eventually come to the page after being
+    // away during the initial load, then we should start the
+    // recording only if it hasn't already started
+    window.addEventListener('focus', () => {
+      if (!this.recording) {
+        this.record();
+      }
+    });
+  };
+
   private record = (): void => {
+    this.recording = true;
+
     record({
+      ...config,
       emit: (event) => {
         if (event.type === EventType.Meta) {
           // Super hacky but it's less faff than setting up a custom event
@@ -63,32 +88,8 @@ export class Squeaky {
           });
         }
 
-        if (DEBUG) {
-          console.log(event);
-        } else {
-          this.send('event', event);
-        }
+        this.send('event', event);
       },
-      blockClass: 'squeaky-hide',
-      maskTextClass: 'squeaky-mask',
-      maskAllInputs: true,
-      slimDOMOptions: {
-        script: true,
-        comment: true,
-      },
-      sampling: {
-        mouseInteraction: {
-          MouseUp: false,
-          MouseDown: false,
-          Click: true,
-          ContextMenu: false,
-          DblClick: true,
-          Focus: true,
-          Blur: true,
-          TouchStart: true,
-          TouchEnd: true,
-        }
-      }
     });
   };
 
