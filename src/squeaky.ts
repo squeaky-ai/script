@@ -38,7 +38,11 @@ export class Squeaky {
   public identify = async (id: string, input: IdentifyInput = {}): Promise<void> => {
     // Let site owners identify visitors by adding 
     // some basic attributes to their visitor record
-    this.send('identify', { id, ...input });
+    this.send('identify', { 
+      type: EventType.Custom,
+      data: { id, ...input },
+      timestamp: new Date().valueOf(),
+    });
   };
 
   private send<T>(key: string, value: T) {
