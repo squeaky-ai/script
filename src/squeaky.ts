@@ -5,7 +5,7 @@ interface State {
   previousPath: string;
 }
 
-interface IdentifyInput {
+interface Identify {
   [key: string]: string | number;
 }
 
@@ -14,13 +14,15 @@ const THIRTY_MINUTES = 1000 * 60 * 30;
 export class Squeaky {
   private state: State;
   private site_id: string;
+  private identity: Identify | null;
   private socket: WebSocket;
   private recording: boolean;
   private cutOffTimer?: NodeJS.Timer;
 
   public constructor(site_id: string) {
-    this.site_id = site_id;
+    this.identity = null;
     this.recording = false;
+    this.site_id = site_id;
     this.state = { previousPath: location.pathname };
 
     const params = new URLSearchParams({
@@ -35,14 +37,10 @@ export class Squeaky {
     this.setCutOff();
   }
 
-  public identify = async (id: string, input: IdentifyInput = {}): Promise<void> => {
+  public identify = async (id: string, input: Identify = {}): Promise<void> => {
     // Let site owners identify visitors by adding 
     // some basic attributes to their visitor record
-    this.send('identify', { 
-      type: EventType.Custom,
-      data: { id, ...input },
-      timestamp: new Date().valueOf(),
-    });
+    this.identity = { id, ...input };
   };
 
   private send<T>(key: string, value: T) {
@@ -56,7 +54,7 @@ export class Squeaky {
     // tabs in the background, and we're going to have a session
     // with a bunch of dead time at the start
     if (document.hasFocus()) {
-      this.record();
+      return this.record();
     }
 
     // If the user does eventually come to the page after being
@@ -94,6 +92,18 @@ export class Squeaky {
             },
             timestamp: new Date().valueOf(),
           });
+        }
+
+        if (this.identity) {
+          // Hijack another event and send this as the socket should be
+          // open (if it's not then there are larger issues!)
+          this.send('identify', {
+            type: EventType.Custom,
+            data: this.identity,
+            timestamp: new Date().valueOf(),
+          });
+
+          this.identity = null;
         }
 
         this.send('event', event);
