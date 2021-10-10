@@ -9,11 +9,14 @@ interface IdentifyInput {
   [key: string]: string | number;
 }
 
+const THIRTY_MINUTES = 1000 * 60 * 30;
+
 export class Squeaky {
   private state: State;
   private site_id: string;
   private socket: WebSocket;
   private recording: boolean;
+  private cutOffTimer?: NodeJS.Timer;
 
   public constructor(site_id: string) {
     this.site_id = site_id;
@@ -27,8 +30,9 @@ export class Squeaky {
     });
 
     this.socket = new WebSocket(`${WEBSOCKET_SERVER_HOST}/gateway/in?${params.toString()}`);
-    
     this.socket.onopen = () => this.install();
+
+    this.setCutOff();
   }
 
   public identify = async (id: string, input: IdentifyInput = {}): Promise<void> => {
@@ -89,8 +93,19 @@ export class Squeaky {
         }
 
         this.send('event', event);
+        this.setCutOff();
       },
     });
+  };
+
+  private setCutOff = () => {
+    // If a user does absolutely nothing for 30 minutes
+    // then we need to cut them off
+    window.clearTimeout(this.cutOffTimer!);
+    
+    this.cutOffTimer = setTimeout(() => {
+      this.socket.close();
+    }, THIRTY_MINUTES);
   };
 
   private getOrCreateId(type: 'session' | 'visitor', storage: Storage): string {

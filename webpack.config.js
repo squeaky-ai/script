@@ -35,7 +35,6 @@ module.exports = ({ development }) => ({
   },
   plugins: [
     new DefinePlugin({
-      DEBUG: JSON.stringify(!!development),
       WEBSOCKET_SERVER_HOST: JSON.stringify(development ? 'ws://localhost:5000' : 'wss://squeaky.ai'),
     })
   ]

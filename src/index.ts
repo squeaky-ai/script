@@ -1,6 +1,5 @@
 declare global {
   const WEBSOCKET_SERVER_HOST: string;
-  const DEBUG: boolean;
   interface Window {
     squeaky: Squeaky;
     _sqSettings: {
