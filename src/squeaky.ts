@@ -1,5 +1,6 @@
-import { record, EventType } from 'rrweb';
+import { record, EventType, IncrementalSource, MouseInteractions } from 'rrweb';
 import { config } from './config';
+import { cssPath } from './utils';
 
 interface State {
   previousPath: string;
@@ -77,6 +78,17 @@ export class Squeaky {
           // Super hacky but it's less faff than setting up a custom event
           (event as any).data.locale = navigator.language;
           (event as any).data.useragent = navigator.userAgent;
+        }
+
+        if (
+          event.type === EventType.IncrementalSnapshot && 
+          event.data.source === IncrementalSource.MouseInteraction && 
+          event.data.type === MouseInteractions.Click
+        ) {
+          // This is cheaper to do here, and means that we can know about
+          // all clicked elements without having to rebuild the entire page
+          const node = record.mirror.getNode(event.data.id);
+          (event.data as any).selector = cssPath(node);
         }
 
         if (location.pathname !== this.state.previousPath) {
