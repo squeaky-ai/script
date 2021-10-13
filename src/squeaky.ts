@@ -1,4 +1,4 @@
-import { record, EventType, IncrementalSource, MouseInteractions } from 'rrweb';
+import { record, EventType, IncrementalSource } from 'rrweb';
 import { config } from './config';
 import { cssPath } from './utils';
 
