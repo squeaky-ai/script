@@ -16,12 +16,14 @@ export class Squeaky {
   private state: State;
   private site_id: string;
   private identity: Identify | null;
+  private referrer: string | null;
   private socket: WebSocket;
   private recording: boolean;
   private cutOffTimer?: NodeJS.Timer;
 
   public constructor(site_id: string) {
     this.identity = null;
+    this.referrer = null;
     this.recording = false;
     this.site_id = site_id;
     this.state = { previousPath: location.pathname };
@@ -36,6 +38,7 @@ export class Squeaky {
     this.socket.onopen = () => this.install();
 
     this.setCutOff();
+    this.setReferrer();
   }
 
   public identify = async (id: string, input: Identify = {}): Promise<void> => {
@@ -117,6 +120,17 @@ export class Squeaky {
           this.identity = null;
         }
 
+        if (this.referrer) {
+          // Hijack another event for the same reason as above
+          this.send('referrer', {
+            type: EventType.Custom,
+            data: { href: this.referrer },
+            timestamp: new Date().valueOf(),
+          });
+
+          this.referrer = null;
+        }
+
         this.send('event', event);
         this.setCutOff();
       },
@@ -131,6 +145,17 @@ export class Squeaky {
     this.cutOffTimer = setTimeout(() => {
       this.socket.close();
     }, THIRTY_MINUTES);
+  };
+
+  private setReferrer = () => {
+    const referrer = document.referrer;
+
+    // We don't care about referralls from their own site
+    if (referrer === '' || referrer.startsWith(location.origin)) {
+      this.referrer = null;
+    }
+
+    this.referrer = referrer;
   };
 
   private getOrCreateId(type: 'session' | 'visitor', storage: Storage): string {
