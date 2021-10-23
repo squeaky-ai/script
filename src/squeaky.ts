@@ -151,11 +151,11 @@ export class Squeaky {
     const referrer = document.referrer;
 
     // We don't care about referralls from their own site
-    if (referrer === '' || referrer.startsWith(location.origin)) {
+    if (referrer === '' || referrer.replace('www.', '').startsWith(location.origin.replace('www.', ''))) {
       this.referrer = null;
     }
 
-    this.referrer = referrer;
+    this.referrer = referrer.replace(/\/$/, '');
   };
 
   private getOrCreateId(type: 'session' | 'visitor', storage: Storage): string {
