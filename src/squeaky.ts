@@ -81,6 +81,8 @@ export class Squeaky {
           // Super hacky but it's less faff than setting up a custom event
           (event as any).data.locale = navigator.language;
           (event as any).data.useragent = navigator.userAgent;
+          (event as any).data.device_x = screen.width;
+          (event as any).data.device_y = screen.height;
         }
 
         if (
