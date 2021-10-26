@@ -133,8 +133,17 @@ export class Squeaky {
           this.referrer = null;
         }
 
+        if (
+          event.type === EventType.IncrementalSnapshot && 
+          [IncrementalSource.MouseInteraction, IncrementalSource.Scroll].includes(event.data.source)
+        ) {
+          // If the user actually does something with their mouse then
+          // we'll reset the cut off, any other events don't actually
+          // mean the user is there
+          this.setCutOff();
+        }
+
         this.send('event', event);
-        this.setCutOff();
       },
     });
   };
