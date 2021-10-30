@@ -1,50 +1,51 @@
 import { record, EventType, IncrementalSource } from 'rrweb';
+import { eventWithTime } from 'rrweb/typings/types';
 import { config } from './config';
 import { cssPath } from './utils';
+import { Visitor } from './visitor';
 
 interface State {
   previousPath: string;
 }
 
-interface Identify {
-  [key: string]: string | number;
-}
+type Identify = Record<string, string | number>;
 
 const THIRTY_MINUTES = 1000 * 60 * 30;
 
 export class Squeaky {
+  private visitor: Visitor;
   private state: State;
-  private site_id: string;
-  private identity: Identify | null;
-  private referrer: string | null;
-  private socket: WebSocket;
+  private socket!: WebSocket;
   private recording: boolean;
   private cutOffTimer?: NodeJS.Timer;
 
-  public constructor(site_id: string) {
-    this.identity = null;
-    this.referrer = null;
+  public constructor(siteId: string) {
+    this.visitor = new Visitor(siteId);
     this.recording = false;
-    this.site_id = site_id;
     this.state = { previousPath: location.pathname };
 
-    const params = new URLSearchParams({
-      site_id: this.site_id,
-      visitor_id: this.getOrCreateId('visitor', localStorage),
-      session_id: this.getOrCreateId('session', sessionStorage),
+    if (this.visitor.bot) return;
+
+    this.socket = new WebSocket(`${WEBSOCKET_SERVER_HOST}/gateway/in?${this.visitor.params.toString()}`);
+
+    this.socket.addEventListener('open', () => {
+      this.init();
+      this.setCutOff();
     });
-
-    this.socket = new WebSocket(`${WEBSOCKET_SERVER_HOST}/gateway/in?${params.toString()}`);
-    this.socket.onopen = () => this.install();
-
-    this.setCutOff();
-    this.setReferrer();
   }
 
   public identify = async (id: string, input: Identify = {}): Promise<void> => {
     // Let site owners identify visitors by adding 
     // some basic attributes to their visitor record
-    this.identity = { id, ...input };
+    if (this.socket.OPEN) {
+      return this.setIdentity({ id, ...input });
+    }
+
+    // The socket might not be open yet, so wait until
+    // it is
+    this.socket.addEventListener('open', () => {
+      this.setIdentity({ id, ...input });
+    });
   };
 
   private send<T>(key: string, value: T) {
@@ -52,13 +53,13 @@ export class Squeaky {
     this.socket.send(payload);
   }
 
-  private install = () => {
+  private init = () => {
     // There's no point in starting the recording if the user is
     // not looking at the page. They might have opened a bunch of
     // tabs in the background, and we're going to have a session
     // with a bunch of dead time at the start
     if (document.hasFocus()) {
-      return this.record();
+      return this.install();
     }
 
     // If the user does eventually come to the page after being
@@ -66,85 +67,75 @@ export class Squeaky {
     // recording only if it hasn't already started
     window.addEventListener('focus', () => {
       if (!this.recording) {
-        this.record();
+        return this.install();
       }
     });
   };
 
+  private install = (): void => {
+    this.record();
+
+    if (this.visitor.isNewSession) {
+      // Fire this off for the first session to fill in the meta
+      // data for the recording
+      this.send('recording', {
+        type: EventType.Custom,
+        data: this.visitor.toObject(),
+        timestamp: new Date().valueOf(),
+      });
+    }
+  };
+
   private record = (): void => {
     this.recording = true;
+    record({ ...config, emit: this.onEmit });
+  };
 
-    record({
-      ...config,
-      emit: (event) => {
-        if (event.type === EventType.Meta) {
-          // Super hacky but it's less faff than setting up a custom event
-          (event as any).data.locale = navigator.language;
-          (event as any).data.useragent = navigator.userAgent;
-          (event as any).data.device_x = screen.width;
-          (event as any).data.device_y = screen.height;
-        }
+  private onEmit = (event: eventWithTime) => {
+    if (event.type === EventType.IncrementalSnapshot && event.data.source === IncrementalSource.MouseInteraction) {
+      // This is cheaper to do here, and means that we can know about
+      // all clicked elements without having to rebuild the entire page
+      const node = record.mirror.getNode(event.data.id);
+      (event.data as any).selector = cssPath(node) || 'html > body';
+    }
 
-        if (
-          event.type === EventType.IncrementalSnapshot && 
-          event.data.source === IncrementalSource.MouseInteraction
-        ) {
-          // This is cheaper to do here, and means that we can know about
-          // all clicked elements without having to rebuild the entire page
-          const node = record.mirror.getNode(event.data.id);
-          (event.data as any).selector = cssPath(node) || 'html > body';
-        }
+    if (location.pathname !== this.state.previousPath) {
+      this.setPageView();
+    }
 
-        if (location.pathname !== this.state.previousPath) {
-          // This is required for single page apps as they don't send a
-          // disconnect/connect every time the page changes. If the url
-          // has changed then we should let the API know or events
-          // will stack up forever!
-          this.state.previousPath = location.pathname;
-          this.send('pageview', {
-            type: EventType.Custom,
-            data: {
-              href: location.href
-            },
-            timestamp: new Date().valueOf(),
-          });
-        }
+    if (this.isUserInteractionEvent(event)) {
+      this.setCutOff();
+    }
 
-        if (this.identity) {
-          // Hijack another event and send this as the socket should be
-          // open (if it's not then there are larger issues!)
-          this.send('identify', {
-            type: EventType.Custom,
-            data: this.identity,
-            timestamp: new Date().valueOf(),
-          });
+    this.send('event', event);
+  };
 
-          this.identity = null;
-        }
+  private isUserInteractionEvent = (event: eventWithTime): boolean => {
+    return event.type === EventType.IncrementalSnapshot && 
+          [IncrementalSource.MouseInteraction, IncrementalSource.Scroll].includes(event.data.source);
+  };
 
-        if (this.referrer) {
-          // Hijack another event for the same reason as above
-          this.send('referrer', {
-            type: EventType.Custom,
-            data: { href: this.referrer },
-            timestamp: new Date().valueOf(),
-          });
+  private setPageView = (): void => {
+    // This is required for single page apps as they don't send a
+    // disconnect/connect every time the page changes. If the url
+    // has changed then we should let the API know or events
+    // will stack up forever!
+    this.state.previousPath = location.pathname;
 
-          this.referrer = null;
-        }
+    this.send('pageview', {
+      type: EventType.Custom,
+      data: { href: location.href },
+      timestamp: new Date().valueOf(),
+    });
+  };
 
-        if (
-          event.type === EventType.IncrementalSnapshot && 
-          [IncrementalSource.MouseInteraction, IncrementalSource.Scroll].includes(event.data.source)
-        ) {
-          // If the user actually does something with their mouse then
-          // we'll reset the cut off, any other events don't actually
-          // mean the user is there
-          this.setCutOff();
-        }
-
-        this.send('event', event);
-      },
+  private setIdentity = (identify: Identify): void => {
+    // Fire off the identify event and then set the instance value
+    // to null so it doesn't get fired multiple times
+    this.send('identify', {
+      type: EventType.Custom,
+      data: identify,
+      timestamp: new Date().valueOf(),
     });
   };
 
@@ -157,21 +148,4 @@ export class Squeaky {
       this.socket.close();
     }, THIRTY_MINUTES);
   };
-
-  private setReferrer = () => {
-    const referrer = document.referrer;
-
-    // We don't care about referralls from their own site
-    if (referrer === '' || referrer.replace('www.', '').startsWith(location.origin.replace('www.', ''))) {
-      this.referrer = null;
-    }
-
-    this.referrer = referrer.replace(/\/$/, '');
-  };
-
-  private getOrCreateId(type: 'session' | 'visitor', storage: Storage): string {
-    const id = storage.getItem(`squeaky_${type}_id`) || Math.random().toString(36).slice(2);
-    storage.setItem(`squeaky_${type}_id`, id);
-    return id;
-  }
 }
