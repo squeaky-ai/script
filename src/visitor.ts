@@ -64,7 +64,7 @@ export class Visitor {
   }
 
   public get language(): string {
-    return navigator.language;
+    return navigator.language || (navigator as any).userLanguage || 'zz-ZZ';
   }
 
   public get bot(): boolean {
