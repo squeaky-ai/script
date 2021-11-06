@@ -49,7 +49,7 @@ export class Squeaky {
   };
 
   private send<T>(key: string, value: T) {
-    const payload = JSON.stringify({ key, value });
+    const payload = JSON.stringify({ key, value, visitor: this.visitor.key });
     this.socket.send(payload);
   }
 
@@ -99,7 +99,7 @@ export class Squeaky {
       (event.data as any).selector = cssPath(node) || 'html > body';
     }
 
-    if (location.pathname !== this.state.previousPath) {
+    if (location.pathname !== this.state.previousPath || event.type === 4) {
       this.setPageView();
     }
 

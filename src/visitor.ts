@@ -9,6 +9,7 @@ export interface VisitorObject {
 }
 
 export class Visitor {
+  public key: string;
   public siteId: string;
   public visitorId: string;
   public sessionId: string;
@@ -19,6 +20,8 @@ export class Visitor {
   public constructor(siteId: string) {
     const [visitorId, isNewVisitor] = this.getOrCreateId('visitor', localStorage);
     const [sessionId, isNewSession] = this.getOrCreateId('session', sessionStorage);
+
+    this.key = `${siteId}::${visitorId}::${sessionId}`;
 
     this.siteId = siteId;
     this.visitorId = visitorId;
