@@ -74,16 +74,12 @@ export class Squeaky {
 
   private install = (): void => {
     this.record();
-
-    if (this.visitor.isNewSession) {
-      // Fire this off for the first session to fill in the meta
-      // data for the recording
-      this.send('recording', {
-        type: EventType.Custom,
-        data: this.visitor.toObject(),
-        timestamp: new Date().valueOf(),
-      });
-    }
+  
+    this.send('recording', {
+      type: EventType.Custom,
+      data: this.visitor.toObject(),
+      timestamp: new Date().valueOf(),
+    });
   };
 
   private record = (): void => {
