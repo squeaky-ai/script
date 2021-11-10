@@ -49,7 +49,7 @@ export class Squeaky {
   };
 
   private send<T>(key: string, value: T) {
-    const payload = JSON.stringify({ key, value, visitor: this.visitor.key });
+    const payload = JSON.stringify({ key, value });
     this.socket.send(payload);
   }
 
