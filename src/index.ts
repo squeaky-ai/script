@@ -1,16 +1,14 @@
-// declare global {
-//   const WEBSOCKET_SERVER_HOST: string;
-//   interface Window {
-//     squeaky: Squeaky;
-//     _sqSettings: {
-//       site_id: string;
-//     }
-//   }
-// }
+declare global {
+  const WEBSOCKET_SERVER_HOST: string;
+  interface Window {
+    squeaky: Squeaky;
+    _sqSettings: {
+      site_id: string;
+    }
+  }
+}
 
-// import { Squeaky } from './squeaky';
+import { Squeaky } from './squeaky';
 
-// // Don't export an ES module or it won't work properly
-// module.exports = new Squeaky(window._sqSettings.site_id);
-
-console.debug('Squeaky.ai is offline for maintenance');
+// Don't export an ES module or it won't work properly
+module.exports = new Squeaky(window._sqSettings.site_id);
