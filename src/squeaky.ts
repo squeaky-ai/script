@@ -2,13 +2,11 @@ import { record, EventType, IncrementalSource } from 'rrweb';
 import { eventWithTime } from 'rrweb/typings/types';
 import { config } from './config';
 import { cssPath } from './utils';
-import { Visitor } from './visitor';
+import { Visitor, ExternalAttributes } from './visitor';
 
 interface State {
   previousPath: string;
 }
-
-type Identify = Record<string, string | number>;
 
 const THIRTY_MINUTES = 1000 * 60 * 30;
 
@@ -34,18 +32,8 @@ export class Squeaky {
     });
   }
 
-  public identify = async (id: string, input: Identify = {}): Promise<void> => {
-    // Let site owners identify visitors by adding 
-    // some basic attributes to their visitor record
-    if (this.socket.OPEN) {
-      return this.setIdentity({ id, ...input });
-    }
-
-    // The socket might not be open yet, so wait until
-    // it is
-    this.socket.addEventListener('open', () => {
-      this.setIdentity({ id, ...input });
-    });
+  public identify = (id: string, input: ExternalAttributes = {}) => {
+    this.visitor.externalAttributes = { id, ...input };
   };
 
   private send<T>(key: string, value: T) {
@@ -103,6 +91,10 @@ export class Squeaky {
       this.setCutOff();
     }
 
+    if (this.visitor.externalAttributes) {
+      this.setExternalAttributes();
+    }
+
     this.send('event', event);
   };
 
@@ -125,14 +117,16 @@ export class Squeaky {
     });
   };
 
-  private setIdentity = (identify: Identify): void => {
-    // Fire off the identify event and then set the instance value
-    // to null so it doesn't get fired multiple times
+  private setExternalAttributes = (): void => {
+    if (!this.visitor.externalAttributes) return;
+
     this.send('identify', {
       type: EventType.Custom,
-      data: identify,
+      data: this.visitor.externalAttributes,
       timestamp: new Date().valueOf(),
     });
+
+    delete this.visitor.externalAttributes;
   };
 
   private setCutOff = () => {

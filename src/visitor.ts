@@ -8,11 +8,14 @@ export interface VisitorObject {
   useragent: string;
 }
 
+export type ExternalAttributes = Record<string, string | number>;
+
 export class Visitor {
   public key: string;
   public siteId: string;
   public visitorId: string;
   public sessionId: string;
+  public externalAttributes?: ExternalAttributes;
 
   public isNewVisitor: boolean;
   public isNewSession: boolean;
