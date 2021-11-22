@@ -24,7 +24,7 @@ export class Squeaky {
 
     if (this.visitor.bot) return;
 
-    this.socket = new WebSocket(`${WEBSOCKET_SERVER_HOST}/gateway/in?${this.visitor.params.toString()}`);
+    this.socket = new WebSocket(`${WEBSOCKET_SERVER_HOST}/in?${this.visitor.params.toString()}`);
 
     this.socket.addEventListener('open', () => {
       this.init();
