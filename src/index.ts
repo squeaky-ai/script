@@ -1,5 +1,7 @@
 declare global {
+  const API_SERVER_HOST: string;
   const WEBSOCKET_SERVER_HOST: string;
+
   interface Window {
     squeaky: Squeaky;
     _sqSettings: {

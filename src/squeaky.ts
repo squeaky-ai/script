@@ -2,7 +2,11 @@ import { record, EventType, IncrementalSource } from 'rrweb';
 import { eventWithTime } from 'rrweb/typings/types';
 import { config } from './config';
 import { cssPath } from './utils';
-import { Visitor, ExternalAttributes } from './visitor';
+import { Visitor } from './visitor';
+import { Nps } from './nps';
+import { Sentiment } from './sentiment';
+import type { Feedback } from './types/feedback';
+import type { ExternalAttributes } from './types/visitor';
 
 interface State {
   previousPath: string;
@@ -11,14 +15,19 @@ interface State {
 const THIRTY_MINUTES = 1000 * 60 * 30;
 
 export class Squeaky {
-  private visitor: Visitor;
   private state: State;
   private socket!: WebSocket;
   private recording: boolean;
   private cutOffTimer?: NodeJS.Timer;
 
+  public visitor: Visitor;
+  public nps: Nps | null;
+  public sentiment: Sentiment | null;
+
   public constructor(siteId: string) {
     this.visitor = new Visitor(siteId);
+    this.nps = null;
+    this.sentiment = null;
     this.recording = false;
     this.state = { previousPath: location.pathname };
 
@@ -38,7 +47,7 @@ export class Squeaky {
 
   private send<T>(key: string, value: T) {
     const payload = JSON.stringify({ key, value });
-    this.socket.send(payload);
+    // this.socket.send(payload);
   }
 
   private init = () => {
@@ -62,6 +71,7 @@ export class Squeaky {
 
   private install = (): void => {
     this.record();
+    this.feedback();
   
     this.send('recording', {
       type: EventType.Custom,
@@ -73,6 +83,21 @@ export class Squeaky {
   private record = (): void => {
     this.recording = true;
     record({ ...config, emit: this.onEmit });
+  };
+
+  private feedback = async (): Promise<void> => {
+    try {
+      const res = await fetch(`${API_SERVER_HOST}/feedback?${this.visitor.params.toString()}`);
+  
+      if (!res.ok) return;
+
+      const data: Feedback = await res.json();
+
+      this.nps = new Nps(data);
+      this.sentiment = new Sentiment(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   private onEmit = (event: eventWithTime) => {

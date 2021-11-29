@@ -14,6 +14,7 @@ phases:
     commands:
       - VERSION=$(node -p -e "require('./package.json').version")
       - aws s3 cp ./.build/script.js s3://cdn.squeaky.ai/g/$VERSION/script.js
+      - aws s3 sync ./assets s3://cdn.squeaky.ai/g/assets
 
 cache:
   paths:
