@@ -24,6 +24,7 @@ export class Sentiment {
 
     element.id = 'squeaky__sentiment_open';
     element.classList.add(this.settings.sentiment_layout);
+    element.style.background = this.settings.sentiment_accent_color;
     element.innerHTML = `<img src='${SMILY_FACE_IMAGE_URL}' height='20' width='20' alt='Smiley face' /> Feedback`;
 
     return element;
