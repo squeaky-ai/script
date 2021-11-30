@@ -17,6 +17,14 @@ export class Sentiment {
 
     document.head.appendChild(this.stylesheet);
     document.body.appendChild(this.widget);
+
+    // Listen for the close message so that the iframe
+    // can close the parent w
+    window.addEventListener('message', (event: MessageEvent) => {
+      if (event.data === '__squeaky_close_sentiment') {
+        this.handleSentimentClose();
+      }
+    });
   };
 
   private get widget(): HTMLButtonElement {
