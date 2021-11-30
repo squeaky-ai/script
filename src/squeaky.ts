@@ -35,7 +35,7 @@ export class Squeaky {
       const data: Feedback = await res.json();
 
       if (data.nps_enabled) this.nps.init(data);
-      if (data.sentiment_enabled) this.nps.init(data);
+      if (data.sentiment_enabled) this.sentiment.init(data);
     } catch (error) {
       console.error(error);
     }
