@@ -1,13 +1,19 @@
+
+import type { Visitor } from './visitor';
 import type { Feedback } from './types/feedback';
 
 export class Nps {
-  private settings: Feedback;
+  private visitor: Visitor;
+  private settings!: Feedback;
 
-  public constructor(settings: Feedback) {
+  public constructor(visitor: Visitor) {
+    this.visitor = visitor;
+  }
+
+  public init = (settings: Feedback) => {
     this.settings = settings;
 
-    if (!this.settings.nps_enabled) {
-      return;
-    }
-  }
+    this.visitor;
+    this.settings;
+  };
 }
