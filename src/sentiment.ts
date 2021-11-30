@@ -15,7 +15,7 @@ export class Sentiment {
   public init = (settings: Feedback) => {
     this.settings = settings;
 
-    if (this.settings.sentiment_excluded_pages.includes(location.pathname)) {
+    if ((this.settings.sentiment_excluded_pages || []).includes(location.pathname)) {
       return;
     }
 
