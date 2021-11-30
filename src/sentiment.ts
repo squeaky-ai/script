@@ -11,7 +11,6 @@ export class Sentiment {
 
   public constructor(visitor: Visitor) {
     this.visitor = visitor;
-    this.visitor; // TODO
   }
 
   public init = (settings: Feedback) => {
@@ -43,18 +42,26 @@ export class Sentiment {
     return stylesheet;
   }
 
-  private handleSentimentOpen = (event: MouseEvent): void => {
-    const target = event.target as HTMLButtonElement;
-
-    if (target.classList.contains('open')) {
-      return this.handleSentimentClose();
-    }
-
+  private get modal(): HTMLDivElement {
     const modal = document.createElement('div');
     
     modal.id = 'squeaky__sentiment_modal';
     modal.classList.add(this.settings.sentiment_layout);
 
+    return modal;
+  }
+
+  private get iframe(): HTMLIFrameElement {
+    const iframe = document.createElement('iframe');
+
+    iframe.id = 'squeaky__sentiment_frame';
+    iframe.src = `https://gateway.squeaky.ai/feedback/sentiment?${this.visitor.params.toString()}`;
+    iframe.scrolling = 'no';
+
+    return iframe;
+  }
+
+  private get closeButton(): HTMLButtonElement {
     const button = document.createElement('button');
 
     button.id = 'squeaky__sentiment_close';
@@ -62,14 +69,27 @@ export class Sentiment {
     button.style.background = this.settings.sentiment_accent_color;
     button.addEventListener('click', this.handleSentimentClose);
 
-    modal.appendChild(button);
+    return button;
+  }
+
+  private handleSentimentOpen = (event: MouseEvent): void => {
+    const target = event.target as HTMLButtonElement;
+
+    if (target.classList.contains('open')) {
+      return this.handleSentimentClose();
+    }
+
+    const modal = this.modal;
+
+    modal.appendChild(this.closeButton);
+    modal.appendChild(this.iframe);
 
     target.classList.add('open');
 
     document.body.appendChild(modal);
   };
 
-  private handleSentimentClose = () => {
+  private handleSentimentClose = (): void => {
     const modal = document.getElementById('squeaky__sentiment_modal');
     
     if (modal) modal.remove();

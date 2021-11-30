@@ -127,3 +127,9 @@
   bottom: 3rem;
   left: 3rem;
 }
+
+#squeaky__sentiment_frame {
+  border: none;
+  height: 100%;
+  width: 100%;
+}

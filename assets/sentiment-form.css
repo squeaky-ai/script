@@ -40,8 +40,8 @@ html, body {
 
 .form .ratings .rating img {
   display: block;
-  height: 2.25rem;
-  width: 2.25rem;
+  height: 2rem;
+  width: 2rem;
 }
 
 .form .comment {
