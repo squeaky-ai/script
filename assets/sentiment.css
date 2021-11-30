@@ -14,6 +14,7 @@
   margin: 0;
   padding: .5rem 1rem;
   position: fixed;
+  transition: none;
   width: 8.75rem;
   z-index: 1000;
 }
@@ -29,7 +30,7 @@
 }
 
 #squeaky__sentiment_open.right_middle {
-  border-radius: .5rem .5rem 0 0;
+  border-radius: .5rem .5rem 0 0 !important;
   margin-top: -2rem;
   right: 0;
   top: 50%;
@@ -43,12 +44,12 @@
 
 #squeaky__sentiment_open.right_bottom {
   bottom: 0;
-  border-radius: .5rem .5rem 0 0;
+  border-radius: .5rem .5rem 0 0 !important;
   right: 3rem;
 }
 
 #squeaky__sentiment_open.left_middle {
-  border-radius: .5rem .5rem 0 0;
+  border-radius: .5rem .5rem 0 0 !important;
   left: 0;
   margin-top: -2rem;
   top: 50%;
@@ -62,7 +63,7 @@
 
 #squeaky__sentiment_open.left_bottom {
   bottom: 0;
-  border-radius: .5rem .5rem 0 0;
+  border-radius: .5rem .5rem 0 0 !important;
   left: 3rem;
 }
 
@@ -71,7 +72,7 @@
   appearance: none;
   background: #0074E0;
   border: none;
-  border-radius: 100%;
+  border-radius: 100% !important;
   box-sizing: border-box;
   color: #ffffff;
   display: flex;
@@ -102,6 +103,7 @@
   height: 18.25rem;
   position: fixed;
   width: 21.25rem;
+  z-index: 1000;
 }
 
 #squeaky__sentiment_modal.right_middle {
