@@ -2,8 +2,8 @@
 import type { Visitor } from './visitor';
 import type { Feedback } from './types/feedback';
 
-const SENTIMENT_CSS_URL = 'https://cdn.squeaky.ai/g/assets/sentiment.css';
 const SMILY_FACE_IMAGE_URL = 'https://cdn.squeaky.ai/g/assets/smiley-face.svg';
+const SENTIMENT_BUTTON_CSS_URL = 'https://cdn.squeaky.ai/g/assets/sentiment-button.css';
 
 export class Sentiment {
   private visitor: Visitor;
@@ -38,7 +38,7 @@ export class Sentiment {
 
     stylesheet.rel = 'stylesheet';
     stylesheet.type = 'text/css';
-    stylesheet.href = SENTIMENT_CSS_URL;
+    stylesheet.href = SENTIMENT_BUTTON_CSS_URL;
 
     return stylesheet;
   }
