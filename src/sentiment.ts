@@ -55,7 +55,7 @@ export class Sentiment {
     const iframe = document.createElement('iframe');
 
     iframe.id = 'squeaky__sentiment_frame';
-    iframe.src = `https://gateway.squeaky.ai/feedback/sentiment?${this.visitor.params.toString()}`;
+    iframe.src = `${API_SERVER_HOST}/feedback/sentiment?${this.visitor.params.toString()}`;
     iframe.scrolling = 'no';
 
     return iframe;
