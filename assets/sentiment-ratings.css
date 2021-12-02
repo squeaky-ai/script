@@ -93,7 +93,7 @@ html, body {
 
 .footer button {
   appearance: none;
-  background: #0074E0;
+  background: var(--accent-color);
   border: none;
   border-radius: .5rem;
   color: #ffffff;

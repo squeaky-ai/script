@@ -12,6 +12,14 @@ export class Sentiment {
     this.visitor = visitor;
   }
 
+  private get params(): URLSearchParams {
+    const params = new URLSearchParams(this.visitor.params);
+
+    params.append('accent_color', this.settings.sentiment_accent_color.replace('#', ''));
+
+    return params;
+  }
+
   public init = (settings: Feedback) => {
     this.settings = settings;
 
@@ -71,7 +79,7 @@ export class Sentiment {
     const iframe = document.createElement('iframe');
 
     iframe.id = 'squeaky__sentiment_frame';
-    iframe.src = `${API_SERVER_HOST}/feedback/sentiment?${this.visitor.params.toString()}`;
+    iframe.src = `${API_SERVER_HOST}/feedback/sentiment?${this.params.toString()}`;
     iframe.scrolling = 'no';
 
     return iframe;

@@ -12,6 +12,15 @@ export class Nps {
     this.visitor = visitor;
   }
 
+  private get params(): URLSearchParams {
+    const params = new URLSearchParams(this.visitor.params);
+
+    params.append('accent_color', this.settings.nps_accent_color.replace('#', ''));
+    params.append('phrase', this.settings.nps_phrase);
+
+    return params;
+  }
+
   public init = (settings: Feedback) => {
     this.settings = settings;
 
@@ -78,7 +87,7 @@ export class Nps {
     const iframe = document.createElement('iframe');
 
     iframe.id = 'squeaky__nps_frame';
-    iframe.src = `${API_SERVER_HOST}/feedback/nps?${this.visitor.params.toString()}`;
+    iframe.src = `${API_SERVER_HOST}/feedback/nps?${this.params.toString()}`;
     iframe.scrolling = 'no';
 
     return iframe;
