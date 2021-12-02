@@ -2,7 +2,7 @@
 import type { Visitor } from './visitor';
 import type { Feedback } from './types/feedback';
 
-const NPS_FORM_CSS_URL = 'https://cdn.squeaky.ai/g/assets/nps-form.css';
+const NPS_CSS_URL = 'https://cdn.squeaky.ai/g/assets/nps.css';
 
 export class Nps {
   private visitor: Visitor;
@@ -45,7 +45,7 @@ export class Nps {
 
     stylesheet.rel = 'stylesheet';
     stylesheet.type = 'text/css';
-    stylesheet.href = NPS_FORM_CSS_URL;
+    stylesheet.href = NPS_CSS_URL;
 
     return stylesheet;
   }
