@@ -2,7 +2,7 @@
 import type { Visitor } from './visitor';
 import type { Feedback } from './types/feedback';
 
-const SENTIMENT_FORM_CSS_URL = 'https://cdn.squeaky.ai/g/assets/nps-form.css';
+const NPS_FORM_CSS_URL = 'https://cdn.squeaky.ai/g/assets/nps-form.css';
 
 export class Nps {
   private visitor: Visitor;
@@ -18,8 +18,17 @@ export class Nps {
     document.head.appendChild(this.stylesheet);
     document.body.appendChild(this.widget);
 
-    this.visitor;
-    this.settings;
+    // Listen for the close message so that the iframe
+    // can close the parent
+    window.addEventListener('message', (event: MessageEvent) => {
+      if (event.data === '__squeaky_close_nps') {
+        this.handleNpsClose();
+      }
+
+      if (event.data === '__squeaky_submit_nps') {
+        this.handleNpsSubmit();
+      }
+    });
   };
 
   private get stylesheet(): HTMLLinkElement {
@@ -27,7 +36,7 @@ export class Nps {
 
     stylesheet.rel = 'stylesheet';
     stylesheet.type = 'text/css';
-    stylesheet.href = SENTIMENT_FORM_CSS_URL;
+    stylesheet.href = NPS_FORM_CSS_URL;
 
     return stylesheet;
   }
@@ -43,6 +52,7 @@ export class Nps {
     wrapper.classList.add('squeaky__nps_wrapper');
 
     wrapper.appendChild(this.closeButton);
+    wrapper.appendChild(this.iframe);
     div.appendChild(wrapper);
 
     return div;
@@ -64,9 +74,25 @@ export class Nps {
     return button;
   }
 
+  private get iframe(): HTMLIFrameElement {
+    const iframe = document.createElement('iframe');
+
+    iframe.id = 'squeaky__nps_frame';
+    iframe.src = `${API_SERVER_HOST}/feedback/nps?${this.visitor.params.toString()}`;
+    iframe.scrolling = 'no';
+
+    return iframe;
+  }
+
   private handleNpsClose = () => {
     const form = document.getElementById('squeaky__nps_form');
 
     if (form) form.remove();
+
+    this.handleNpsSubmit();
+  };
+
+  private handleNpsSubmit = () => {
+    console.log('TODO: set schedule in localstorage');
   };
 }

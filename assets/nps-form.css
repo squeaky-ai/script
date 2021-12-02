@@ -48,7 +48,14 @@
 }
 
 .squeaky__nps_wrapper {
+  height: 100%;
   margin: 0 auto;
   position: relative;
   width: 33rem;
+}
+
+#squeaky__nps_frame {
+  border: none;
+  height: 100%;
+  width: 100%;
 }
