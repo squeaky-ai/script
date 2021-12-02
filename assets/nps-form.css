@@ -1,0 +1,41 @@
+#squeaky__nps_form {
+  background: #ffffff;
+  bottom: 0;
+  box-shadow: 0 0 1.5rem rgba(0, 0, 0, 0.1);
+  height: 240px;
+  left: 0;
+  position: fixed;
+  width: 100%;
+}
+
+#squeaky__nps_close {
+  align-items: center;
+  appearance: none;
+  background: #0074E0;
+  border: none;
+  border-radius: 100% !important;
+  box-sizing: border-box;
+  color: #ffffff;
+  display: flex;
+  font-family: sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  height: 2rem;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  right: -1rem;
+  top: -1rem;
+  width: 2rem;
+}
+
+#squeaky__nps_close:hover {
+  cursor: pointer;
+  filter: brightness(85%);
+}
+
+.squeaky__nps_wrapper {
+  position: relative;
+  width: 33rem;
+}
