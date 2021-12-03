@@ -14,6 +14,8 @@ export class Nps {
   public init = (settings: Feedback) => {
     this.settings = settings;
 
+    if (!this.shouldShowVisitor) return;
+
     document.head.appendChild(this.stylesheet);
     document.body.appendChild(this.widget);
 
@@ -89,6 +91,27 @@ export class Nps {
     return iframe;
   }
 
+  private get shouldShowVisitor(): boolean {
+    const now = new Date();
+    const date = localStorage.getItem('squeaky_nps_last_submitted_at');
+
+    if (!date) {
+      // They've never submitted feedback
+      return true;
+    }
+
+    if (this.settings.nps_schedule === 'once') {
+      // They've submitted feedback before and the
+      // schedule is to only show once
+      return false;
+    }
+
+    // Work out if it's been a month since they last
+    // submitted feedback
+    now.setMonth(now.getMonth() - 1);
+    return new Date(date) > now;
+  }
+
   private handleNpsClose = () => {
     const form = document.getElementById('squeaky__nps_form');
 
@@ -98,7 +121,8 @@ export class Nps {
   };
 
   private handleNpsSubmit = () => {
-    console.log('TODO: set schedule in localstorage');
+    const now = new Date();
+    localStorage.setItem('squeaky_nps_last_submitted_at', now.toISOString());
   };
 
   private handleStepChange = (step: number) => {
