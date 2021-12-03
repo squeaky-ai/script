@@ -20,6 +20,18 @@
   width: 33rem;
 }
 
+#squeaky__nps_form.step-1 {
+  height: 16rem;
+}
+
+#squeaky__nps_form.step-2 {
+  height: 30rem;
+}
+
+#squeaky__nps_form.step-3 {
+  height: 37rem;
+}
+
 #squeaky__nps_close {
   align-items: center;
   appearance: none;

@@ -1,8 +1,7 @@
-
+import { SENTIMENT_CSS_URL } from './config';
+import { parseMessage } from './utils/messages';
 import type { Visitor } from './visitor';
 import type { Feedback } from './types/feedback';
-
-const SENTIMENT_CSS_URL = 'https://cdn.squeaky.ai/g/assets/sentiment.css';
 
 export class Sentiment {
   private visitor: Visitor;
@@ -10,14 +9,6 @@ export class Sentiment {
 
   public constructor(visitor: Visitor) {
     this.visitor = visitor;
-  }
-
-  private get params(): URLSearchParams {
-    const params = new URLSearchParams(this.visitor.params);
-
-    params.append('accent_color', this.settings.sentiment_accent_color.replace('#', ''));
-
-    return params;
   }
 
   public init = (settings: Feedback) => {
@@ -33,7 +24,9 @@ export class Sentiment {
     // Listen for the close message so that the iframe
     // can close the parent
     window.addEventListener('message', (event: MessageEvent) => {
-      if (event.data === '__squeaky_close_sentiment') {
+      const message = parseMessage(event.data);
+
+      if (message.key === '__squeaky_close_sentiment') {
         this.handleSentimentClose();
       }
     });
@@ -79,7 +72,7 @@ export class Sentiment {
     const iframe = document.createElement('iframe');
 
     iframe.id = 'squeaky__sentiment_frame';
-    iframe.src = `${API_SERVER_HOST}/feedback/sentiment?${this.params.toString()}`;
+    iframe.src = `${API_SERVER_HOST}/feedback/sentiment?${this.visitor.params.toString()}`;
     iframe.scrolling = 'no';
 
     return iframe;

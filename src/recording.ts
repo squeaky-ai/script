@@ -1,7 +1,7 @@
 import { record, EventType, IncrementalSource } from 'rrweb';
 import { eventWithTime } from 'rrweb/typings/types';
 import { config } from './config';
-import { cssPath } from './utils';
+import { cssPath } from './utils/css-path';
 import { Visitor } from './visitor';
 
 interface State {

@@ -1,8 +1,7 @@
-
+import { NPS_CSS_URL } from './config';
+import { parseMessage } from './utils/messages';
 import type { Visitor } from './visitor';
 import type { Feedback } from './types/feedback';
-
-const NPS_CSS_URL = 'https://cdn.squeaky.ai/g/assets/nps.css';
 
 export class Nps {
   private visitor: Visitor;
@@ -10,15 +9,6 @@ export class Nps {
 
   public constructor(visitor: Visitor) {
     this.visitor = visitor;
-  }
-
-  private get params(): URLSearchParams {
-    const params = new URLSearchParams(this.visitor.params);
-
-    params.append('accent_color', this.settings.nps_accent_color.replace('#', ''));
-    params.append('phrase', this.settings.nps_phrase);
-
-    return params;
   }
 
   public init = (settings: Feedback) => {
@@ -30,12 +20,18 @@ export class Nps {
     // Listen for the close message so that the iframe
     // can close the parent
     window.addEventListener('message', (event: MessageEvent) => {
-      if (event.data === '__squeaky_close_nps') {
+      const message = parseMessage(event.data);
+
+      if (message.key === '__squeaky_close_nps') {
         this.handleNpsClose();
       }
 
-      if (event.data === '__squeaky_submit_nps') {
+      if (message.key === '__squeaky_submit_nps') {
         this.handleNpsSubmit();
+      }
+
+      if (message.key === '__squeaky_set_step_nps') {
+        this.handleStepChange(message.value.step);
       }
     });
   };
@@ -87,7 +83,7 @@ export class Nps {
     const iframe = document.createElement('iframe');
 
     iframe.id = 'squeaky__nps_frame';
-    iframe.src = `${API_SERVER_HOST}/feedback/nps?${this.params.toString()}`;
+    iframe.src = `${API_SERVER_HOST}/feedback/nps?${this.visitor.params.toString()}`;
     iframe.scrolling = 'no';
 
     return iframe;
@@ -103,5 +99,14 @@ export class Nps {
 
   private handleNpsSubmit = () => {
     console.log('TODO: set schedule in localstorage');
+  };
+
+  private handleStepChange = (step: number) => {
+    const form = document.getElementById('squeaky__nps_form');
+
+    if (!form) return;
+
+    form.classList.forEach(c => { if (c.startsWith('step-')) form.classList.remove(c) });
+    form.classList.add(`step-${step}`);
   };
 }
