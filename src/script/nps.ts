@@ -1,7 +1,7 @@
 import { NPS_CSS_URL } from './config';
 import { parseMessage } from './utils/messages';
 import type { Visitor } from './visitor';
-import type { Feedback } from './types/feedback';
+import type { Feedback } from '../types/feedback';
 
 export class Nps {
   private visitor: Visitor;

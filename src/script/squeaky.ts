@@ -2,8 +2,8 @@ import { Visitor } from './visitor';
 import { Sentiment } from './sentiment';
 import { Nps } from './nps';
 import { Recording } from './recording';
-import type { Feedback } from './types/feedback';
-import type { ExternalAttributes } from './types/visitor';
+import type { Feedback } from '../types/feedback';
+import type { ExternalAttributes } from '../types/visitor';
 
 export class Squeaky {
   public visitor: Visitor;

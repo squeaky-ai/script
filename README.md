@@ -1,6 +1,12 @@
 # Squeaky Script
 
-The script that is loaded by clients to stream events in to Squeaky API.
+The public scripts that are used to get data into Squeaky. These are:
+
+- `./src/nps` is loaded into the NPS iframe that's served by the gateway
+- `./src/script` is loaded in the users browser to trigger recordings, load nps/sentiment iframes etc
+- `./src/sentiment` is loaded into the sentiment iframe that's served by the gateway
+
+They each inject their own styles and should be self contained. The main script is not within an iframe, and will need to be defensive against the host websites styles.
 
 ### Requirements
 - Node.js v14.x
@@ -29,6 +35,6 @@ $ yarn test
     k=q.createElement('script');
     k.src=e+s._sqSettings.site_id;
     u.appendChild(k);
-  })(window,document,'https://cdn.squeaky.ai/g/0.1.0/script.js?');
+  })(window,document,'https://cdn.squeaky.ai/g/0.4.0/script.js?');
 </script>
 ```
