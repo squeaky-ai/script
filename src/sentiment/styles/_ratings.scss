@@ -24,6 +24,10 @@
         transform: scale(1.2);
       }
 
+      input {
+        display: none;
+      }
+
       svg {
         display: block;
         height: 2rem;
