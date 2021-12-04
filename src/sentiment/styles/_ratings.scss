@@ -1,0 +1,134 @@
+.squeaky.ratings {
+  height: 100%;
+
+  .title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    margin: 0;
+    padding: 3rem 2rem 1rem 2rem;
+    text-align: center;
+  }
+  
+  .ratings {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    padding: 2rem;
+
+    .rating {
+      cursor: pointer;
+
+      &:hover {
+        transition: all .1s ease-in-out;
+        transform: scale(1.2);
+      }
+
+      input {
+        display: none;
+      }
+
+      svg {
+        display: block;
+        height: 2rem;
+        width: 2rem;
+      }
+    }
+  }
+
+  .comment {
+    appearance: none;
+    background: none;
+    border: none;
+    display: none;
+    font-family: inherit;
+    font-size: 16px;
+    height: 7.5rem;
+    line-height: 24px;
+    padding: 2rem;
+    resize: none;
+    width: 100%;
+
+    &:focus {
+      outline: none;
+    }
+
+    &::placeholder {
+      font-style: italic;
+    }
+  }
+
+  .footer {
+    align-items: center;
+    display: flex;
+    height: 4.75rem;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+
+    p {
+      color: #707070;
+      font-size: 13px;
+      line-height: 16px;
+      margin: 0;
+    }
+
+    svg {
+      display: block;
+      margin: 11px 0 0 .25rem;
+    }
+
+    button {
+      appearance: none;
+      background: var(--accent-color);
+      border: none;
+      border-radius: .5rem;
+      color: #ffffff;
+      display: none;
+      font-family: inherit;
+      font-size: 16px;
+      padding: .6rem 1rem;
+
+      &:hover {
+        cursor: pointer;
+        filter: brightness(85%);
+      }
+    }
+
+    .powered-by {
+      align-items: center;
+      display: flex;
+    }
+  }
+
+  .form.add-comment {
+    .title {
+      display: none;
+    }
+
+    .ratings {
+      border-bottom: 1px solid #D7D7D7;
+
+      .rating {
+        svg {
+          opacity: .5;
+        }
+
+        input:checked + svg {
+          opacity: 1;
+        }
+      }
+    }
+
+    .comment {
+      display: block;
+    }
+
+    .footer {
+      border-top: 1px solid #D7D7D7;
+
+      button {
+        display: inline-block;
+      }
+    }
+  }
+}

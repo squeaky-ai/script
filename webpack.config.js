@@ -3,14 +3,20 @@
 const path = require('path');
 const { DefinePlugin } = require('webpack');
 
+const getEntry = (pathname) => path.join(__dirname, 'src', pathname, 'index.ts');
+
 module.exports = ({ development }) => ({
   devtool: false,
   mode: development ? 'development' : 'production',
   watch: !!development,
-  entry: path.join(__dirname, 'src', 'index.ts'),
+  entry: {
+    nps: getEntry('nps'),
+    script: getEntry('script'),
+    sentiment: getEntry('sentiment'),
+  },
   output: {
     path: path.join(__dirname, '.build'),
-    filename: 'script.js',
+    filename: '[name].js',
     library: ['squeaky'],
   },
   resolve: {
@@ -27,6 +33,14 @@ module.exports = ({ development }) => ({
           }
         },
         exclude: /node_modules/
+      },
+      {
+        test: /\.s[ac]ss$/i,
+        use: [
+          'style-loader',
+          'css-loader',
+          'sass-loader',
+        ]
       }
     ]
   },

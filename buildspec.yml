@@ -13,9 +13,8 @@ phases:
   post_build:
     commands:
       - VERSION=$(node -p -e "require('./package.json').version")
-      - aws s3 sync ./assets s3://cdn.squeaky.ai/g/assets
-      - aws s3 cp ./.build/script.js s3://cdn.squeaky.ai/g/$VERSION/script.js
-      - aws cloudfront create-invalidation --distribution-id E2DF5UJN3IYB51 --paths '/g/*'
+      - aws s3 sync ./.build s3://cdn.squeaky.ai/g/$VERSION
+      - aws cloudfront create-invalidation --distribution-id E2DF5UJN3IYB51 --paths '/g/$VERSION'
 
 cache:
   paths:

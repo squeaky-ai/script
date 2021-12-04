@@ -1,4 +1,4 @@
-import type { VisitorObject, ExternalAttributes } from './types/visitor';
+import type { VisitorObject, ExternalAttributes } from '../types/visitor';
 
 export class Visitor {
   public key: string;
