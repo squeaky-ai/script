@@ -43,6 +43,10 @@ export class Visitor {
     };
   }
 
+  public deleteSessionId = () => {
+    sessionStorage.removeItem('squeaky_session_id');
+  };
+
   public get deviceX(): number {
     return screen.width;
   }

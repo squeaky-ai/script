@@ -38,7 +38,7 @@ export class Recording {
 
   private send<T>(key: string, value: T) {
     const payload = JSON.stringify({ key, value });
-    this.socket.send(payload);
+    if (this.socket.OPEN) this.socket.send(payload);
   }
 
   private init = () => {
@@ -129,13 +129,27 @@ export class Recording {
     delete this.visitor.externalAttributes;
   };
 
+  private terminateSession = () => {
+    this.send('inactivity', {
+      type: EventType.Custom,
+      data: {},
+      timestamp: new Date().valueOf(),
+    });
+
+    this.socket.close();
+    // If you don't delete the session then it will keep
+    // adding to the old one when they return
+    this.visitor.deleteSessionId();
+    (window as any).squeaky = null;
+  };
+
   private setCutOff = () => {
     // If a user does absolutely nothing for 30 minutes
     // then we need to cut them off
     window.clearTimeout(this.cutOffTimer!);
     
     this.cutOffTimer = setTimeout(() => {
-      this.socket.close();
+      this.terminateSession();
     }, THIRTY_MINUTES);
   };
 }
