@@ -61,6 +61,10 @@
     left: 3rem;
   }
 
+  &.open {
+    visibility: hidden;
+  }
+
   svg {
     display: block;
     margin-right: .5rem;

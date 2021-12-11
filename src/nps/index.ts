@@ -15,7 +15,11 @@ class Nps {
       return this.submitForm();
     }
 
-    this.setStep(1);
+    if (!window.showContactConsentQuestion) {
+      return this.setStep(1);
+    }
+
+    this.setStep(2);
   };
 
   public onSubmitButtonClick = () => {
@@ -43,6 +47,13 @@ class Nps {
     window.parent.postMessage(message, '*');
   };
 
+  public onContactChange = (event: InputEvent) => {
+    const target = event.target as HTMLInputElement;
+    const enabled = target.value === '1';
+    
+    this.setStep(enabled ? 3 : 2);
+  };
+
   public submitForm = () => {
     const message = JSON.stringify({ 
       key: '__squeaky_submit_nps', 
@@ -58,8 +69,6 @@ class Nps {
   };
 
   public setStep = (step: number) => {
-    if (this.step >= step) return;
-
     this.step = step;
 
     const message = JSON.stringify({ 

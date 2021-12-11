@@ -183,7 +183,8 @@
     }
   }
   
-  &.step-1 {
+  &.step-1,
+  &.step-2 {
     .likeliness {
       padding: 3rem;
 
@@ -201,16 +202,18 @@
       padding: 0 3rem;
     }
 
+    .contact {
+      display: block;
+    }
+
     .footer {
       display: flex;
     }
   }
 
-  &.step-2 .contact {
-    display: block;
-  }
-
-  &.step-3 .details {
-    display: block;
+  &.step-3 {
+    .details {
+      display: block;
+    }
   }
 }
