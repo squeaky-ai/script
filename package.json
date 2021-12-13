@@ -9,10 +9,12 @@
   "private": true,
   "scripts": {
     "build": "webpack",
+    "serve": "http-server",
     "watch": "webpack --env development"
   },
   "devDependencies": {
     "css-loader": "^6.5.1",
+    "http-server": "^14.0.0",
     "rrweb": "^1.0.7",
     "sass": "^1.44.0",
     "sass-loader": "^12.3.0",

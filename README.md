@@ -20,21 +20,13 @@ $ cd script
 $ yarn install
 ```
 
-### Running the tests
-```shell
-$ yarn test
-```
+### Running locally
+Firstly you will need the gateway running at `ws://localhost:5000`, you'll also need to create a site locally with the uuid of `eba391ce-cc12-41d7-8f8a-ddee1e624a74`.
 
-### Example import
-```html
-<!-- Squeaky Tracking Code for https://hackerstash.com -->
-<script>
-  (function(s,q,e,a,u,k,y){
-    s._sqSettings={site_id:'eba391ce-cc12-41d7-8f8a-ddee1e624a74'};
-    u=q.getElementsByTagName('head')[0];
-    k=q.createElement('script');
-    k.src=e+s._sqSettings.site_id;
-    u.appendChild(k);
-  })(window,document,'https://cdn.squeaky.ai/g/0.4.0/script.js?');
-</script>
-```
+Run `yarn watch` to watch and build the script, and run `yarn serve` to start the dev server.
+
+There are example websites in the `examples/` folder, they can be accessed by visiting their path for example:
+- http://localhost:8080/examples/album/
+- http://localhost:8080/examples/auth/
+- http://localhost:8080/examples/blog/
+- http://localhost:8080/examples/carousel/
