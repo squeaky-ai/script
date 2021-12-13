@@ -36,7 +36,7 @@ export class Sentiment {
     const button = document.createElement('button');
 
     button.id = 'squeaky__sentiment_open';
-    button.classList.add(this.settings.sentiment_layout);
+    button.classList.add(this.settings.sentiment_layout, 'squeaky-hide');
     button.style.background = this.settings.sentiment_accent_color;
     button.innerHTML = `
       <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='20' height='20'>

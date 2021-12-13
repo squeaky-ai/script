@@ -52,7 +52,7 @@ export class Nps {
     const div = document.createElement('div');
 
     div.id = 'squeaky__nps_form';
-    div.classList.add(this.settings.nps_layout);
+    div.classList.add(this.settings.nps_layout, 'squeaky-hide');
 
     const wrapper = document.createElement('div');
 
