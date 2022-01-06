@@ -14,12 +14,15 @@ export class Recording {
   private state: State;
   private socket!: WebSocket;
   private recording: boolean;
+  private terminated: boolean;
   private cutOffTimer?: NodeJS.Timer;
+  private stopRecording?: VoidFunction;
   private visitor: Visitor;
 
   public constructor(visitor: Visitor) {
     this.visitor = visitor;
     this.recording = false;
+    this.terminated = false;
     this.state = { previousPath: location.pathname };
 
     if (this.visitor.bot) return;
@@ -54,7 +57,7 @@ export class Recording {
     // away during the initial load, then we should start the
     // recording only if it hasn't already started
     window.addEventListener('focus', () => {
-      if (!this.recording) {
+      if (!this.recording && !this.terminated) {
         return this.install();
       }
     });
@@ -72,7 +75,7 @@ export class Recording {
 
   private record = (): void => {
     this.recording = true;
-    record({ ...config, emit: this.onEmit });
+    this.stopRecording = record({ ...config, emit: this.onEmit });
   };
 
   private onEmit = (event: eventWithTime) => {
@@ -137,6 +140,10 @@ export class Recording {
     });
 
     this.socket.close();
+    this.terminated = true;
+
+    if (this.stopRecording) this.stopRecording();
+
     // If you don't delete the session then it will keep
     // adding to the old one when they return
     this.visitor.deleteSessionId();
