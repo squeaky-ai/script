@@ -40,6 +40,7 @@ export class Visitor {
       viewport_y: this.viewportX,
       referrer: this.referrer,
       useragent: this.useragent,
+      timezone: this.timezone,
     };
   }
 
@@ -73,6 +74,10 @@ export class Visitor {
 
   public get useragent(): string {
     return navigator.userAgent;
+  }
+
+  public get timezone(): string {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
   }
 
   public get referrer(): string | null {

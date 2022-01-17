@@ -6,6 +6,7 @@ export interface VisitorObject {
   viewport_y: number;
   referrer: string | null;
   useragent: string;
+  timezone: string;
 }
 
 export type ExternalAttributes = Record<string, string | number>;
