@@ -9,7 +9,6 @@ export class Sentiment {
 
   public constructor(visitor: Visitor) {
     this.visitor = visitor;
-    (window as any).foo = this.onPageChange;
   }
 
   public init = (settings: Feedback) => {
