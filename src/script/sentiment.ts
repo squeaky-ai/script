@@ -43,7 +43,6 @@ export class Sentiment {
   };
 
   private destroy = () => {
-    console.log('Destroy the things');
     document.getElementById('squeaky__sentiment_open')?.remove();
   };
 
