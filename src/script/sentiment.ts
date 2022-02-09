@@ -48,6 +48,7 @@ export class Sentiment {
   };
 
   private destroy = () => {
+    console.log('Destroy the things');
     this.stylesheet.remove();
     this.widget.remove();
   };
