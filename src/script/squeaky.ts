@@ -11,6 +11,9 @@ export class Squeaky {
   public nps: Nps;
   public recording: Recording;
 
+  private timer!: NodeJS.Timer;
+  private pathname: string = location.pathname;
+
   public constructor(siteId: string) {
     this.visitor = new Visitor(siteId);
 
@@ -19,6 +22,7 @@ export class Squeaky {
     this.nps = new Nps(this.visitor);
 
     this.getFeedbackSettings();
+    this.pollForPageChanges();
   }
 
   public identify = (id: string, input: ExternalAttributes = {}) => {
@@ -40,4 +44,24 @@ export class Squeaky {
       console.error(error);
     }
   };
+
+  private poll(callback: Function, interval = 500): void {
+    window.clearTimeout(this.timer);
+
+    this.timer = setTimeout(() => {
+      callback();
+      this.poll(callback, interval);
+    }, interval);
+  }
+
+  private pollForPageChanges(): void {
+    this.poll(() => {
+      if (location.pathname !== this.pathname) {
+        this.pathname = location.pathname;
+
+        this.recording.onPageChange(location);
+        this.sentiment.onPageChange(location);
+      }
+    });
+  }
 }

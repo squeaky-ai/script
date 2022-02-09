@@ -9,17 +9,15 @@ export class Sentiment {
 
   public constructor(visitor: Visitor) {
     this.visitor = visitor;
+    (window as any).foo = this.onPageChange;
   }
 
   public init = (settings: Feedback) => {
     this.settings = settings;
 
-    if ((this.settings.sentiment_excluded_pages || []).includes(location.pathname)) {
-      return;
+    if (!this.excludedPages.includes(location.pathname)) {
+      this.inject();
     }
-
-    document.head.appendChild(this.stylesheet);
-    document.body.appendChild(this.widget);
 
     // Listen for the close message so that the iframe
     // can close the parent
@@ -31,6 +29,33 @@ export class Sentiment {
       }
     });
   };
+
+  public onPageChange = (location: Location): void => {
+    if (!this.excludedPages.includes(location.pathname)) {
+      this.inject();
+    } else {
+      this.destroy();
+    }
+  };
+
+  private inject = () => {
+    if (!document.head.contains(this.stylesheet)) {
+      document.head.appendChild(this.stylesheet);
+    }
+
+    if (!document.body.contains(this.widget)) {
+      document.body.appendChild(this.widget);
+    }
+  };
+
+  private destroy = () => {
+    this.stylesheet.remove();
+    this.widget.remove();
+  };
+
+  private get excludedPages() {
+    return this.settings.sentiment_excluded_pages || [];
+  }
 
   private get widget(): HTMLButtonElement {
     const button = document.createElement('button');

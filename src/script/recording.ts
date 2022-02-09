@@ -4,14 +4,9 @@ import { config } from './config';
 import { cssPath } from './utils/css-path';
 import { Visitor } from './visitor';
 
-interface State {
-  previousPath: string;
-}
-
 const THIRTY_MINUTES = 1000 * 60 * 30;
 
 export class Recording {
-  private state: State;
   private socket!: WebSocket;
   private recording: boolean;
   private terminated: boolean;
@@ -23,7 +18,6 @@ export class Recording {
     this.visitor = visitor;
     this.recording = false;
     this.terminated = false;
-    this.state = { previousPath: location.pathname };
 
     if (this.visitor.bot) return;
 
@@ -37,6 +31,10 @@ export class Recording {
 
   public identify = (visitor: Visitor) => {
     this.visitor = visitor;
+  };
+
+  public onPageChange = (location: Location): void => {
+    this.setPageView(location.href);
   };
 
   private send<T>(key: string, value: T) {
@@ -86,8 +84,8 @@ export class Recording {
       (event.data as any).selector = cssPath(node) || 'html > body';
     }
 
-    if (location.pathname !== this.state.previousPath || event.type === 4) {
-      this.setPageView();
+    if (event.type === 4) {
+      this.setPageView(event.data.href);
     }
 
     if (this.isUserInteractionEvent(event)) {
@@ -106,16 +104,10 @@ export class Recording {
           [IncrementalSource.MouseInteraction, IncrementalSource.Scroll].includes(event.data.source);
   };
 
-  private setPageView = (): void => {
-    // This is required for single page apps as they don't send a
-    // disconnect/connect every time the page changes. If the url
-    // has changed then we should let the API know or events
-    // will stack up forever!
-    this.state.previousPath = location.pathname;
-
+  private setPageView = (href: string): void => {
     this.send('pageview', {
       type: EventType.Custom,
-      data: { href: location.href },
+      data: { href },
       timestamp: new Date().valueOf(),
     });
   };
