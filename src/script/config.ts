@@ -22,7 +22,3 @@ export const config: recordOptions<eventWithTime> = {
     }
   },
 };
-
-export const NPS_CSS_URL = 'https://cdn.squeaky.ai/g/assets/nps.css';
-
-export const SENTIMENT_CSS_URL = 'https://cdn.squeaky.ai/g/assets/sentiment.css';

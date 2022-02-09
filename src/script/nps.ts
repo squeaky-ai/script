@@ -1,4 +1,3 @@
-import { NPS_CSS_URL } from './config';
 import { parseMessage } from './utils/messages';
 import type { Visitor } from './visitor';
 import type { Feedback } from '../types/feedback';
@@ -16,7 +15,6 @@ export class Nps {
 
     if (!this.shouldShowVisitor) return;
 
-    document.head.appendChild(this.stylesheet);
     document.body.appendChild(this.widget);
 
     // Listen for the close message so that the iframe
@@ -37,16 +35,6 @@ export class Nps {
       }
     });
   };
-
-  private get stylesheet(): HTMLLinkElement {
-    const stylesheet = document.createElement('link');
-
-    stylesheet.rel = 'stylesheet';
-    stylesheet.type = 'text/css';
-    stylesheet.href = NPS_CSS_URL;
-
-    return stylesheet;
-  }
 
   private get widget(): HTMLDivElement {
     const div = document.createElement('div');

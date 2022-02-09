@@ -1,4 +1,3 @@
-import { SENTIMENT_CSS_URL } from './config';
 import { parseMessage } from './utils/messages';
 import type { Visitor } from './visitor';
 import type { Feedback } from '../types/feedback';
@@ -38,10 +37,6 @@ export class Sentiment {
   };
 
   private inject = () => {
-    if (!document.head.contains(this.stylesheet)) {
-      document.head.appendChild(this.stylesheet);
-    }
-
     if (!document.body.contains(this.widget)) {
       document.body.appendChild(this.widget);
     }
@@ -49,8 +44,7 @@ export class Sentiment {
 
   private destroy = () => {
     console.log('Destroy the things');
-    this.stylesheet.remove();
-    this.widget.remove();
+    document.getElementById('squeaky__sentiment_open')?.remove();
   };
 
   private get excludedPages() {
@@ -72,16 +66,6 @@ export class Sentiment {
     button.addEventListener('click', this.handleSentimentOpen);
 
     return button;
-  }
-
-  private get stylesheet(): HTMLLinkElement {
-    const stylesheet = document.createElement('link');
-
-    stylesheet.rel = 'stylesheet';
-    stylesheet.type = 'text/css';
-    stylesheet.href = SENTIMENT_CSS_URL;
-
-    return stylesheet;
   }
 
   private get modal(): HTMLDivElement {

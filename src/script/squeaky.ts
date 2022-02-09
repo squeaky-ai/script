@@ -56,10 +56,8 @@ export class Squeaky {
 
   private pollForPageChanges(): void {
     this.poll(() => {
-      console.log(location.pathname, this.pathname);
       if (location.pathname !== this.pathname) {
         this.pathname = location.pathname;
-        console.log('Page changed to ', this.pathname);
 
         this.recording.onPageChange(location);
         this.sentiment.onPageChange(location);
