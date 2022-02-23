@@ -4,8 +4,6 @@ import { config } from './config';
 import { cssPath } from './utils/css-path';
 import { Visitor } from './visitor';
 
-const THIRTY_MINUTES = 1000 * 60 * 30;
-
 export class Recording {
   private socket!: WebSocket;
   private recording: boolean;
@@ -84,7 +82,7 @@ export class Recording {
       (event.data as any).selector = cssPath(node) || 'html > body';
     }
 
-    if (event.type === 4) {
+    if (event.type === EventType.Meta) {
       this.setPageView(event.data.href);
     }
 
@@ -95,6 +93,8 @@ export class Recording {
     if (this.visitor.externalAttributes) {
       this.setExternalAttributes();
     }
+
+    this.visitor.setLastEventAt();
 
     this.send('event', event);
   };
@@ -149,6 +149,6 @@ export class Recording {
     
     this.cutOffTimer = setTimeout(() => {
       this.terminateSession();
-    }, THIRTY_MINUTES);
+    }, SESSION_CUT_OFF_MS);
   };
 }

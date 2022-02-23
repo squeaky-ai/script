@@ -51,6 +51,7 @@ module.exports = ({ development }) => ({
     new DefinePlugin({
       API_SERVER_HOST: JSON.stringify(development ? 'http://localhost:5000' : 'https://gateway.squeaky.ai'),
       WEBSOCKET_SERVER_HOST: JSON.stringify(development ? 'ws://localhost:5000' : 'wss://gateway.squeaky.ai'),
+      SESSION_CUT_OFF_MS : JSON.stringify(1000 * 60 * 30),
     })
   ]
 });

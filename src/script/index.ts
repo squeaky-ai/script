@@ -4,6 +4,7 @@ import { Squeaky } from './squeaky';
 declare global {
   const API_SERVER_HOST: string;
   const WEBSOCKET_SERVER_HOST: string;
+  const SESSION_CUT_OFF_MS: number;
 
   interface Window {
     squeaky: Squeaky;

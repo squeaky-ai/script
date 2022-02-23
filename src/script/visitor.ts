@@ -83,7 +83,7 @@ export class Visitor {
   public get referrer(): string | null {
     const referrer = document.referrer;
 
-    // We don't care about referralls from their own site
+    // We don't care about referrals from their own site
     if (referrer === '' || referrer.replace('www.', '').startsWith(location.origin.replace('www.', ''))) {
       return null;
     }
@@ -91,8 +91,44 @@ export class Visitor {
     return referrer.replace(/\/$/, '');
   };
 
+  public get lastEventAt(): number | null {
+    const timestamp = sessionStorage.getItem('squeaky_last_event_at');
+
+    if (timestamp) {
+      return Number(timestamp);
+    }
+
+    return null;
+  }
+
+  public setLastEventAt = (): void => {
+    sessionStorage.setItem('squeaky_last_event_at', new Date().valueOf().toString());
+  };
+
+  // A user can leave part of the site we are recording, but
+  // stay on the same domain, in the same session. For example
+  // a user may sign up on squeaky.ai, and be redirected to
+  // squeaky.ai/app where we don't record. This means that the
+  // session_id is still the same, but there will be a huge
+  // time where they are off site. This causes hours inbetween events
+  // that all count as the same session and ruin the average time
+  // on site stats.
+  private get shouldStartNewSession(): boolean {
+    const now = new Date().valueOf();
+
+    if (this.lastEventAt === null) {
+      return false;
+    }
+
+    return (now - this.lastEventAt) > SESSION_CUT_OFF_MS;
+  }
+
   private getOrCreateId(type: 'session' | 'visitor', storage: Storage): [string, boolean] {
     let id = storage.getItem(`squeaky_${type}_id`);
+
+    if (type === 'session' && this.shouldStartNewSession) {
+      id = null;
+    }
 
     if (id) {
       return [id, false];
