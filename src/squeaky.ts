@@ -2,8 +2,8 @@ import { Visitor } from './visitor';
 import { Sentiment } from './sentiment';
 import { Nps } from './nps';
 import { Recording } from './recording';
-import type { Feedback } from '../types/feedback';
-import type { ExternalAttributes } from '../types/visitor';
+import type { FeedbackResponse } from './types/feedback';
+import type { ExternalAttributes } from './types/visitor';
 
 export class Squeaky {
   public visitor: Visitor;
@@ -32,14 +32,38 @@ export class Squeaky {
 
   private async getFeedbackSettings() {
     try {
-      const res = await fetch(`${API_SERVER_HOST}/feedback?${this.visitor.params.toString()}`);
+      const query = `
+        {
+          feedback(siteId: \"${this.visitor.siteId}\") {
+            npsEnabled
+            npsAccentColor
+            npsSchedule
+            npsPhrase
+            npsFollowUpEnabled
+            npsContactConsentEnabled
+            npsLayout
+            sentimentEnabled
+            sentimentAccentColor
+            sentimentExcludedPages
+            sentimentLayout
+          }
+        }
+      `;
+
+      const res = await fetch(`${API_SERVER_HOST}/graphql`, {
+        method: 'POST',
+        body: JSON.stringify({ query }),
+        headers: {
+          'content-type': 'application/json'
+        }
+      });
   
       if (!res.ok) return;
 
-      const data: Feedback = await res.json();
+      const { data }: FeedbackResponse = await res.json();
 
-      if (data.nps_enabled) this.nps.init(data);
-      if (data.sentiment_enabled) this.sentiment.init(data);
+      if (data.feedback.npsEnabled) this.nps.init(data.feedback);
+      if (data.feedback.sentimentEnabled) this.sentiment.init(data.feedback);
     } catch (error) {
       console.error(error);
     }

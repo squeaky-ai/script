@@ -1,6 +1,6 @@
 import { parseMessage } from './utils/messages';
 import type { Visitor } from './visitor';
-import type { Feedback } from '../types/feedback';
+import type { Feedback } from './types/feedback';
 
 export class Sentiment {
   private visitor: Visitor;
@@ -47,15 +47,15 @@ export class Sentiment {
   };
 
   private get excludedPages() {
-    return this.settings.sentiment_excluded_pages || [];
+    return this.settings.sentimentExcludedPages || [];
   }
 
   private get widget(): HTMLButtonElement {
     const button = document.createElement('button');
 
     button.id = 'squeaky__sentiment_open';
-    button.classList.add(this.settings.sentiment_layout, 'squeaky-hide');
-    button.style.background = this.settings.sentiment_accent_color;
+    button.classList.add(this.settings.sentimentLayout, 'squeaky-hide');
+    button.style.background = this.settings.sentimentAccentColor;
     button.innerHTML = `
       <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='20' height='20'>
         <path d='M12 22a10 10 0 1 1 0-20 10 10 0 1 1 0 20zm-5-9a5 5 0 0 0 5 5 5 5 0 0 0 5-5h-2a3 3 0 0 1-3 3 3 3 0 0 1-3-3H7zm1-2a1.5 1.5 0 0 0 1.5-1.5A1.5 1.5 0 0 0 8 8a1.5 1.5 0 0 0-1.5 1.5A1.5 1.5 0 0 0 8 11zm8 0a1.5 1.5 0 0 0 1.5-1.5A1.5 1.5 0 0 0 16 8a1.5 1.5 0 0 0-1.5 1.5A1.5 1.5 0 0 0 16 11z' fill='#fff' opacity='.65' />
@@ -71,7 +71,7 @@ export class Sentiment {
     const modal = document.createElement('div');
     
     modal.id = 'squeaky__sentiment_modal';
-    modal.classList.add(this.settings.sentiment_layout);
+    modal.classList.add(this.settings.sentimentLayout);
 
     return modal;
   }
@@ -80,7 +80,7 @@ export class Sentiment {
     const iframe = document.createElement('iframe');
 
     iframe.id = 'squeaky__sentiment_frame';
-    iframe.src = `${API_SERVER_HOST}/feedback/sentiment?${this.visitor.params.toString()}`;
+    iframe.src = `${WEB_HOST}/feedback/sentiment?${this.visitor.params.toString()}`;
     iframe.scrolling = 'no';
 
     return iframe;
@@ -96,7 +96,7 @@ export class Sentiment {
         <path fill='#ffffff' d='M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z'  />
       </svg>
     `;
-    button.style.background = this.settings.sentiment_accent_color;
+    button.style.background = this.settings.sentimentAccentColor;
     button.addEventListener('click', this.handleSentimentClose);
 
     return button;

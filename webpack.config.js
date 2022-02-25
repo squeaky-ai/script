@@ -3,16 +3,12 @@
 const path = require('path');
 const { DefinePlugin } = require('webpack');
 
-const getEntry = (pathname) => path.join(__dirname, 'src', pathname, 'index.ts');
-
 module.exports = ({ development }) => ({
   devtool: false,
   mode: development ? 'development' : 'production',
   watch: !!development,
   entry: {
-    nps: getEntry('nps'),
-    script: getEntry('script'),
-    sentiment: getEntry('sentiment'),
+    script: path.join(__dirname, 'src', 'index.ts'),
   },
   output: {
     path: path.join(__dirname, '.build'),
@@ -49,8 +45,9 @@ module.exports = ({ development }) => ({
   },
   plugins: [
     new DefinePlugin({
-      API_SERVER_HOST: JSON.stringify(development ? 'http://localhost:5000' : 'https://gateway.squeaky.ai'),
-      WEBSOCKET_SERVER_HOST: JSON.stringify(development ? 'ws://localhost:5000' : 'wss://gateway.squeaky.ai'),
+      WEB_HOST: JSON.stringify(development ? 'http://localhost:3000' : 'https://squeaky.ai'),
+      API_SERVER_HOST: JSON.stringify(development ? 'http://localhost:4000/api' : 'https://squeaky.ai/api'),
+      WEBSOCKET_SERVER_HOST: JSON.stringify(development ? 'ws://localhost:5001' : 'wss://gateway.squeaky.ai'),
       SESSION_CUT_OFF_MS : JSON.stringify(1000 * 60 * 30),
     })
   ]

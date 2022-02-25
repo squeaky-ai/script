@@ -1,15 +1,21 @@
 export interface Feedback {
-  nps_accent_color: string;
-  nps_enabled: boolean;
-  nps_follow_up_enabled: boolean;
-  nps_layout: NpsLayout;
-  nps_phrase: string;
-  nps_schedule: 'once' | 'monthly';
-  sentiment_accent_color: string;
-  sentiment_enabled: boolean;
-  sentiment_excluded_pages: string[];
-  sentiment_layout: SentimentLayout;
+  npsAccentColor: string;
+  npsEnabled: boolean;
+  npsFollowUpEnabled: boolean;
+  npsLayout: NpsLayout;
+  npsPhrase: string;
+  npsSchedule: 'once' | 'monthly';
+  sentimentAccentColor: string;
+  sentimentEnabled: boolean;
+  sentimentExcludedPages: string[];
+  sentimentLayout: SentimentLayout;
 }
+
+export interface FeedbackResponse {
+  data: {
+    feedback: Feedback;
+  };
+};
 
 export type NpsLayout = 'full_width' | 'boxed';
 

@@ -1,6 +1,6 @@
 import { parseMessage } from './utils/messages';
 import type { Visitor } from './visitor';
-import type { Feedback } from '../types/feedback';
+import type { Feedback } from './types/feedback';
 
 export class Nps {
   private visitor: Visitor;
@@ -40,7 +40,7 @@ export class Nps {
     const div = document.createElement('div');
 
     div.id = 'squeaky__nps_form';
-    div.classList.add(this.settings.nps_layout, 'squeaky-hide');
+    div.classList.add(this.settings.npsLayout, 'squeaky-hide');
 
     const wrapper = document.createElement('div');
 
@@ -63,7 +63,7 @@ export class Nps {
         <path fill='#ffffff' d='M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z'  />
       </svg>
     `;
-    button.style.background = this.settings.nps_accent_color;
+    button.style.background = this.settings.npsAccentColor;
     button.addEventListener('click', this.handleNpsClose);
 
     return button;
@@ -73,7 +73,7 @@ export class Nps {
     const iframe = document.createElement('iframe');
 
     iframe.id = 'squeaky__nps_frame';
-    iframe.src = `${API_SERVER_HOST}/feedback/nps?${this.visitor.params.toString()}`;
+    iframe.src = `${WEB_HOST}/feedback/nps?${this.visitor.params.toString()}`;
     iframe.scrolling = 'no';
 
     return iframe;
@@ -88,7 +88,7 @@ export class Nps {
       return true;
     }
 
-    if (this.settings.nps_schedule === 'once') {
+    if (this.settings.npsSchedule === 'once') {
       // They've submitted feedback before and the
       // schedule is to only show once
       return false;
