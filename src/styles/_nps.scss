@@ -18,9 +18,21 @@
     margin-left: -16.5rem;
     width: 33rem;
   }
+
+  &.full_width,
+  &.boxed {
+    @media screen and (max-width: 540px) {
+      left: 2rem;
+      width: calc(100% - 4rem);
+    }
+  }
   
   &.step-1 {
     height: 22rem;
+
+    @media screen and (max-width: 540px) {
+      height: 21rem;
+    }
   }
   
   &.step-2 {
@@ -29,10 +41,18 @@
   
   &.step-3 {
     height: 36rem;
+
+    @media screen and (max-width: 540px) { 
+      height: 38rem; 
+    }
   }
   
   &.step-4 {
     height: 19rem;
+  }
+
+  @media screen and (max-width: 540px) {
+    height: 15rem;
   }
 
   .squeaky__nps_wrapper {
@@ -40,6 +60,10 @@
     margin: 0 auto;
     position: relative;
     width: 33rem;
+
+    @media screen and (max-width: 540px) {
+      width: 100%;
+    }
   }
 }
 
