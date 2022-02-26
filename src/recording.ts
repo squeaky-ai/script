@@ -4,6 +4,8 @@ import { config } from './config';
 import { cssPath } from './utils/css-path';
 import { Visitor } from './visitor';
 
+const MAX_RETRIES = 5;
+
 export class Recording {
   private socket!: WebSocket;
   private recording: boolean;
@@ -11,6 +13,7 @@ export class Recording {
   private cutOffTimer?: NodeJS.Timer;
   private stopRecording?: VoidFunction;
   private visitor: Visitor;
+  private retries: number = 0;
 
   public constructor(visitor: Visitor) {
     this.visitor = visitor;
@@ -19,12 +22,7 @@ export class Recording {
 
     if (this.visitor.bot) return;
 
-    this.socket = new WebSocket(`${WEBSOCKET_SERVER_HOST}/in?${this.visitor.params.toString()}`);
-
-    this.socket.addEventListener('open', () => {
-      this.init();
-      this.setCutOff();
-    });
+    this.connect();
   }
 
   public identify = (visitor: Visitor) => {
@@ -34,6 +32,24 @@ export class Recording {
   public onPageChange = (location: Location): void => {
     this.setPageView(location.href);
   };
+
+  private connect() {
+    this.socket = new WebSocket(`${WEBSOCKET_SERVER_HOST}/in?${this.visitor.params.toString()}`);
+
+    this.socket.addEventListener('open', () => {
+      this.init();
+      this.setCutOff();
+    });
+
+    this.socket.addEventListener('close', () => {
+      if (this.retries < MAX_RETRIES) {
+        setTimeout(() => {
+          this.retries++;
+          this.connect();
+        }, this.retries * 100);
+      }
+    });
+  }
 
   private send<T>(key: string, value: T) {
     const payload = JSON.stringify({ key, value });
