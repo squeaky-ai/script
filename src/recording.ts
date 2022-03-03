@@ -96,6 +96,9 @@ export class Recording {
       // all clicked elements without having to rebuild the entire page
       const node = record.mirror.getNode(event.data.id);
       (event.data as any).selector = cssPath(node) || 'html > body';
+      // This is done purely so that we can read clicks easilly later
+      // as the page is important
+      (event.data as any).href = location.pathname;
     }
 
     if (event.type === EventType.Meta) {
