@@ -41,6 +41,11 @@ export class Visitor {
       referrer: this.referrer,
       useragent: this.useragent,
       timezone: this.timezone,
+      utm_campaign: this.utmCampaign,
+      utm_content: this.utmContent,
+      utm_medium: this.utmMedium,
+      utm_source: this.utmSource,
+      utm_term: this.utmTerm,
     };
   }
 
@@ -101,9 +106,44 @@ export class Visitor {
     return null;
   }
 
+  public get utmSource(): string | null {
+    return this.utmParameters.utm_source || null;
+  }
+
+  public get utmMedium(): string | null {
+    return this.utmParameters.utm_medium || null;
+  }
+
+  public get utmCampaign(): string | null {
+    return this.utmParameters.utm_campaign || null;
+  }
+
+  public get utmContent(): string | null {
+    return this.utmParameters.utm_content || null;
+  }
+
+  public get utmTerm(): string | null {
+    return this.utmParameters.utm_term || null;
+  }
+
   public setLastEventAt = (): void => {
     sessionStorage.setItem('squeaky_last_event_at', new Date().valueOf().toString());
   };
+
+  private get utmParameters(): Record<string, string> {
+    const parameters: Record<string, string> = {};
+    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+
+    const params = new URLSearchParams(location.search);
+
+    params.forEach((key, value) => {
+      if (utmKeys.includes(key)) {
+        parameters[key] = value;
+      }
+    });
+
+    return parameters;
+  }
 
   // A user can leave part of the site we are recording, but
   // stay on the same domain, in the same session. For example
