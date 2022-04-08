@@ -9,6 +9,7 @@ export interface Feedback {
   sentimentEnabled: boolean;
   sentimentExcludedPages: string[];
   sentimentLayout: SentimentLayout;
+  sentimentDevices: string[];
 }
 
 export interface FeedbackResponse {

@@ -1,4 +1,4 @@
-import type { VisitorObject, ExternalAttributes } from './types/visitor';
+import type { VisitorObject, ExternalAttributes, Device } from './types/visitor';
 
 export class Visitor {
   public key: string;
@@ -124,6 +124,13 @@ export class Visitor {
 
   public get utmTerm(): string | null {
     return this.utmParameters.utm_term || null;
+  }
+
+  public get deviceType(): Device {
+    if (window.innerWidth < 800) return 'mobile';
+    if (window.innerWidth < 1024) return 'tablet';
+    
+    return 'desktop';
   }
 
   public setLastEventAt = (): void => {

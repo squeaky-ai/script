@@ -15,3 +15,5 @@ export interface VisitorObject {
 }
 
 export type ExternalAttributes = Record<string, string | number>;
+
+export type Device = 'mobile' | 'tablet' | 'desktop';

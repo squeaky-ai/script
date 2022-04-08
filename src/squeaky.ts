@@ -2,7 +2,7 @@ import { Visitor } from './visitor';
 import { Sentiment } from './sentiment';
 import { Nps } from './nps';
 import { Recording } from './recording';
-import type { FeedbackResponse } from './types/feedback';
+import type { Feedback, FeedbackResponse } from './types/feedback';
 import type { ExternalAttributes } from './types/visitor';
 
 export class Squeaky {
@@ -46,6 +46,7 @@ export class Squeaky {
             sentimentAccentColor
             sentimentExcludedPages
             sentimentLayout
+            sentimentDevices
           }
         }
       `;
@@ -62,12 +63,20 @@ export class Squeaky {
 
       const { data }: FeedbackResponse = await res.json();
 
-      if (data.feedback.npsEnabled) this.nps.init(data.feedback);
-      if (data.feedback.sentimentEnabled) this.sentiment.init(data.feedback);
+      if (this.npsEnabled(data.feedback)) this.nps.init(data.feedback);
+      if (this.sentimentEnabled(data.feedback)) this.sentiment.init(data.feedback);
     } catch (error) {
       console.error(error);
     }
   };
+
+  private npsEnabled(feedback: Feedback) {
+    return feedback.npsEnabled; 
+  }
+
+  private sentimentEnabled(feedback: Feedback) {
+    return feedback.sentimentEnabled && feedback.sentimentDevices.includes(this.visitor.deviceType);
+  }
 
   private poll(callback: Function, interval = 500): void {
     window.clearTimeout(this.timer);
