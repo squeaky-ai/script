@@ -1,0 +1,253 @@
+TN:
+SF:src/visitor.ts
+FN:13,Visitor
+FN:52,Visitor.deleteSessionId
+FN:136,Visitor.setLastEventAt
+FN:26,get params
+FN:34,toObject
+FN:56,get deviceX
+FN:60,get deviceY
+FN:64,get viewportX
+FN:68,get viewportY
+FN:72,get language
+FN:76,get bot
+FN:80,get useragent
+FN:84,get timezone
+FN:88,get referrer
+FN:99,get lastEventAt
+FN:109,get utmSource
+FN:113,get utmMedium
+FN:117,get utmCampaign
+FN:121,get utmContent
+FN:125,get utmTerm
+FN:129,get deviceType
+FN:140,get utmParameters
+FN:163,get shouldStartNewSession
+FN:173,getOrCreateId
+FNF:24
+FNH:4
+FNDA:3,Visitor
+FNDA:0,Visitor.deleteSessionId
+FNDA:0,Visitor.setLastEventAt
+FNDA:0,get params
+FNDA:0,toObject
+FNDA:0,get deviceX
+FNDA:0,get deviceY
+FNDA:0,get viewportX
+FNDA:0,get viewportY
+FNDA:0,get language
+FNDA:0,get bot
+FNDA:0,get useragent
+FNDA:0,get timezone
+FNDA:0,get referrer
+FNDA:3,get lastEventAt
+FNDA:0,get utmSource
+FNDA:0,get utmMedium
+FNDA:0,get utmCampaign
+FNDA:0,get utmContent
+FNDA:0,get utmTerm
+FNDA:0,get deviceType
+FNDA:0,get utmParameters
+FNDA:3,get shouldStartNewSession
+FNDA:6,getOrCreateId
+DA:1,1
+DA:2,1
+DA:3,1
+DA:4,1
+DA:5,1
+DA:6,1
+DA:7,1
+DA:8,1
+DA:9,1
+DA:10,1
+DA:11,1
+DA:12,1
+DA:13,1
+DA:14,3
+DA:15,3
+DA:16,3
+DA:17,3
+DA:18,3
+DA:19,3
+DA:20,3
+DA:21,3
+DA:22,3
+DA:23,3
+DA:24,3
+DA:25,1
+DA:26,1
+DA:27,0
+DA:28,0
+DA:29,0
+DA:30,0
+DA:31,0
+DA:32,0
+DA:33,1
+DA:34,1
+DA:35,0
+DA:36,0
+DA:37,0
+DA:38,0
+DA:39,0
+DA:40,0
+DA:41,0
+DA:42,0
+DA:43,0
+DA:44,0
+DA:45,0
+DA:46,0
+DA:47,0
+DA:48,0
+DA:49,0
+DA:50,0
+DA:51,1
+DA:52,1
+DA:53,0
+DA:54,1
+DA:55,1
+DA:56,1
+DA:57,0
+DA:58,0
+DA:59,1
+DA:60,1
+DA:61,0
+DA:62,0
+DA:63,1
+DA:64,1
+DA:65,0
+DA:66,0
+DA:67,1
+DA:68,1
+DA:69,0
+DA:70,0
+DA:71,1
+DA:72,1
+DA:73,0
+DA:74,0
+DA:75,1
+DA:76,1
+DA:77,0
+DA:78,0
+DA:79,1
+DA:80,1
+DA:81,0
+DA:82,0
+DA:83,1
+DA:84,1
+DA:85,0
+DA:86,0
+DA:87,1
+DA:88,1
+DA:89,0
+DA:90,0
+DA:91,0
+DA:92,0
+DA:93,0
+DA:94,0
+DA:95,0
+DA:96,0
+DA:97,1
+DA:98,1
+DA:99,1
+DA:100,3
+DA:101,3
+DA:102,3
+DA:103,0
+DA:104,0
+DA:105,3
+DA:106,3
+DA:107,3
+DA:108,1
+DA:109,1
+DA:110,0
+DA:111,0
+DA:112,1
+DA:113,1
+DA:114,0
+DA:115,0
+DA:116,1
+DA:117,1
+DA:118,0
+DA:119,0
+DA:120,1
+DA:121,1
+DA:122,0
+DA:123,0
+DA:124,1
+DA:125,1
+DA:126,0
+DA:127,0
+DA:128,1
+DA:129,1
+DA:130,0
+DA:131,0
+DA:132,0
+DA:133,0
+DA:134,0
+DA:135,1
+DA:136,1
+DA:137,0
+DA:138,1
+DA:139,1
+DA:140,1
+DA:141,0
+DA:142,0
+DA:143,0
+DA:144,0
+DA:145,0
+DA:146,0
+DA:147,0
+DA:148,0
+DA:149,0
+DA:150,0
+DA:151,0
+DA:152,0
+DA:153,0
+DA:154,1
+DA:155,1
+DA:156,1
+DA:157,1
+DA:158,1
+DA:159,1
+DA:160,1
+DA:161,1
+DA:162,1
+DA:163,1
+DA:164,3
+DA:165,3
+DA:166,3
+DA:167,3
+DA:168,3
+DA:169,3
+DA:170,3
+DA:171,3
+DA:172,1
+DA:173,1
+DA:174,6
+DA:175,6
+DA:176,6
+DA:177,0
+DA:178,0
+DA:179,6
+DA:180,6
+DA:181,3
+DA:182,3
+DA:183,3
+DA:184,3
+DA:185,3
+DA:186,3
+DA:187,3
+DA:188,1
+LF:188
+LH:108
+BRDA:13,0,0,3
+BRDA:99,1,0,3
+BRDA:102,2,0,0
+BRDA:163,3,0,3
+BRDA:173,4,0,6
+BRDA:176,5,0,3
+BRDA:176,6,0,0
+BRDA:180,7,0,3
+BRF:8
+BRH:6
+end_of_record
