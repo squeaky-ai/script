@@ -37,7 +37,7 @@ export class Visitor {
       device_x: this.deviceX,
       device_y: this.deviceY,
       viewport_x: this.viewportX,
-      viewport_y: this.viewportX,
+      viewport_y: this.viewportY,
       referrer: this.referrer,
       useragent: this.useragent,
       timezone: this.timezone,
