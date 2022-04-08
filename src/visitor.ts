@@ -143,7 +143,7 @@ export class Visitor {
 
     const params = new URLSearchParams(location.search);
 
-    params.forEach((key, value) => {
+    params.forEach((value, key) => {
       if (utmKeys.includes(key)) {
         parameters[key] = value;
       }
