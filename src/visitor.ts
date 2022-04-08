@@ -97,7 +97,7 @@ export class Visitor {
   };
 
   public get lastEventAt(): number | null {
-    const timestamp = sessionStorage.getItem('squeaky_last_event_at');
+    const timestamp = localStorage.getItem('squeaky_last_event_at');
 
     if (timestamp) {
       return Number(timestamp);
@@ -127,7 +127,7 @@ export class Visitor {
   }
 
   public setLastEventAt = (): void => {
-    sessionStorage.setItem('squeaky_last_event_at', new Date().valueOf().toString());
+    localStorage.setItem('squeaky_last_event_at', new Date().valueOf().toString());
   };
 
   private get utmParameters(): Record<string, string> {
