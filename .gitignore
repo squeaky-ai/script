@@ -8,3 +8,6 @@ utils/public/script.js
 
 # Other
 .DS_Store
+
+# tests
+coverage
