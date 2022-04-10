@@ -1,4 +1,4 @@
-import { Visitor } from './visitor';
+import { Visitor } from '../../src/visitor';
 
 describe('Visitor', () => {
   describe('constructor', () => {

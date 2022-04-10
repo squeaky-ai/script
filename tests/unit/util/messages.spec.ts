@@ -1,4 +1,4 @@
-import { parseMessage } from './messages';
+import { parseMessage } from '../../../src/utils/messages';
 
 describe('messages', () => {
   describe('parseMessage', () => {

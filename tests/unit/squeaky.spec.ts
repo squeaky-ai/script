@@ -1,8 +1,8 @@
-import { Nps } from './nps';
-import { Recording } from './recording';
-import { Sentiment } from './sentiment';
-import { Squeaky } from './squeaky';
-import { Visitor } from './visitor';
+import { Nps } from '../../src/nps';
+import { Recording } from '../../src/recording';
+import { Sentiment } from '../../src/sentiment';
+import { Squeaky } from '../../src/squeaky';
+import { Visitor } from '../../src/visitor';
 
 global.fetch = jest.fn(() => Promise.resolve({
   ok: true,
