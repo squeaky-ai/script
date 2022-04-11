@@ -12,12 +12,6 @@ export interface Feedback {
   sentimentDevices: string[];
 }
 
-export interface FeedbackResponse {
-  data: {
-    feedback: Feedback;
-  };
-};
-
 export type NpsLayout = 'full_width' | 'boxed';
 
 export type SentimentLayout = 'right_middle' | 'right_bottom' | 'left_middle' | 'left_bottom';
