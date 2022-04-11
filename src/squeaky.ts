@@ -2,14 +2,18 @@ import { Visitor } from './visitor';
 import { Sentiment } from './sentiment';
 import { Nps } from './nps';
 import { Recording } from './recording';
-import type { Feedback, FeedbackResponse } from './types/feedback';
+import { MagicErasure } from './magic-erasure';
+import type { Feedback } from './types/feedback';
+import type { FeedbackResponse } from './types/api';
 import type { ExternalAttributes } from './types/visitor';
+import type { Site } from './types/site';
 
 export class Squeaky {
   public visitor: Visitor;
   public sentiment: Sentiment;
   public nps: Nps;
   public recording: Recording;
+  public magicErasure: MagicErasure;
 
   private timer!: NodeJS.Timer;
   private pathname: string = location.pathname;
@@ -20,8 +24,9 @@ export class Squeaky {
     this.recording = new Recording(this.visitor);
     this.sentiment = new Sentiment(this.visitor);
     this.nps = new Nps(this.visitor);
+    this.magicErasure = new MagicErasure();
 
-    this.getFeedbackSettings();
+    this.initServices();
     this.pollForPageChanges();
   }
 
@@ -30,34 +35,9 @@ export class Squeaky {
     this.recording.identify(this.visitor);
   };
 
-  private async getFeedbackSettings() {
+  private async initServices() {
     try {
-      const query = `
-        {
-          feedback(siteId: \"${this.visitor.siteId}\") {
-            npsEnabled
-            npsAccentColor
-            npsSchedule
-            npsPhrase
-            npsFollowUpEnabled
-            npsContactConsentEnabled
-            npsLayout
-            sentimentEnabled
-            sentimentAccentColor
-            sentimentExcludedPages
-            sentimentLayout
-            sentimentDevices
-          }
-        }
-      `;
-
-      const res = await fetch(`${API_SERVER_HOST}/graphql`, {
-        method: 'POST',
-        body: JSON.stringify({ query }),
-        headers: {
-          'content-type': 'application/json'
-        }
-      });
+      const res = await this.getSettings();
   
       if (!res.ok) return;
 
@@ -65,9 +45,43 @@ export class Squeaky {
 
       if (this.npsEnabled(data.feedback)) this.nps.init(data.feedback);
       if (this.sentimentEnabled(data.feedback)) this.sentiment.init(data.feedback);
+      if (this.magicErasureEnabled(data.siteByUuid)) this.magicErasure.init();
     } catch (error) {
       console.error(error);
     }
+  };
+
+  private async getSettings(): Promise<Response> {
+    const query = `
+      {
+        feedback(siteId: \"${this.visitor.siteId}\") {
+          npsEnabled
+          npsAccentColor
+          npsSchedule
+          npsPhrase
+          npsFollowUpEnabled
+          npsContactConsentEnabled
+          npsLayout
+          sentimentEnabled
+          sentimentAccentColor
+          sentimentExcludedPages
+          sentimentLayout
+          sentimentDevices
+        }
+        siteByUuid(siteId: \"${this.visitor.siteId}\") {
+          magicErasureEnabled
+        }
+      }
+    `;
+
+    return fetch(`${API_SERVER_HOST}/graphql`, {
+      method: 'POST',
+      body: JSON.stringify({ query }),
+      headers: {
+        'content-type': 'application/json'
+      },
+      credentials: 'include',
+    });
   };
 
   private npsEnabled(feedback: Feedback) {
@@ -76,6 +90,10 @@ export class Squeaky {
 
   private sentimentEnabled(feedback: Feedback) {
     return feedback.sentimentEnabled && feedback.sentimentDevices.includes(this.visitor.deviceType);
+  }
+
+  private magicErasureEnabled(site?: Site) {
+    return site?.magicErasureEnabled;
   }
 
   private poll(callback: Function, interval = 500): void {
