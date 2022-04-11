@@ -24,7 +24,7 @@ export class Squeaky {
     this.recording = new Recording(this.visitor);
     this.sentiment = new Sentiment(this.visitor);
     this.nps = new Nps(this.visitor);
-    this.magicErasure = new MagicErasure();
+    this.magicErasure = new MagicErasure(this.visitor);
 
     this.initServices();
     this.pollForPageChanges();

@@ -1,3 +1,6 @@
+import { cssPath } from './utils/css-path';
+import type { Visitor } from './visitor';
+
 type Draggable = {
   x: number;
   y: number;
@@ -7,6 +10,9 @@ type Draggable = {
 }
 
 export class MagicErasure {
+  private open: boolean = false;
+  private visitor: Visitor;
+
   private draggable: Draggable = {
     x: 0,
     y: 0,
@@ -15,13 +21,22 @@ export class MagicErasure {
     mousedown: false,
   };
 
+  public constructor(visitor: Visitor) {
+    this.visitor = visitor;
+  }
+
   public init = () => {
     this.inject();
+
+    document.addEventListener('click', this.handleElementClick);
+    document.addEventListener('mouseout', this.handleElementMouseOut);
+    document.addEventListener('mouseover', this.handleElementMouseOver);
   };
 
   private inject = () => {
     if (!document.body.contains(this.widget)) {
       document.body.appendChild(this.widget);
+      document.body.appendChild(this.highlighter);
     }
   };
 
@@ -41,6 +56,15 @@ export class MagicErasure {
     button.addEventListener('click', this.handleMagicErasureOpen);
 
     return button;
+  }
+
+  private get highlighter(): HTMLDivElement {
+    const highligher = document.createElement('div');
+
+    highligher.id = 'squeaky__magic_erasure_highlighter';
+    highligher.classList.add('squeaky-hide');
+
+    return highligher;
   }
 
   private get modal(): HTMLDivElement {
@@ -71,7 +95,7 @@ export class MagicErasure {
     const iframe = document.createElement('iframe');
 
     iframe.id = 'squeaky__magic_erasure_frame';
-    iframe.src = `${WEB_HOST}/app/widget/magic-erasure`;
+    iframe.src = `${WEB_HOST}/app/widget/magic-erasure?${this.visitor.params.toString()}`;
 
     return iframe;
   }
@@ -118,16 +142,86 @@ export class MagicErasure {
   };
 
   private handleMagicErasureOpen = (): void => {
-    if (document.getElementById('squeaky__magic_erasure_modal')) {
+    if (this.open) {
       return this.handleMagicErasureClose();
     }
+
+    this.open = true;
 
     document.body.appendChild(this.modal);
   };
 
   private handleMagicErasureClose = (): void => {
+    this.open = false;
+
     const modal = document.getElementById('squeaky__magic_erasure_modal');
     
     if (modal) modal.remove();
+  };
+
+  private handleElementMouseOver = (event: MouseEvent) => {
+    if (!this.open) return;
+
+    let element = event.target as Element;
+    
+    // These things should be ignored, we don't show body in the
+    // heatmaps and we don't want them to be able to hide it!
+    if (element.nodeName.toLowerCase() === 'body' || element.id?.startsWith('squeaky__')) {
+      return;
+    }
+
+    // The elements inside the svg always seem to take the focus
+    // so use the parent svg if it's one of the children
+    if (element.closest('svg')) {
+      element = element.closest('svg') || element;
+    }
+
+    const { width, height, top, left } = element.getBoundingClientRect();
+    const highligter = document.querySelector<HTMLDivElement>('#squeaky__magic_erasure_highlighter');
+
+    if (!highligter) return;
+
+    // Position the highlighter on top of the target element.
+    // The reason for doing is this way is that we don't have
+    // to modify the css of the element on the page, which
+    // could potentially break. Also it means we don't need to
+    // fight overflow stuff
+    highligter.style.cssText = `
+      height: ${height}px;
+      left: ${left + window.scrollX}px; 
+      top: ${top + window.scrollY}px;
+      width: ${width}px;
+    `;
+
+    const selectorText = `${cssPath(element)} - ${Math.floor(height)} x ${Math.floor(width)}`;
+    highligter.setAttribute('data-selector', selectorText);
+  };
+
+  private handleElementMouseOut = () => {
+    const highligter = document.querySelector<HTMLDivElement>('#squeaky__magic_erasure_highlighter');
+
+    if (!highligter) return;
+
+    // Reset all the styles, this keeps the element but means
+    // it is hidden so it doesn't need to be added/removed
+    // constantly
+    highligter.style.cssText = '';
+  };
+
+  private handleElementClick = (event: MouseEvent) => {
+    if (!this.open) return;
+
+    // If the user choses to select an <a> tag, we don't
+    // want it going off to that page
+    event.preventDefault();
+    event.stopPropagation();
+
+    const element = event.target as Element;
+    const iframe = document.querySelector<HTMLIFrameElement>('#squeaky__magic_erasure_frame');
+
+    // Post a message to the iframe containing the css
+    // selector so that the app can pick it up and post
+    // it off to the API and update the UI.
+    iframe?.contentWindow?.postMessage(cssPath(element), '*');
   };
 }
