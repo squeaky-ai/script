@@ -27,6 +27,7 @@
   border-radius: .5rem;
   bottom: 8rem;
   height: 32rem;
+  overflow: hidden;
   position: fixed;
   right: 2rem;
   width: 20rem;
@@ -61,4 +62,10 @@
   display: block;
   height: 2px;
   width: 2px;
+}
+
+#squeaky__magic_erasure_frame {
+  border: none;
+  height: 100%;
+  width: 100%;
 }

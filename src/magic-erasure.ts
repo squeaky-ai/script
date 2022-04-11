@@ -62,8 +62,18 @@ export class MagicErasure {
     drag.addEventListener('mousedown', this.handleMagicErasureMouseDown);
 
     modal.appendChild(drag);
+    modal.appendChild(this.iframe);
 
     return modal;
+  }
+
+  private get iframe(): HTMLIFrameElement {
+    const iframe = document.createElement('iframe');
+
+    iframe.id = 'squeaky__magic_erasure_frame';
+    iframe.src = `${WEB_HOST}/app/widget/magic-erasure`;
+
+    return iframe;
   }
 
   private handleMagicErasureMouseDown = (event: MouseEvent) => {
