@@ -1,5 +1,6 @@
 import { cssPath } from './utils/css-path';
 import type { Visitor } from './visitor';
+import type { SqueakyMagicErasureMessage } from './types/message';
 
 type Draggable = {
   x: number;
@@ -219,9 +220,14 @@ export class MagicErasure {
     const element = event.target as Element;
     const iframe = document.querySelector<HTMLIFrameElement>('#squeaky__magic_erasure_frame');
 
+    const message: SqueakyMagicErasureMessage = {
+      action: 'create',
+      selector: cssPath(element)
+    };
+
     // Post a message to the iframe containing the css
     // selector so that the app can pick it up and post
     // it off to the API and update the UI.
-    iframe?.contentWindow?.postMessage(cssPath(element), '*');
+    iframe?.contentWindow?.postMessage(JSON.stringify(message), '*');
   };
 }

@@ -31,3 +31,8 @@ export type SqueakyCloseSentimentMessage = {
   key: '__squeaky_close_sentiment';
   value: {};
 }
+
+export type SqueakyMagicErasureMessage = {
+  action: 'create' | 'delete';
+  selector: string;
+}
