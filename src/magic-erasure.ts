@@ -226,7 +226,7 @@ export class MagicErasure {
   };
 
   private handleElementClick = (event: MouseEvent) => {
-    const element = event.target as Element;
+    const element = event.target as HTMLElement;
 
     if (!this.open) return;
     if (this.shouldIgnoreElement(element)) return;
@@ -238,8 +238,18 @@ export class MagicErasure {
 
     const iframe = document.querySelector<HTMLIFrameElement>('#squeaky__magic_erasure_frame');
 
+    const isHidden = element.getAttribute('data-squeaky-hidden') === 'true';
+
+    if (isHidden) {
+      element.removeAttribute('data-squeaky-hidden');
+      element.style.opacity = '1';
+    } else {
+      element.setAttribute('data-squeaky-hidden', 'true');
+      element.style.opacity = '.125';
+    }
+
     const message: SqueakyMagicErasureMessage = {
-      action: 'create',
+      action: isHidden ? 'delete' : 'create',
       selector: cssPath(element)
     };
 
