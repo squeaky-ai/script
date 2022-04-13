@@ -1,6 +1,10 @@
+import { clamp } from './utils/maths';
 import { cssPath } from './utils/css-path';
 import type { Visitor } from './visitor';
 import type { SqueakyMagicErasureMessage } from './types/message';
+
+const WIDGET_WIDTH = 320;
+const WIDGET_HEIGHT = 512;
 
 type Draggable = {
   x: number;
@@ -9,6 +13,14 @@ type Draggable = {
   offsetY: number;
   mousedown: boolean;
 }
+
+const getMessageFromEvent = (messageEvent: MessageEvent<string>): SqueakyMagicErasureMessage | null => {
+  try {
+    return JSON.parse(messageEvent.data);
+  } catch {
+    return null;
+  }
+};
 
 export class MagicErasure {
   private open: boolean = false;
@@ -32,6 +44,7 @@ export class MagicErasure {
     document.addEventListener('click', this.handleElementClick);
     document.addEventListener('mouseout', this.handleElementMouseOut);
     document.addEventListener('mouseover', this.handleElementMouseOver);
+    window.addEventListener('message', this.handleMessage);
   };
 
   private inject = () => {
@@ -64,14 +77,24 @@ export class MagicErasure {
 
     highligher.id = 'squeaky__magic_erasure_highlighter';
     highligher.classList.add('squeaky-hide');
+    highligher.style.display = 'none';
 
     return highligher;
+  }
+
+  private setHighlighterDisplay(display: 'block' | 'none') {
+    const highlighter = document.getElementById('squeaky__magic_erasure_highlighter');
+
+    if (highlighter) {
+      highlighter.style.display = display;
+    }
   }
 
   private get modal(): HTMLDivElement {
     const modal = document.createElement('div');
     
     modal.id = 'squeaky__magic_erasure_modal';
+    modal.classList.add('squeaky-hide');
 
     const drag = document.createElement('button');
 
@@ -137,8 +160,11 @@ export class MagicErasure {
     const element = document.getElementById('squeaky__magic_erasure_modal');
 
     if (element) {
-      element.style.top = `${element.offsetTop - posY}px`;
-      element.style.left = `${element.offsetLeft - posX}px`;
+      const x = clamp(element.offsetLeft - posX, 0, window.innerWidth - WIDGET_WIDTH);
+      const y = clamp(element.offsetTop - posY, 0, window.innerHeight - WIDGET_HEIGHT);
+
+      element.style.top = `${y}px`;
+      element.style.left = `${x}px`;
     }
   };
 
@@ -148,6 +174,7 @@ export class MagicErasure {
     }
 
     this.open = true;
+    this.setHighlighterDisplay('block');
 
     document.body.appendChild(this.modal);
   };
@@ -156,6 +183,8 @@ export class MagicErasure {
     this.open = false;
 
     const modal = document.getElementById('squeaky__magic_erasure_modal');
+
+    this.setHighlighterDisplay('none');
     
     if (modal) modal.remove();
   };
@@ -167,7 +196,7 @@ export class MagicErasure {
     
     // These things should be ignored, we don't show body in the
     // heatmaps and we don't want them to be able to hide it!
-    if (element.nodeName.toLowerCase() === 'body' || element.id?.startsWith('squeaky__')) {
+    if (this.shouldIgnoreElement(element)) {
       return;
     }
 
@@ -181,6 +210,8 @@ export class MagicErasure {
     const highligter = document.querySelector<HTMLDivElement>('#squeaky__magic_erasure_highlighter');
 
     if (!highligter) return;
+
+    highligter.style.display = 'block';
 
     // Position the highlighter on top of the target element.
     // The reason for doing is this way is that we don't have
@@ -207,21 +238,34 @@ export class MagicErasure {
     // it is hidden so it doesn't need to be added/removed
     // constantly
     highligter.style.cssText = '';
+    highligter.style.display = 'none';
   };
 
   private handleElementClick = (event: MouseEvent) => {
+    const element = event.target as HTMLElement;
+
     if (!this.open) return;
+    if (this.shouldIgnoreElement(element)) return;
 
     // If the user choses to select an <a> tag, we don't
     // want it going off to that page
     event.preventDefault();
     event.stopPropagation();
 
-    const element = event.target as Element;
     const iframe = document.querySelector<HTMLIFrameElement>('#squeaky__magic_erasure_frame');
 
+    const isHidden = element.getAttribute('data-squeaky-hidden') === 'true';
+
+    if (isHidden) {
+      element.removeAttribute('data-squeaky-hidden');
+      element.style.opacity = '1';
+    } else {
+      element.setAttribute('data-squeaky-hidden', 'true');
+      element.style.opacity = '.125';
+    }
+
     const message: SqueakyMagicErasureMessage = {
-      action: 'create',
+      action: isHidden ? 'delete' : 'create',
       selector: cssPath(element)
     };
 
@@ -229,5 +273,29 @@ export class MagicErasure {
     // selector so that the app can pick it up and post
     // it off to the API and update the UI.
     iframe?.contentWindow?.postMessage(JSON.stringify(message), '*');
+  };
+
+  private shouldIgnoreElement(element: Element) {
+    // These things should be ignored, we don't show body in the
+    // heatmaps and we don't want them to be able to hide it!
+    return (
+      element.nodeName.toLowerCase() === 'body' ||
+      element.nodeName.toLowerCase() === 'html' ||
+      element.id?.startsWith('squeaky__') || 
+      element.closest('.squeaky-hide')
+    );
+  }
+
+  private handleMessage = (messageEvent: MessageEvent<string>) => {
+    const message = getMessageFromEvent(messageEvent);
+    
+    if (!message || message?.action !== 'delete') return;
+
+    const element = document.querySelector<HTMLElement>(message.selector);
+
+    if (element) {
+      element.removeAttribute('data-squeaky-hidden');
+      element.style.opacity = '1';
+    }
   };
 }
