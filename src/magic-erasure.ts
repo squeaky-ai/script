@@ -14,6 +14,14 @@ type Draggable = {
   mousedown: boolean;
 }
 
+const getMessageFromEvent = (messageEvent: MessageEvent<string>): SqueakyMagicErasureMessage | null => {
+  try {
+    return JSON.parse(messageEvent.data);
+  } catch {
+    return null;
+  }
+};
+
 export class MagicErasure {
   private open: boolean = false;
   private visitor: Visitor;
@@ -36,6 +44,7 @@ export class MagicErasure {
     document.addEventListener('click', this.handleElementClick);
     document.addEventListener('mouseout', this.handleElementMouseOut);
     document.addEventListener('mouseover', this.handleElementMouseOver);
+    window.addEventListener('message', this.handleMessage);
   };
 
   private inject = () => {
@@ -276,4 +285,17 @@ export class MagicErasure {
       element.closest('.squeaky-hide')
     );
   }
+
+  private handleMessage = (messageEvent: MessageEvent<string>) => {
+    const message = getMessageFromEvent(messageEvent);
+    
+    if (!message || message?.action !== 'delete') return;
+
+    const element = document.querySelector<HTMLElement>(message.selector);
+
+    if (element) {
+      element.removeAttribute('data-squeaky-hidden');
+      element.style.opacity = '1';
+    }
+  };
 }
