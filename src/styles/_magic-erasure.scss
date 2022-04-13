@@ -20,6 +20,10 @@
   &:hover {
     background: #FFF5EB;
   }
+
+  svg {
+    pointer-events: none;
+  }
 }
 
 #squeaky__magic_erasure_modal {
