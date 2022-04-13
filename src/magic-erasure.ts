@@ -1,6 +1,10 @@
+import { clamp } from './utils/maths';
 import { cssPath } from './utils/css-path';
 import type { Visitor } from './visitor';
 import type { SqueakyMagicErasureMessage } from './types/message';
+
+const WIDGET_WIDTH = 320;
+const WIDGET_HEIGHT = 512;
 
 type Draggable = {
   x: number;
@@ -147,8 +151,11 @@ export class MagicErasure {
     const element = document.getElementById('squeaky__magic_erasure_modal');
 
     if (element) {
-      element.style.top = `${element.offsetTop - posY}px`;
-      element.style.left = `${element.offsetLeft - posX}px`;
+      const x = clamp(element.offsetLeft - posX, 0, window.innerWidth - WIDGET_WIDTH);
+      const y = clamp(element.offsetTop - posY, 0, window.innerHeight - WIDGET_HEIGHT);
+
+      element.style.top = `${y}px`;
+      element.style.left = `${x}px`;
     }
   };
 
@@ -263,7 +270,8 @@ export class MagicErasure {
     // These things should be ignored, we don't show body in the
     // heatmaps and we don't want them to be able to hide it!
     return (
-      element.nodeName.toLowerCase() === 'body' || 
+      element.nodeName.toLowerCase() === 'body' ||
+      element.nodeName.toLowerCase() === 'html' ||
       element.id?.startsWith('squeaky__') || 
       element.closest('.squeaky-hide')
     );
