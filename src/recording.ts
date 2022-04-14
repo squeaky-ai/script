@@ -1,6 +1,6 @@
 import { record, EventType, IncrementalSource } from 'rrweb';
 import { eventWithTime } from 'rrweb/typings/types';
-import { config } from './config';
+import { getRrwebConfig } from './config';
 import { cssPath } from './utils/css-path';
 import { Visitor } from './visitor';
 
@@ -8,21 +8,16 @@ const MAX_RETRIES = 5;
 
 export class Recording {
   private socket!: WebSocket;
-  private recording: boolean;
-  private terminated: boolean;
+  private recording: boolean = false;
+  private terminated: boolean = false;
   private cutOffTimer?: NodeJS.Timer;
   private stopRecording?: VoidFunction;
   private visitor: Visitor;
   private retries: number = 0;
+  private blacklistedSelectors: string[] = [];
 
   public constructor(visitor: Visitor) {
     this.visitor = visitor;
-    this.recording = false;
-    this.terminated = false;
-
-    if (this.visitor.bot) return;
-
-    this.connect();
   }
 
   public identify = (visitor: Visitor) => {
@@ -33,11 +28,12 @@ export class Recording {
     this.setPageView(location.href);
   };
 
-  private connect() {
+  public init = (blacklistedSelectors: string[]) => {
+    this.blacklistedSelectors = blacklistedSelectors;
     this.socket = new WebSocket(`${WEBSOCKET_SERVER_HOST}/in?${this.visitor.params.toString()}`);
 
     this.socket.addEventListener('open', () => {
-      this.init();
+      this.install();
       this.setCutOff();
     });
 
@@ -45,24 +41,24 @@ export class Recording {
       if (this.retries < MAX_RETRIES) {
         setTimeout(() => {
           this.retries++;
-          this.connect();
+          this.init(blacklistedSelectors);
         }, this.retries * 100);
       }
     });
-  }
+  };
 
   private send<T>(key: string, value: T) {
     const payload = JSON.stringify({ key, value });
     if (this.socket.OPEN) this.socket.send(payload);
   }
 
-  private init = () => {
+  private install = () => {
     // There's no point in starting the recording if the user is
     // not looking at the page. They might have opened a bunch of
     // tabs in the background, and we're going to have a session
     // with a bunch of dead time at the start
     if (document.hasFocus()) {
-      return this.install();
+      return this.startRecording();
     }
 
     // If the user does eventually come to the page after being
@@ -70,12 +66,12 @@ export class Recording {
     // recording only if it hasn't already started
     window.addEventListener('focus', () => {
       if (!this.recording && !this.terminated) {
-        return this.install();
+        return this.startRecording();
       }
     });
   };
 
-  private install = (): void => {
+  private startRecording = (): void => {
     this.record();
   
     this.send('recording', {
@@ -87,6 +83,12 @@ export class Recording {
 
   private record = (): void => {
     this.recording = true;
+
+    const blockSelector = this.blacklistedSelectors.length
+      ? this.blacklistedSelectors.join(', ')
+      : undefined;
+
+    const config = getRrwebConfig({ blockSelector });
     this.stopRecording = record({ ...config, emit: this.onEmit });
   };
 

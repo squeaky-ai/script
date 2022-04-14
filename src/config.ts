@@ -1,7 +1,10 @@
 import { recordOptions, eventWithTime } from 'rrweb/typings/types';
 
-export const config: recordOptions<eventWithTime> = {
+export const getRrwebConfig = (
+  overrides: Partial<recordOptions<eventWithTime>>
+): recordOptions<eventWithTime> => ({
   blockClass: 'squeaky-hide',
+  blockSelector: 'html>body>main>form>img, html>body>main>form>h1',
   maskTextClass: 'squeaky-mask',
   maskAllInputs: true,
   slimDOMOptions: {
@@ -21,4 +24,5 @@ export const config: recordOptions<eventWithTime> = {
       TouchEnd: true,
     }
   },
-};
+  ...overrides,
+});

@@ -5,5 +5,6 @@ export interface FeedbackResponse {
   data: {
     siteByUuid?: Site;
     feedback: Feedback;
+    cssSelectorBlacklist: string[];
   };
 };

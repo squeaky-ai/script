@@ -38,11 +38,11 @@ export class Squeaky {
   private async initServices() {
     try {
       const res = await this.getSettings();
-  
       if (!res.ok) return;
 
       const { data }: FeedbackResponse = await res.json();
 
+      if (this.recordingEnabled()) this.recording.init(data.cssSelectorBlacklist);
       if (this.npsEnabled(data.feedback)) this.nps.init(data.feedback);
       if (this.sentimentEnabled(data.feedback)) this.sentiment.init(data.feedback);
       if (this.magicErasureEnabled(data.siteByUuid)) this.magicErasure.init();
@@ -52,9 +52,11 @@ export class Squeaky {
   };
 
   private async getSettings(): Promise<Response> {
+    const { siteId } = this.visitor;
+
     const query = `
       {
-        feedback(siteId: \"${this.visitor.siteId}\") {
+        feedback(siteId: \"${siteId}\") {
           npsEnabled
           npsAccentColor
           npsSchedule
@@ -68,9 +70,10 @@ export class Squeaky {
           sentimentLayout
           sentimentDevices
         }
-        siteByUuid(siteId: \"${this.visitor.siteId}\") {
+        siteByUuid(siteId: \"${siteId}\") {
           magicErasureEnabled
         }
+        cssSelectorBlacklist(siteId: \"${siteId}\")
       }
     `;
 
@@ -83,6 +86,10 @@ export class Squeaky {
       credentials: 'include',
     });
   };
+
+  private recordingEnabled() {
+    return !this.visitor.bot;
+  }
 
   private npsEnabled(feedback: Feedback) {
     return feedback.npsEnabled; 
