@@ -256,13 +256,7 @@ export class MagicErasure {
 
     const isHidden = element.getAttribute('data-squeaky-hidden') === 'true';
 
-    if (isHidden) {
-      element.removeAttribute('data-squeaky-hidden');
-      element.style.opacity = '1';
-    } else {
-      element.setAttribute('data-squeaky-hidden', 'true');
-      element.style.opacity = '.125';
-    }
+    this.setElementVisibility(element, !isHidden);
 
     const message: SqueakyMagicErasureMessage = {
       action: isHidden ? 'delete' : 'create',
@@ -286,16 +280,29 @@ export class MagicErasure {
     );
   }
 
-  private handleMessage = (messageEvent: MessageEvent<string>) => {
-    const message = getMessageFromEvent(messageEvent);
-    
-    if (!message || message?.action !== 'delete') return;
-
-    const element = document.querySelector<HTMLElement>(message.selector);
-
-    if (element) {
+  private setElementVisibility(element: HTMLElement, shouldHide: boolean) {
+    if (shouldHide) {
+      element.setAttribute('data-squeaky-hidden', 'true');
+      element.style.opacity = '.125';
+    } else {
       element.removeAttribute('data-squeaky-hidden');
       element.style.opacity = '1';
     }
+  }
+
+  private handleMessage = (messageEvent: MessageEvent<string>) => {
+    const message = getMessageFromEvent(messageEvent);
+    
+    if (!message) return;
+
+    const element = document.querySelector<HTMLElement>(message.selector);
+
+    if (!element) return;
+
+    // This is backwards compared to the above as it's coming
+    // from inside the iframe
+    const hidden = ['create', 'load'].includes(message.action);
+
+    this.setElementVisibility(element, hidden);
   };
 }

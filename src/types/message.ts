@@ -33,6 +33,6 @@ export type SqueakyCloseSentimentMessage = {
 }
 
 export type SqueakyMagicErasureMessage = {
-  action: 'create' | 'delete';
+  action: 'create' | 'delete' | 'load';
   selector: string;
 }
