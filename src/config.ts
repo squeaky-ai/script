@@ -4,7 +4,7 @@ export const getRrwebConfig = (
   overrides: Partial<recordOptions<eventWithTime>>
 ): recordOptions<eventWithTime> => ({
   blockClass: 'squeaky-hide',
-  blockSelector: 'html>body>main>form>img, html>body>main>form>h1',
+  blockSelector: undefined,
   maskTextClass: 'squeaky-mask',
   maskAllInputs: true,
   slimDOMOptions: {

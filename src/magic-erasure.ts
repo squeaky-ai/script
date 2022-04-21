@@ -1,5 +1,6 @@
 import { clamp } from './utils/maths';
 import { cssPath } from './utils/css-path';
+import { getMessageFromEvent } from './utils/messages';
 import type { Visitor } from './visitor';
 import type { SqueakyMagicErasureMessage } from './types/message';
 
@@ -13,14 +14,6 @@ type Draggable = {
   offsetY: number;
   mousedown: boolean;
 }
-
-const getMessageFromEvent = (messageEvent: MessageEvent<string>): SqueakyMagicErasureMessage | null => {
-  try {
-    return JSON.parse(messageEvent.data);
-  } catch {
-    return null;
-  }
-};
 
 export class MagicErasure {
   private open: boolean = false;
@@ -44,6 +37,7 @@ export class MagicErasure {
     document.addEventListener('click', this.handleElementClick);
     document.addEventListener('mouseout', this.handleElementMouseOut);
     document.addEventListener('mouseover', this.handleElementMouseOver);
+
     window.addEventListener('message', this.handleMessage);
   };
 
@@ -291,7 +285,7 @@ export class MagicErasure {
   }
 
   private handleMessage = (messageEvent: MessageEvent<string>) => {
-    const message = getMessageFromEvent(messageEvent);
+    const message = getMessageFromEvent<SqueakyMagicErasureMessage>(messageEvent);
     
     if (!message) return;
 

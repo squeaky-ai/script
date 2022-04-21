@@ -7,3 +7,11 @@ export function parseMessage(message: string): Message {
     return { key: '__squeaky_unknown', value: {} };
   }
 }
+
+export const getMessageFromEvent = <T>(messageEvent: MessageEvent<string>): T | null => {
+  try {
+    return JSON.parse(messageEvent.data);
+  } catch {
+    return null;
+  }
+};
