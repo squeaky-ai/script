@@ -64,6 +64,7 @@ export class Squeaky {
           npsFollowUpEnabled
           npsContactConsentEnabled
           npsLayout
+          npsExcludedPages
           sentimentEnabled
           sentimentAccentColor
           sentimentExcludedPages
@@ -117,6 +118,7 @@ export class Squeaky {
       if (location.pathname !== this.pathname) {
         this.pathname = location.pathname;
 
+        this.nps.onPageChange(location);
         this.recording.onPageChange(location);
         this.sentiment.onPageChange(location);
       }

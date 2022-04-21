@@ -5,6 +5,7 @@ export interface Feedback {
   npsLayout: NpsLayout;
   npsPhrase: string;
   npsSchedule: 'once' | 'monthly';
+  npsExcludedPages: string[];
   sentimentAccentColor: string;
   sentimentEnabled: boolean;
   sentimentExcludedPages: string[];

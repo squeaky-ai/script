@@ -15,7 +15,9 @@ export class Nps {
 
     if (!this.shouldShowVisitor) return;
 
-    document.body.appendChild(this.widget);
+    if (!this.excludedPages.includes(location.pathname)) {
+      this.inject();
+    }
 
     // Listen for the close message so that the iframe
     // can close the parent
@@ -35,6 +37,28 @@ export class Nps {
       }
     });
   };
+
+  public onPageChange = (location: Location): void => {
+    if (!this.excludedPages.includes(location.pathname)) {
+      this.inject();
+    } else {
+      this.destroy();
+    }
+  };
+
+  private inject = () => {
+    if (!document.body.contains(this.widget)) {
+      document.body.appendChild(this.widget);
+    }
+  };
+
+  private destroy = () => {
+    document.getElementById('squeaky__nps_form')?.remove();
+  };
+
+  private get excludedPages() {
+    return this.settings.npsExcludedPages || [];
+  }
 
   private get widget(): HTMLDivElement {
     const div = document.createElement('div');
@@ -101,10 +125,7 @@ export class Nps {
   }
 
   private handleNpsClose = () => {
-    const form = document.getElementById('squeaky__nps_form');
-
-    if (form) form.remove();
-
+    this.destroy();
     this.handleNpsSubmit();
   };
 
