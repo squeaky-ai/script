@@ -2,19 +2,21 @@ import { record, EventType, IncrementalSource } from 'rrweb';
 import { eventWithTime } from 'rrweb/typings/types';
 import { getRrwebConfig } from './config';
 import { cssPath } from './utils/css-path';
+import { throttle } from './utils/helpers';
 import { Visitor } from './visitor';
 
 const MAX_RETRIES = 5;
+const ATTRIBUTE_MUTATION_THROTTLE_MS = 50;
 
 export class Recording {
   private socket!: WebSocket;
   private recording: boolean = false;
   private terminated: boolean = false;
   private cutOffTimer?: NodeJS.Timer;
-  private stopRecording?: VoidFunction;
   private visitor: Visitor;
   private retries: number = 0;
   private blacklistedSelectors: string[] = [];
+  private stop?: VoidFunction;
 
   public constructor(visitor: Visitor) {
     this.visitor = visitor;
@@ -49,7 +51,7 @@ export class Recording {
 
   private send<T>(key: string, value: T) {
     const payload = JSON.stringify({ key, value });
-    if (this.socket.OPEN) this.socket.send(payload);
+    if (this.socket.OPEN && this.recording) this.socket.send(payload);
   }
 
   private install = () => {
@@ -58,21 +60,38 @@ export class Recording {
     // tabs in the background, and we're going to have a session
     // with a bunch of dead time at the start
     if (document.hasFocus()) {
-      return this.startRecording();
+      this.startRecording();
     }
+
+    // If the user blurs the page we should stop the recording as
+    // for pages with animations, we'll be collecting thousands of
+    // events
+    window.addEventListener('blur', () => {
+      if (this.recording && !this.terminated) {
+        this.stopRecording();
+      }
+    });
 
     // If the user does eventually come to the page after being
     // away during the initial load, then we should start the
     // recording only if it hasn't already started
     window.addEventListener('focus', () => {
       if (!this.recording && !this.terminated) {
-        return this.startRecording();
+        this.startRecording();
       }
     });
   };
 
   private startRecording = (): void => {
-    this.record();
+    this.recording = true;
+
+    const blockSelector = this.blacklistedSelectors.length
+      ? this.blacklistedSelectors.join(', ')
+      : undefined;
+
+    const config = getRrwebConfig({ blockSelector });
+
+    this.stop = record({ ...config, emit: this.onEmit });
   
     this.send('recording', {
       type: EventType.Custom,
@@ -81,19 +100,32 @@ export class Recording {
     });
   };
 
-  private record = (): void => {
-    this.recording = true;
+  private stopRecording = (): void => {
+    this.recording = false;
 
-    const blockSelector = this.blacklistedSelectors.length
-      ? this.blacklistedSelectors.join(', ')
-      : undefined;
-
-    const config = getRrwebConfig({ blockSelector });
-    this.stopRecording = record({ ...config, emit: this.onEmit });
+    this.stop?.();
   };
 
   private onEmit = (event: eventWithTime) => {
-    if (event.type === EventType.IncrementalSnapshot && event.data.source === IncrementalSource.MouseInteraction) {
+    if (
+      event.type === EventType.IncrementalSnapshot && 
+      event.data.source === IncrementalSource.Mutation &&
+      event.data.adds.length === 0 &&
+      event.data.removes.length === 0 &&
+      event.data.texts.length === 0
+    ) {
+      // We don't want to be capturing animations or other spammy dom 
+      // updates as it will result in awful playback. Sensible animations
+      // will use css transforms instead of updating the dom like crazy.
+      // This can result in choppy animmations during playback but I don't
+      // think people have any excuse for doing animations this way.
+      return this.throttledAnimationSend(event);
+    }
+
+    if (
+      event.type === EventType.IncrementalSnapshot && 
+      event.data.source === IncrementalSource.MouseInteraction
+    ) {
       // This is cheaper to do here, and means that we can know about
       // all clicked elements without having to rebuild the entire page
       const node = record.mirror.getNode(event.data.id);
@@ -121,9 +153,15 @@ export class Recording {
     this.send('event', event);
   };
 
+  private throttledAnimationSend = throttle((event: eventWithTime) => {
+    this.send('event', event);
+  }, ATTRIBUTE_MUTATION_THROTTLE_MS);
+
   private isUserInteractionEvent = (event: eventWithTime): boolean => {
-    return event.type === EventType.IncrementalSnapshot && 
-          [IncrementalSource.MouseInteraction, IncrementalSource.Scroll].includes(event.data.source);
+    return event.type === EventType.IncrementalSnapshot && [
+      IncrementalSource.MouseInteraction, 
+      IncrementalSource.Scroll
+    ].includes(event.data.source);
   };
 
   private setPageView = (href: string): void => {
