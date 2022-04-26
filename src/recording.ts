@@ -6,7 +6,7 @@ import { throttle } from './utils/helpers';
 import { Visitor } from './visitor';
 
 const MAX_RETRIES = 5;
-const ATTRIBUTE_MUTATION_THROTTLE_MS = 50;
+const ATTRIBUTE_MUTATION_THROTTLE_MS = 25;
 
 export class Recording {
   private socket!: WebSocket;
