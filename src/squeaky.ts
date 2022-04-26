@@ -4,7 +4,7 @@ import { Nps } from './nps';
 import { Recording } from './recording';
 import { MagicErasure } from './magic-erasure';
 import type { Feedback } from './types/feedback';
-import type { FeedbackResponse } from './types/api';
+import type { FeedbackResponse, SiteSessionSettings } from './types/api';
 import type { ExternalAttributes } from './types/visitor';
 import type { Site } from './types/site';
 
@@ -42,7 +42,12 @@ export class Squeaky {
 
       const { data }: FeedbackResponse = await res.json();
 
-      if (this.recordingEnabled()) this.recording.init(data.cssSelectorBlacklist);
+      const siteSessionSettings: SiteSessionSettings = data?.siteSessionSettings || {
+        anonymiseFormInputs: true,
+        cssSelectorBlacklist: [],
+      };
+
+      if (this.recordingEnabled()) this.recording.init(siteSessionSettings);
       if (this.npsEnabled(data.feedback)) this.nps.init(data.feedback);
       if (this.sentimentEnabled(data.feedback)) this.sentiment.init(data.feedback);
       if (this.magicErasureEnabled(data.siteByUuid)) this.magicErasure.init();
@@ -74,7 +79,10 @@ export class Squeaky {
         siteByUuid(siteId: \"${siteId}\") {
           magicErasureEnabled
         }
-        cssSelectorBlacklist(siteId: \"${siteId}\")
+        siteSessionSettings(siteId: \"${siteId}\") {
+          cssSelectorBlacklist
+          anonymiseFormInputs
+        }
       }
     `;
 

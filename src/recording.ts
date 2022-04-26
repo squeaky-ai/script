@@ -4,6 +4,7 @@ import { getRrwebConfig } from './config';
 import { cssPath } from './utils/css-path';
 import { throttle } from './utils/helpers';
 import { Visitor } from './visitor';
+import type { SiteSessionSettings } from './types/api';
 
 const MAX_RETRIES = 5;
 const ATTRIBUTE_MUTATION_THROTTLE_MS = 25;
@@ -15,7 +16,10 @@ export class Recording {
   private cutOffTimer?: NodeJS.Timer;
   private visitor: Visitor;
   private retries: number = 0;
-  private blacklistedSelectors: string[] = [];
+  private sessionSettings: SiteSessionSettings = {
+    anonymiseFormInputs: true,
+    cssSelectorBlacklist: [],
+  }
   private stop?: VoidFunction;
 
   public constructor(visitor: Visitor) {
@@ -30,8 +34,8 @@ export class Recording {
     this.setPageView(location.href);
   };
 
-  public init = (blacklistedSelectors: string[]) => {
-    this.blacklistedSelectors = blacklistedSelectors;
+  public init = (sessionSettings: SiteSessionSettings) => {
+    this.sessionSettings = sessionSettings;
     this.socket = new WebSocket(`${WEBSOCKET_SERVER_HOST}/in?${this.visitor.params.toString()}`);
 
     this.socket.addEventListener('open', () => {
@@ -43,7 +47,7 @@ export class Recording {
       if (this.retries < MAX_RETRIES) {
         setTimeout(() => {
           this.retries++;
-          this.init(blacklistedSelectors);
+          this.init(sessionSettings);
         }, this.retries * 100);
       }
     });
@@ -85,11 +89,7 @@ export class Recording {
   private startRecording = (): void => {
     this.recording = true;
 
-    const blockSelector = this.blacklistedSelectors.length
-      ? this.blacklistedSelectors.join(', ')
-      : undefined;
-
-    const config = getRrwebConfig({ blockSelector });
+    const config = getRrwebConfig(this.sessionSettings);
 
     this.stop = record({ ...config, emit: this.onEmit });
   
