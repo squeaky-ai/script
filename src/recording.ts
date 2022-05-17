@@ -7,7 +7,7 @@ import { Visitor } from './visitor';
 import type { SiteSessionSettings } from './types/api';
 
 const MAX_RETRIES = 5;
-const ATTRIBUTE_MUTATION_THROTTLE_MS = 25;
+const ATTRIBUTE_MUTATION_THROTTLE_MS = 5;
 
 export class Recording {
   private socket!: WebSocket;
