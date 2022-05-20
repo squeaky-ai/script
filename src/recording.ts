@@ -51,6 +51,8 @@ export class Recording {
         }, this.retries * 100);
       }
     });
+
+    window.addEventListener('error', this.handleError);
   };
 
   private send<T>(key: string, value: T) {
@@ -210,5 +212,20 @@ export class Recording {
     this.cutOffTimer = setTimeout(() => {
       this.terminateSession();
     }, SESSION_CUT_OFF_MS);
+  };
+
+  private handleError = (error: ErrorEvent) => {
+    this.send('error', {
+      type: EventType.Custom,
+      data: {
+        line_number: error.lineno,
+        col_number: error.colno,
+        message: error.message,
+        stack: error.error.stack,
+        filename: error.filename,
+        href: location.pathname,
+      },
+      timestamp: new Date().valueOf(),
+    });
   };
 }
