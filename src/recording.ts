@@ -2,12 +2,10 @@ import { record, EventType, IncrementalSource } from 'rrweb';
 import { eventWithTime } from 'rrweb/typings/types';
 import { getRrwebConfig } from './config';
 import { cssPath } from './utils/css-path';
-import { throttle } from './utils/helpers';
 import { Visitor } from './visitor';
 import type { SiteSessionSettings } from './types/api';
 
 const MAX_RETRIES = 5;
-const ATTRIBUTE_MUTATION_THROTTLE_MS = 5;
 
 export class Recording {
   private socket!: WebSocket;
@@ -111,21 +109,6 @@ export class Recording {
   private onEmit = (event: eventWithTime) => {
     if (
       event.type === EventType.IncrementalSnapshot && 
-      event.data.source === IncrementalSource.Mutation &&
-      event.data.adds.length === 0 &&
-      event.data.removes.length === 0 &&
-      event.data.texts.length === 0
-    ) {
-      // We don't want to be capturing animations or other spammy dom 
-      // updates as it will result in awful playback. Sensible animations
-      // will use css transforms instead of updating the dom like crazy.
-      // This can result in choppy animmations during playback but I don't
-      // think people have any excuse for doing animations this way.
-      return this.throttledAnimationSend(event);
-    }
-
-    if (
-      event.type === EventType.IncrementalSnapshot && 
       event.data.source === IncrementalSource.MouseInteraction
     ) {
       // This is cheaper to do here, and means that we can know about
@@ -154,10 +137,6 @@ export class Recording {
 
     this.send('event', event);
   };
-
-  private throttledAnimationSend = throttle((event: eventWithTime) => {
-    this.send('event', event);
-  }, ATTRIBUTE_MUTATION_THROTTLE_MS);
 
   private isUserInteractionEvent = (event: eventWithTime): boolean => {
     return event.type === EventType.IncrementalSnapshot && [
