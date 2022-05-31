@@ -48,8 +48,8 @@ export class Squeaky {
       };
 
       if (this.recordingEnabled()) this.recording.init(siteSessionSettings);
-      if (this.npsEnabled(data.feedback)) this.nps.init(data.feedback);
-      if (this.sentimentEnabled(data.feedback)) this.sentiment.init(data.feedback);
+      if (data.feedback && this.npsEnabled(data.feedback)) this.nps.init(data.feedback);
+      if (data.feedback && this.sentimentEnabled(data.feedback)) this.sentiment.init(data.feedback);
       if (this.magicErasureEnabled(data.siteByUuid)) this.magicErasure.init();
     } catch (error) {
       console.error(error);
@@ -100,11 +100,11 @@ export class Squeaky {
     return !this.visitor.bot;
   }
 
-  private npsEnabled(feedback: Feedback) {
+  private npsEnabled(feedback: Feedback): boolean {
     return feedback.npsEnabled; 
   }
 
-  private sentimentEnabled(feedback: Feedback) {
+  private sentimentEnabled(feedback: Feedback): boolean {
     return feedback.sentimentEnabled && feedback.sentimentDevices.includes(this.visitor.deviceType);
   }
 

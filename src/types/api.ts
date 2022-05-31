@@ -9,7 +9,7 @@ export interface SiteSessionSettings {
 export interface FeedbackResponse {
   data: {
     siteByUuid?: Site;
-    feedback: Feedback;
+    feedback?: Feedback;
     siteSessionSettings?: SiteSessionSettings;
   };
 };
