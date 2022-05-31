@@ -55,7 +55,7 @@ export class Recording {
 
   private send<T>(key: string, value: T) {
     const payload = JSON.stringify({ key, value });
-    if (this.socket.OPEN && this.recording) this.socket.send(payload);
+    if (this.socket.readyState === 1 && this.recording) this.socket.send(payload);
   }
 
   private install = () => {
