@@ -5,6 +5,7 @@ import type { Feedback } from './types/feedback';
 export class Nps {
   private visitor: Visitor;
   private settings!: Feedback;
+  public initialized: boolean = false;
 
   public constructor(visitor: Visitor) {
     this.visitor = visitor;
@@ -14,6 +15,8 @@ export class Nps {
     this.settings = settings;
 
     if (!this.shouldShowVisitor) return;
+
+    this.initialized = true;
 
     if (!this.excludedPages.includes(location.pathname)) {
       this.inject();

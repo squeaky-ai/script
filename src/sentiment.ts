@@ -5,6 +5,7 @@ import type { Feedback } from './types/feedback';
 export class Sentiment {
   private visitor: Visitor;
   private settings!: Feedback;
+  public initialized: boolean = false;
 
   public constructor(visitor: Visitor) {
     this.visitor = visitor;
@@ -12,6 +13,7 @@ export class Sentiment {
 
   public init = (settings: Feedback) => {
     this.settings = settings;
+    this.initialized = true;
 
     if (!this.excludedPages.includes(location.pathname)) {
       this.inject();

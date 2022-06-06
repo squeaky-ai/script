@@ -103,7 +103,11 @@ export class Recording {
   private stopRecording = (): void => {
     this.recording = false;
 
-    this.stop?.();
+    try {
+      this.stop?.();
+    } catch(error) {
+      console.error('[Squeaky] Failed to stop recording', error);
+    }
   };
 
   private onEmit = (event: eventWithTime) => {

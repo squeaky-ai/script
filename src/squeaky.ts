@@ -52,7 +52,7 @@ export class Squeaky {
       if (data.feedback && this.sentimentEnabled(data.feedback)) this.sentiment.init(data.feedback);
       if (this.magicErasureEnabled(data.siteByUuid)) this.magicErasure.init();
     } catch (error) {
-      console.error(error);
+      console.error('[Squeaky] Failed to fetch site configuration', error);
     }
   };
 
@@ -126,9 +126,9 @@ export class Squeaky {
       if (location.pathname !== this.pathname) {
         this.pathname = location.pathname;
 
-        this.nps.onPageChange(location);
         this.recording.onPageChange(location);
-        this.sentiment.onPageChange(location);
+        if (this.nps.initialized) this.nps.onPageChange(location);
+        if (this.sentiment.initialized) this.sentiment.onPageChange(location);
       }
     });
   }
