@@ -49,7 +49,7 @@ export class Sentiment {
   };
 
   private get excludedPages() {
-    return this.settings.sentimentExcludedPages || [];
+    return this.settings?.sentimentExcludedPages || [];
   }
 
   private get widget(): HTMLButtonElement {

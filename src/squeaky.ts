@@ -127,6 +127,8 @@ export class Squeaky {
         this.pathname = location.pathname;
 
         this.recording.onPageChange(location);
+
+        // These may be disabled so skip them
         if (this.nps.initialized) this.nps.onPageChange(location);
         if (this.sentiment.initialized) this.sentiment.onPageChange(location);
       }

@@ -60,7 +60,7 @@ export class Nps {
   };
 
   private get excludedPages() {
-    return this.settings.npsExcludedPages || [];
+    return this.settings?.npsExcludedPages || [];
   }
 
   private get widget(): HTMLDivElement {
