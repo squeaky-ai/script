@@ -27,3 +27,21 @@ export function cssPath(element: any): string {
   }
   return path.join(' > ');
 }
+
+export function getNodeInnerText(node: any): string | null {
+  if (
+    node?.firstElementChild === null && 
+    node?.firstChild?.nodeType === Node.TEXT_NODE
+  ) {
+    // The use case is targeted at buttons and links and
+    // whatnot, and if they have more than 50 chars then
+    // that is their fault
+    return (node.innerText || '').slice(0, 50);
+  }
+
+  // If the element doesn't directly contain text then
+  // we don't care. If we just added all .innerText then
+  // clicking on the body would store the whole pages
+  // text
+  return null;
+}

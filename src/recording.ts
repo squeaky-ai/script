@@ -1,7 +1,7 @@
 import { record, EventType, IncrementalSource } from 'rrweb';
 import { eventWithTime } from 'rrweb/typings/types';
 import { getRrwebConfig } from './config';
-import { cssPath } from './utils/css-path';
+import { cssPath, getNodeInnerText } from './utils/css-path';
 import { Visitor } from './visitor';
 import type { SiteSessionSettings } from './types/api';
 
@@ -122,6 +122,9 @@ export class Recording {
       // This is done purely so that we can read clicks easilly later
       // as the page is important
       (event.data as any).href = location.pathname;
+      // This is to allow us to add events based on text content as there
+      // is no other way to associate the click with it's context
+      (event.data as any).text = getNodeInnerText(node);
     }
 
     if (event.type === EventType.Meta) {
