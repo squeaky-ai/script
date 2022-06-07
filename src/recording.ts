@@ -4,6 +4,7 @@ import { getRrwebConfig } from './config';
 import { cssPath, getNodeInnerText } from './utils/css-path';
 import { Visitor } from './visitor';
 import type { SiteSessionSettings } from './types/api';
+import type { ExternalAttributes } from './types/visitor';
 
 const MAX_RETRIES = 5;
 
@@ -27,6 +28,17 @@ export class Recording {
   public identify = (visitor: Visitor) => {
     this.visitor = visitor;
   };
+
+  public addEvent = (event: ExternalAttributes) => {
+    this.send('custom', { 
+      type: EventType.Custom,
+      data: {
+        ...event, 
+        href: location.pathname,
+      },
+      timestamp: new Date().valueOf(),
+    });
+  }
 
   public onPageChange = (location: Location): void => {
     this.setPageView(location.href);
@@ -55,7 +67,7 @@ export class Recording {
 
   private send<T>(key: string, value: T) {
     const payload = JSON.stringify({ key, value });
-    if (this.socket.readyState === 1 && this.recording) this.socket.send(payload);
+    if (this.socket?.readyState === 1 && this.recording) this.socket.send(payload);
   }
 
   private install = () => {

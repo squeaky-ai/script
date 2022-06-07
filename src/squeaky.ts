@@ -31,9 +31,15 @@ export class Squeaky {
   }
 
   public identify = (id: string, input: ExternalAttributes = {}) => {
+    if (!id) return;
     this.visitor.externalAttributes = { id, ...input };
     this.recording.identify(this.visitor);
   };
+
+  public addEvent = (name: string, input: ExternalAttributes = {}) => {
+    if (!name) return;
+    this.recording.addEvent({ name, ...input });
+  }
 
   private async initServices() {
     try {
