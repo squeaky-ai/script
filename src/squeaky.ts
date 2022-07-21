@@ -41,6 +41,10 @@ export class Squeaky {
     this.recording.addEvent({ name, ...input });
   }
 
+  public addPageView = () => {
+    this.recording.onPageChange(location);
+  };
+
   private async initServices() {
     try {
       const res = await this.getSettings();
