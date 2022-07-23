@@ -18,7 +18,9 @@ export class Nps {
 
     this.initialized = true;
 
-    if (!this.excludedPages.includes(location.pathname)) {
+    // If the schedule type is custom then we do not inject 
+    // until the user triggers it themselves
+    if (!this.excludedPages.includes(location.pathname) && this.settings.npsSchedule !== 'custom') {
       this.inject();
     }
 
@@ -46,6 +48,12 @@ export class Nps {
       this.inject();
     } else {
       this.destroy();
+    }
+  };
+
+  public customNpsTrigger = () => {
+    if (this.initialized && this.settings.npsSchedule === 'custom') {
+      this.inject();
     }
   };
 

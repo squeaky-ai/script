@@ -45,6 +45,11 @@ export class Squeaky {
     this.recording.onPageChange(location);
   };
 
+  public showNpsSurvey = () => {
+    if (!this.nps.initialized) return;
+    this.nps.customNpsTrigger();
+  };
+
   private async initServices() {
     try {
       const res = await this.getSettings();
@@ -111,7 +116,7 @@ export class Squeaky {
   }
 
   private npsEnabled(feedback: Feedback): boolean {
-    return feedback.npsEnabled; 
+    return feedback.npsEnabled;
   }
 
   private sentimentEnabled(feedback: Feedback): boolean {

@@ -4,7 +4,7 @@ export interface Feedback {
   npsFollowUpEnabled: boolean;
   npsLayout: NpsLayout;
   npsPhrase: string;
-  npsSchedule: 'once' | 'monthly';
+  npsSchedule: 'once' | 'monthly' | 'custom';
   npsExcludedPages: string[];
   sentimentAccentColor: string;
   sentimentEnabled: boolean;
