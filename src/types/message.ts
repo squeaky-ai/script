@@ -24,6 +24,7 @@ export type SqueakySetNpsStepMessage = {
   key: '__squeaky_set_step_nps';
   value: {
     step: number;
+    height: number;
   };
 }
 

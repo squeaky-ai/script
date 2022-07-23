@@ -1,7 +1,7 @@
 #squeaky__nps_form {
   background: #ffffff;
   box-shadow: 0 0 1.5rem rgba(0, 0, 0, 0.1);
-  height: 15rem;
+  height: 12rem;
   position: fixed;
   z-index: 1000;
 
@@ -22,37 +22,10 @@
   &.full_width,
   &.boxed {
     @media screen and (max-width: 540px) {
-      left: 2rem;
-      width: calc(100% - 4rem);
+      left: 1.5rem;
+      margin-left: 0;
+      width: calc(100% - 3rem);
     }
-  }
-  
-  &.step-1 {
-    height: 22rem;
-
-    @media screen and (max-width: 540px) {
-      height: 21rem;
-    }
-  }
-  
-  &.step-2 {
-    height: 29.5rem;
-  }
-  
-  &.step-3 {
-    height: 36rem;
-
-    @media screen and (max-width: 540px) { 
-      height: 38rem; 
-    }
-  }
-  
-  &.step-4 {
-    height: 19rem;
-  }
-
-  @media screen and (max-width: 540px) {
-    height: 15rem;
   }
 
   .squeaky__nps_wrapper {
@@ -98,4 +71,23 @@
   border: none;
   height: 100%;
   width: 100%;
+}
+
+#spinner {
+  height: 2rem;
+  left: 50%;
+  margin: -1rem 0 0 -1rem;
+  position: absolute;
+  top: 50%;
+  width: 2rem;
+
+  .icon {
+    animation: rotate 1s linear infinite;
+    transform-origin: center center;
+  }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0) }
+  to { transform: rotate(360deg) }
 }
