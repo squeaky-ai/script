@@ -11,6 +11,7 @@ export interface Feedback {
   sentimentExcludedPages: string[];
   sentimentLayout: SentimentLayout;
   sentimentDevices: string[];
+  sentimentSchedule: 'always' | 'custom';
 }
 
 export type NpsLayout = 'full_width' | 'boxed';

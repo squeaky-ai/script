@@ -15,7 +15,7 @@ export class Sentiment {
     this.settings = settings;
     this.initialized = true;
 
-    if (!this.excludedPages.includes(location.pathname)) {
+    if (!this.excludedPages.includes(location.pathname) && this.settings.sentimentSchedule !== 'custom') {
       this.inject();
     }
 
@@ -35,6 +35,12 @@ export class Sentiment {
       this.inject();
     } else {
       this.destroy();
+    }
+  };
+
+  public customSentimentTrigger = () => {
+    if (this.initialized && this.settings.sentimentSchedule === 'custom') {
+      this.inject();
     }
   };
 

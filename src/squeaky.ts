@@ -50,6 +50,11 @@ export class Squeaky {
     this.nps.customNpsTrigger();
   };
 
+  public showSentimentSurvey = () => {
+    if (!this.sentiment.initialized) return;
+    this.sentiment.customSentimentTrigger();
+  };
+
   private async initServices() {
     try {
       const res = await this.getSettings();
@@ -90,6 +95,7 @@ export class Squeaky {
           sentimentExcludedPages
           sentimentLayout
           sentimentDevices
+          sentimentSchedule
         }
         siteByUuid(siteId: \"${siteId}\") {
           magicErasureEnabled
