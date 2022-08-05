@@ -151,6 +151,11 @@ export class Nps {
       return false;
     }
 
+    if (this.settings.npsSchedule === 'custom') {
+      // Entirely up to them when they show it
+      return true;
+    }
+
     // Work out if it's been a month since they last
     // submitted feedback
     now.setMonth(now.getMonth() - 1);
