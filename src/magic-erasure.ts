@@ -252,9 +252,16 @@ export class MagicErasure {
 
     this.setElementVisibility(element, !isHidden);
 
+    const selector = cssPath(element);
+
+    if (!selector) {
+      console.warn('Unable to determine selector for element: ', element);
+      return;
+    };
+
     const message: SqueakyMagicErasureMessage = {
       action: isHidden ? 'delete' : 'create',
-      selector: cssPath(element)
+      selector,
     };
 
     // Post a message to the iframe containing the css
