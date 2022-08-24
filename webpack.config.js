@@ -16,7 +16,8 @@ module.exports = ({ development }) => ({
     library: ['squeaky'],
   },
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
+    modules: [path.resolve(__dirname, 'src'), 'node_modules'],
   },
   module: {
     rules: [
@@ -45,8 +46,8 @@ module.exports = ({ development }) => ({
   },
   plugins: [
     new DefinePlugin({
-      WEB_HOST: JSON.stringify(development ? 'http://localhost:3001' : 'https://squeaky.ai'),
-      API_SERVER_HOST: JSON.stringify(development ? 'http://localhost:4000/api' : 'https://squeaky.ai/api'),
+      WEB_HOST: JSON.stringify(development ? 'http://localhost:3333' : 'https://squeaky.ai'),
+      API_SERVER_HOST: JSON.stringify(development ? 'http://localhost:3333/api' : 'https://squeaky.ai/api'),
       WEBSOCKET_SERVER_HOST: JSON.stringify(development ? 'ws://localhost:5001' : 'wss://gateway.squeaky.ai'),
       SESSION_CUT_OFF_MS : JSON.stringify(1000 * 60 * 30),
     })

@@ -1,10 +1,10 @@
 import { record, EventType, IncrementalSource } from 'rrweb';
 import { eventWithTime } from 'rrweb/typings/types';
-import { getRrwebConfig } from './config';
-import { cssPath, getNodeInnerText } from './utils/css-path';
-import { Visitor } from './visitor';
-import type { SiteSessionSettings } from './types/api';
-import type { ExternalAttributes } from './types/visitor';
+import { getRrwebConfig } from 'config';
+import { cssPath, getNodeInnerText } from 'utils/css-path';
+import { Visitor } from 'models/visitor';
+import type { SiteSessionSettings } from 'types/api';
+import type { ExternalAttributes } from 'types/visitor';
 
 const MAX_RETRIES = 5;
 

@@ -1,5 +1,5 @@
 import { recordOptions, eventWithTime } from 'rrweb/typings/types';
-import type { SiteSessionSettings } from './types/api';
+import type { SiteSessionSettings } from 'types/api';
 
 export const getRrwebConfig = (settings: SiteSessionSettings): recordOptions<eventWithTime> => {
   const blockSelector = settings.cssSelectorBlacklist.length

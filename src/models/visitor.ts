@@ -1,4 +1,4 @@
-import type { VisitorObject, ExternalAttributes, Device } from './types/visitor';
+import type { VisitorObject, ExternalAttributes, Device } from 'types/visitor';
 
 export class Visitor {
   public key: string;
@@ -136,6 +136,14 @@ export class Visitor {
   public setLastEventAt = (): void => {
     localStorage.setItem('squeaky_last_event_at', new Date().valueOf().toString());
   };
+
+  public get consent(): boolean | undefined {
+    const value = localStorage.getItem('squeaky_consent');
+
+    return value
+      ? value === 'true'
+      : undefined;
+  }
 
   private get utmParameters(): Record<string, string> {
     const parameters: Record<string, string> = {};

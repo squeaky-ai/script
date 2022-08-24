@@ -1,12 +1,13 @@
-import { Visitor } from './visitor';
-import { Sentiment } from './sentiment';
-import { Nps } from './nps';
-import { Recording } from './recording';
-import { MagicErasure } from './magic-erasure';
-import type { Feedback } from './types/feedback';
-import type { FeedbackResponse, SiteSessionSettings } from './types/api';
-import type { ExternalAttributes } from './types/visitor';
-import type { Site } from './types/site';
+import { Visitor } from 'models/visitor';
+import { Sentiment } from 'services/sentiment';
+import { Nps } from 'services/nps';
+import { Recording } from 'services/recording';
+import { MagicErasure } from 'services/magic-erasure';
+import { Consent } from 'services/consent';
+import { Api } from './api';
+import type { Feedback } from 'types/feedback';
+import type { ExternalAttributes } from 'types/visitor';
+import type { Site } from 'types/site';
 
 export class Squeaky {
   public visitor: Visitor;
@@ -14,9 +15,12 @@ export class Squeaky {
   public nps: Nps;
   public recording: Recording;
   public magicErasure: MagicErasure;
+  public consent: Consent;
 
   private timer!: NodeJS.Timer;
   private pathname: string = location.pathname;
+
+  public __initAllServices?: VoidFunction;
 
   public constructor(siteId: string) {
     this.visitor = new Visitor(siteId);
@@ -25,6 +29,10 @@ export class Squeaky {
     this.sentiment = new Sentiment(this.visitor);
     this.nps = new Nps(this.visitor);
     this.magicErasure = new MagicErasure(this.visitor);
+    this.consent = new Consent(this.visitor);
+
+    // Exit as early as possible
+    if (this.visitor.consent === false) return;
 
     this.initServices();
     this.pollForPageChanges();
@@ -55,66 +63,41 @@ export class Squeaky {
     this.sentiment.customSentimentTrigger();
   };
 
+  public acceptConsent = () => {
+    this.consent.acceptConsent();
+  };
+
+  public rejectConsent = () => {
+    this.consent.rejectConsent();
+  };
+
   private async initServices() {
     try {
-      const res = await this.getSettings();
-      if (!res.ok) return;
+      const data = await (new Api(this.visitor)).getSessionConfig();
 
-      const { data }: FeedbackResponse = await res.json();
-
-      const siteSessionSettings: SiteSessionSettings = data?.siteSessionSettings || {
-        anonymiseFormInputs: true,
-        cssSelectorBlacklist: [],
+      // Store this function in the scope so it can be called at
+      // a later date once the visitor has given consent
+      this.__initAllServices = () => {
+        if (this.recordingEnabled()) this.recording.init(data.siteSessionSettings);
+        if (this.magicErasureEnabled(data.siteByUuid)) this.magicErasure.init();
+        if (data.feedback && this.npsEnabled(data.feedback)) this.nps.init(data.feedback);
+        if (data.feedback && this.sentimentEnabled(data.feedback)) this.sentiment.init(data.feedback);
       };
 
-      if (this.recordingEnabled()) this.recording.init(siteSessionSettings);
-      if (data.feedback && this.npsEnabled(data.feedback)) this.nps.init(data.feedback);
-      if (data.feedback && this.sentimentEnabled(data.feedback)) this.sentiment.init(data.feedback);
-      if (this.magicErasureEnabled(data.siteByUuid)) this.magicErasure.init();
+      // If the visitor has previously consented, or gaining consent is
+      // disabled then init everything immediately
+      if (this.visitor.consent || data.consent.consentMethod === 'disabled') {
+        return this.__initAllServices();
+      }
+
+      // They've opened to use our widget to gain consent, so init that
+      // service
+      if (data.consent.consentMethod === 'widget') {
+        return this.consent.init(data.consent);
+      }
     } catch (error) {
       console.error('[Squeaky] Failed to fetch site configuration', error);
     }
-  };
-
-  private async getSettings(): Promise<Response> {
-    const { siteId } = this.visitor;
-
-    const query = `
-      {
-        feedback(siteId: \"${siteId}\") {
-          npsEnabled
-          npsAccentColor
-          npsSchedule
-          npsPhrase
-          npsFollowUpEnabled
-          npsContactConsentEnabled
-          npsLayout
-          npsExcludedPages
-          sentimentEnabled
-          sentimentAccentColor
-          sentimentExcludedPages
-          sentimentLayout
-          sentimentDevices
-          sentimentSchedule
-        }
-        siteByUuid(siteId: \"${siteId}\") {
-          magicErasureEnabled
-        }
-        siteSessionSettings(siteId: \"${siteId}\") {
-          cssSelectorBlacklist
-          anonymiseFormInputs
-        }
-      }
-    `;
-
-    return fetch(`${API_SERVER_HOST}/graphql`, {
-      method: 'POST',
-      body: JSON.stringify({ query }),
-      headers: {
-        'content-type': 'application/json'
-      },
-      credentials: 'include',
-    });
   };
 
   private recordingEnabled() {

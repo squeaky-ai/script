@@ -1,6 +1,6 @@
-import { parseMessage } from './utils/messages';
-import type { Visitor } from './visitor';
-import type { Feedback } from './types/feedback';
+import { parseMessage } from 'utils/messages';
+import type { Visitor } from 'models/visitor';
+import type { Feedback } from 'types/feedback';
 
 export class Sentiment {
   private visitor: Visitor;
