@@ -1,8 +1,8 @@
-import { clamp } from './utils/maths';
-import { cssPath } from './utils/css-path';
-import { getMessageFromEvent } from './utils/messages';
-import type { Visitor } from './visitor';
-import type { SqueakyMagicErasureMessage } from './types/message';
+import { clamp } from 'utils/maths';
+import { cssPath } from 'utils/css-path';
+import { getMessageFromEvent } from 'utils/messages';
+import type { Visitor } from 'models/visitor';
+import type { SqueakyMagicErasureMessage } from 'types/message';
 
 const WIDGET_WIDTH = 320;
 const WIDGET_HEIGHT = 512;

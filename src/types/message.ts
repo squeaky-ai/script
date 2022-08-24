@@ -3,7 +3,10 @@ export type Message =
   SqueakyCloseNpsMessage |
   SqueakySubmitNpsMessage |
   SqueakySetNpsStepMessage |
-  SqueakyCloseSentimentMessage;
+  SqueakyCloseSentimentMessage |
+  SqueakyAcceptConsent |
+  SqueakyRejectConsent |
+  SqueakySetHeightConsent;
 
 export type SqueakyUnknownMessage = {
   key: '__squeaky_unknown',
@@ -36,4 +39,21 @@ export type SqueakyCloseSentimentMessage = {
 export type SqueakyMagicErasureMessage = {
   action: 'create' | 'delete' | 'load';
   selector: string;
+}
+
+export type SqueakyAcceptConsent = {
+  key: '__squeaky_accept_consent';
+  value: {};
+}
+
+export type SqueakyRejectConsent = {
+  key: '__squeaky_reject_consent';
+  value: {};
+}
+
+export type SqueakySetHeightConsent = {
+  key: '__squeaky_set_height_consent';
+  value: {
+    height: number;
+  };
 }

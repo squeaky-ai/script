@@ -1,15 +1,15 @@
-import type { Site } from './site';
-import type { Feedback } from './feedback';
+import type { Site } from 'types/site';
+import type { Feedback } from 'types/feedback';
+import type { ConsentConfig } from 'types/consent';
 
 export interface SiteSessionSettings {
   cssSelectorBlacklist: string[];
   anonymiseFormInputs: boolean;
 }
 
-export interface FeedbackResponse {
-  data: {
-    siteByUuid?: Site;
-    feedback?: Feedback;
-    siteSessionSettings?: SiteSessionSettings;
-  };
+export interface SessionConfig {
+  siteByUuid?: Site;
+  feedback?: Feedback;
+  consent: ConsentConfig;
+  siteSessionSettings: SiteSessionSettings;
 };
