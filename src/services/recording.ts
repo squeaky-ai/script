@@ -143,6 +143,17 @@ export class Recording {
       this.setPageView(event.data.href);
     }
 
+    if (
+      event.type === EventType.IncrementalSnapshot &&
+      event.data.source === IncrementalSource.MouseMove
+    ) {
+      event.data.positions = event.data.positions.map(p => ({ 
+        ...p,
+        absoluteX: p.x + window.scrollX,
+        absoluteY: p.y + window.scrollY 
+      }));
+    }
+
     if (this.isUserInteractionEvent(event)) {
       this.setCutOff();
       // This belongs here because we don't want animations and other
