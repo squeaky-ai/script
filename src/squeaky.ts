@@ -75,6 +75,9 @@ export class Squeaky {
     try {
       const data = await (new Api(this.visitor)).getSessionConfig();
 
+      // This check also happens on the backend but it saves us a request
+      if (!data.siteSessionSettings.ingestEnabled || data.siteSessionSettings.invalidOrExceededPlan) return;
+
       // Store this function in the scope so it can be called at
       // a later date once the visitor has given consent
       this.__initAllServices = () => {

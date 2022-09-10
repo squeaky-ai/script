@@ -15,6 +15,8 @@ export class Api {
     data.siteSessionSettings ||= {
       anonymiseFormInputs: true,
       cssSelectorBlacklist: [],
+      ingestEnabled: true,
+      invalidOrExceededPlan: false, // Let the Gateway decide if we don't know
     };
 
     data.consent ||= {
@@ -56,6 +58,8 @@ export class Api {
         siteSessionSettings(siteId: \"${siteId}\") {
           cssSelectorBlacklist
           anonymiseFormInputs
+          ingestEnabled
+          invalidOrExceededPlan
         }
       }
     `;
