@@ -16,4 +16,6 @@ declare global {
 }
 
 // Don't export an ES module or it won't work properly
-module.exports = new Squeaky(window._sqSettings.site_id);
+// Also, don't allow the script to be loaded twice or
+// we'll end up with duplicates of everything!
+module.exports = window.squeaky || new Squeaky(window._sqSettings.site_id);
