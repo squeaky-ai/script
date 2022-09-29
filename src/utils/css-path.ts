@@ -55,3 +55,11 @@ export function getNodeInnerText(node: any): string | null {
     return null;
   }
 }
+
+export function getCoordinatesOfNode(selector: string): [number, number] {
+  const element = document.querySelector(selector);
+  if (!element) return [0, 0];
+
+  const { x, y } = element.getBoundingClientRect();
+  return [x, y];
+}

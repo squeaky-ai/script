@@ -1,8 +1,9 @@
-import { record, EventType, IncrementalSource } from 'rrweb';
+import { record, EventType } from 'rrweb';
 import { eventWithTime } from 'rrweb/typings/types';
 import { getRrwebConfig } from 'config';
-import { cssPath, getNodeInnerText } from 'utils/css-path';
+import { cssPath, getNodeInnerText, getCoordinatesOfNode } from 'utils/css-path';
 import { Visitor } from 'models/visitor';
+import { isClickEvent, isPageViewEvent, isMouseMoveEvent, isUserInteractionEvent } from 'utils/events';
 import type { SiteSessionSettings } from 'types/api';
 import type { ExternalAttributes } from 'types/visitor';
 
@@ -15,10 +16,7 @@ export class Recording {
   private cutOffTimer?: NodeJS.Timer;
   private visitor: Visitor;
   private retries: number = 0;
-  private sessionSettings: SiteSessionSettings = {
-    anonymiseFormInputs: true,
-    cssSelectorBlacklist: [],
-  }
+  private sessionSettings!: SiteSessionSettings;
   private stop?: VoidFunction;
 
   public constructor(visitor: Visitor) {
@@ -123,30 +121,32 @@ export class Recording {
   };
 
   private onEmit = (event: eventWithTime) => {
-    if (
-      event.type === EventType.IncrementalSnapshot && 
-      event.data.source === IncrementalSource.MouseInteraction
-    ) {
+    if (isClickEvent(event)) {
       // This is cheaper to do here, and means that we can know about
       // all clicked elements without having to rebuild the entire page
       const node = record.mirror.getNode(event.data.id);
-      (event.data as any).selector = cssPath(node) || 'html > body';
+      const selector = cssPath(node) || 'html > body';
+
+      event.data.selector = selector;
       // This is done purely so that we can read clicks easilly later
       // as the page is important
-      (event.data as any).href = location.pathname;
+      event.data.href = location.pathname;
       // This is to allow us to add events based on text content as there
       // is no other way to associate the click with it's context
-      (event.data as any).text = getNodeInnerText(node);
+      event.data.text = getNodeInnerText(node);
+      // This is to allow us to do accurate heatmaps as we can use the
+      // selector and the relative position to accurately place the blob
+      // even when the screen size is different
+      const [x, y] = getCoordinatesOfNode(selector);
+      event.data.relativeToElementX = Number(event.data.x - x);
+      event.data.relativeToElementY = Number(event.data.y - y);
     }
 
-    if (event.type === EventType.Meta) {
+    if (isPageViewEvent(event)) {
       this.setPageView(event.data.href);
     }
 
-    if (
-      event.type === EventType.IncrementalSnapshot &&
-      event.data.source === IncrementalSource.MouseMove
-    ) {
+    if (isMouseMoveEvent(event)) {
       event.data.positions = event.data.positions.map(p => ({ 
         ...p,
         absoluteX: p.x + window.scrollX,
@@ -154,7 +154,7 @@ export class Recording {
       }));
     }
 
-    if (this.isUserInteractionEvent(event)) {
+    if (isUserInteractionEvent(event)) {
       this.setCutOff();
       // This belongs here because we don't want animations and other
       // continuous page updates stamping the recordings
@@ -166,13 +166,6 @@ export class Recording {
     }
 
     this.send('event', event);
-  };
-
-  private isUserInteractionEvent = (event: eventWithTime): boolean => {
-    return event.type === EventType.IncrementalSnapshot && [
-      IncrementalSource.MouseInteraction, 
-      IncrementalSource.Scroll
-    ].includes(event.data.source);
   };
 
   private setPageView = (href: string): void => {
