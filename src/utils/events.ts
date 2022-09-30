@@ -1,6 +1,6 @@
 import { eventWithTime } from 'rrweb/typings/types';
 import { EventType, IncrementalSource } from 'rrweb';
-import type { ClickEvent, PageViewEvent, MouseMoveEvent } from 'types/events';
+import type { ClickEvent, PageViewEvent, MouseMoveEvent, ScrollEvent } from 'types/events';
 
 export const isClickEvent = (
   event: eventWithTime,
@@ -18,6 +18,13 @@ export const isMouseMoveEvent = (
 ): event is MouseMoveEvent => (
   event.type === EventType.IncrementalSnapshot &&
   event.data.source === IncrementalSource.MouseMove 
+);
+
+export const isScrollEvent = (
+  event: eventWithTime,
+): event is ScrollEvent => (
+  event.type === EventType.IncrementalSnapshot &&
+  event.data.source === IncrementalSource.Scroll
 );
 
 export const isUserInteractionEvent = (

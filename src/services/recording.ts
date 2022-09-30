@@ -3,7 +3,7 @@ import { eventWithTime } from 'rrweb/typings/types';
 import { getRrwebConfig } from 'config';
 import { cssPath, getNodeInnerText, getCoordinatesOfNode } from 'utils/css-path';
 import { Visitor } from 'models/visitor';
-import { isClickEvent, isPageViewEvent, isMouseMoveEvent, isUserInteractionEvent } from 'utils/events';
+import { isClickEvent, isPageViewEvent, isMouseMoveEvent, isUserInteractionEvent, isScrollEvent } from 'utils/events';
 import type { SiteSessionSettings } from 'types/api';
 import type { ExternalAttributes } from 'types/visitor';
 
@@ -146,7 +146,12 @@ export class Recording {
       this.setPageView(event.data.href);
     }
 
+    if (isScrollEvent(event)) {
+      event.data.href = location.pathname;
+    }
+
     if (isMouseMoveEvent(event)) {
+      event.data.href = location.pathname;
       event.data.positions = event.data.positions.map(p => ({ 
         ...p,
         absoluteX: p.x + window.scrollX,
