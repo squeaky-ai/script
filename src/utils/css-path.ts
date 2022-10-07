@@ -57,9 +57,13 @@ export function getNodeInnerText(node: any): string | null {
 }
 
 export function getCoordinatesOfNode(selector: string): [number, number] {
-  const element = document.querySelector(selector);
-  if (!element) return [0, 0];
+  try {
+    const element = document.querySelector(selector);
+    if (!element) return [0, 0];
 
-  const { x, y } = element.getBoundingClientRect();
-  return [x, y];
+    const { x, y } = element.getBoundingClientRect();
+    return [x, y];
+  } catch {
+    return [0, 0];
+  }
 }
