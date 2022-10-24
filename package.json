@@ -9,7 +9,7 @@
   "private": true,
   "scripts": {
     "build": "webpack",
-    "serve": "http-server",
+    "serve": "http-server -p 8081",
     "watch": "webpack --env development",
     "test": "jest"
   },

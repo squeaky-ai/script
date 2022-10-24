@@ -5,6 +5,7 @@ import type { ConsentConfig } from 'types/consent';
 export interface SiteSessionSettings {
   cssSelectorBlacklist: string[];
   anonymiseFormInputs: boolean;
+  anonymiseText: boolean;
   ingestEnabled: boolean;
   invalidOrExceededPlan: boolean;
 }

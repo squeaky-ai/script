@@ -7,11 +7,13 @@ export const getRrwebConfig = (settings: SiteSessionSettings): recordOptions<eve
     : undefined;
 
   const maskAllInputs = settings.anonymiseFormInputs;
+  const maskTextSelector = settings.anonymiseText ? '*' : undefined;
 
   return {
     blockClass: 'squeaky-hide',
     blockSelector,
     maskTextClass: 'squeaky-mask',
+    maskTextSelector,
     maskAllInputs,
     slimDOMOptions: {
       script: true,
