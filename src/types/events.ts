@@ -1,4 +1,4 @@
-import { eventWithTime, incrementalSnapshotEvent, metaEvent, mousemoveData, scrollData } from 'rrweb/typings/types';
+import { eventWithTime, incrementalSnapshotEvent, metaEvent, mousemoveData, mutationData, scrollData } from 'rrweb/typings/types';
 
 export type ClickEvent = eventWithTime & {
   data: {
@@ -26,3 +26,7 @@ export type ScrollEvent = eventWithTime & incrementalSnapshotEvent & {
     href: string;
   };
 };
+
+export type MutationEvent = eventWithTime & incrementalSnapshotEvent & {
+  data: mutationData;
+}

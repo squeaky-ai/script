@@ -3,11 +3,13 @@ import { eventWithTime } from 'rrweb/typings/types';
 import { getRrwebConfig } from 'config';
 import { cssPath, getNodeInnerText, getCoordinatesOfNode } from 'utils/css-path';
 import { Visitor } from 'models/visitor';
-import { isClickEvent, isPageViewEvent, isMouseMoveEvent, isUserInteractionEvent, isScrollEvent } from 'utils/events';
+import { throttle } from '../utils/helpers';
+import { isClickEvent, isPageViewEvent, isMouseMoveEvent, isUserInteractionEvent, isScrollEvent, isMutationEvent, isMutatingOnlyStyleAttributes } from 'utils/events';
 import type { SiteSessionSettings } from 'types/api';
 import type { ExternalAttributes } from 'types/visitor';
 
 const MAX_RETRIES = 5;
+const ATTRIBUTE_MUTATION_THROTTLE_MS = 50;
 
 export class Recording {
   private socket!: WebSocket;
@@ -121,6 +123,14 @@ export class Recording {
   };
 
   private onEmit = (event: eventWithTime) => {
+    if (isMutationEvent(event)) {
+      // Nothing is added or removed, only modified. This is hopefully
+      // an animation or something and we can throttle them
+      if (isMutatingOnlyStyleAttributes(event)) {
+        return this.throttledAnimationSend(event);
+      }
+    }
+
     if (isClickEvent(event)) {
       // This is cheaper to do here, and means that we can know about
       // all clicked elements without having to rebuild the entire page
@@ -172,6 +182,10 @@ export class Recording {
 
     this.send('event', event);
   };
+
+  private throttledAnimationSend = throttle((event: eventWithTime) => {
+    this.send('event', event);
+  }, ATTRIBUTE_MUTATION_THROTTLE_MS);
 
   private setPageView = (href: string): void => {
     this.send('pageview', {
