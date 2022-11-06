@@ -1,12 +1,9 @@
 version: 0.2
 
 phases:
-  pre_build:
-    commands:
-      - mkdir -p /usr/local/lib/nodejs
-      - wget https://nodejs.org/dist/v18.12.1/node-v18.12.1-linux-arm64.tar.xz
-      - tar -xJvf node-v18.12.1-linux-arm64.tar.xz -C /usr/local/lib/nodejs
-      - export PATH=/usr/local/lib/nodejs/node-v18.12.1-linux-arm64/bin:$PATH
+  install:
+    runtime-versions:
+      nodejs: 14
 
   build:
     commands:
