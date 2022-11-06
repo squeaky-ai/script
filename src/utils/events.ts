@@ -44,7 +44,7 @@ export const isMutationEvent = (
   event.data.source === IncrementalSource.Mutation
 );
 
-export const isMutatingOnlyStyleAttributes = (
+export const isProbablyJustAnimatingSomething = (
   event: MutationEvent
 ): boolean => {
   // Get a unique list of all of the html attributes that have been modified
@@ -56,6 +56,6 @@ export const isMutatingOnlyStyleAttributes = (
     event.data.adds.length === 0 &&
     event.data.removes.length === 0 &&
     event.data.texts.length === 0 &&
-    (attributes.length === 1 && attributes[0] === 'style')
+    (attributes.length === 1 && (attributes[0] === 'style' || attributes[0] === 'transform'))
   );
 };

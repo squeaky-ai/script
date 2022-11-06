@@ -4,7 +4,7 @@ import { getRrwebConfig } from 'config';
 import { cssPath, getNodeInnerText, getCoordinatesOfNode } from 'utils/css-path';
 import { Visitor } from 'models/visitor';
 import { throttle } from '../utils/helpers';
-import { isClickEvent, isPageViewEvent, isMouseMoveEvent, isUserInteractionEvent, isScrollEvent, isMutationEvent, isMutatingOnlyStyleAttributes } from 'utils/events';
+import { isClickEvent, isPageViewEvent, isMouseMoveEvent, isUserInteractionEvent, isScrollEvent, isMutationEvent, isProbablyJustAnimatingSomething } from 'utils/events';
 import type { SiteSessionSettings } from 'types/api';
 import type { ExternalAttributes } from 'types/visitor';
 
@@ -126,7 +126,7 @@ export class Recording {
     if (isMutationEvent(event)) {
       // Nothing is added or removed, only modified. This is hopefully
       // an animation or something and we can throttle them
-      if (isMutatingOnlyStyleAttributes(event)) {
+      if (isProbablyJustAnimatingSomething(event)) {
         return this.throttledAnimationSend(event);
       }
     }
