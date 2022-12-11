@@ -12,12 +12,16 @@ export class Api {
     const res = await this.getSettingsData();
     const { data } = await res.json() as { data: SessionConfig };
 
+    // These checks all exist in the gateway anyway,
+    // this is just to reduce the load if we don't need
+    // to call
     data.siteSessionSettings ||= {
+      url: location.origin,
       anonymiseFormInputs: true,
       anonymiseText: false,
       cssSelectorBlacklist: [],
       ingestEnabled: true,
-      invalidOrExceededPlan: false, // Let the Gateway decide if we don't know
+      invalidOrExceededPlan: false,
     };
 
     data.consent ||= {
@@ -57,6 +61,7 @@ export class Api {
           layout
         }
         siteSessionSettings(siteId: \"${siteId}\") {
+          url
           cssSelectorBlacklist
           anonymiseFormInputs
           anonymiseText

@@ -8,6 +8,7 @@ import { Api } from './api';
 import type { Feedback } from 'types/feedback';
 import type { ExternalAttributes } from 'types/visitor';
 import type { Site } from 'types/site';
+import type { SiteSessionSettings } from 'types/api';
 
 export class Squeaky {
   public visitor: Visitor;
@@ -76,7 +77,7 @@ export class Squeaky {
       const data = await (new Api(this.visitor)).getSessionConfig();
 
       // This check also happens on the backend but it saves us a request
-      if (!data.siteSessionSettings.ingestEnabled || data.siteSessionSettings.invalidOrExceededPlan) return;
+      if (!this.shouldInitServices(data.siteSessionSettings)) return;
 
       // Store this function in the scope so it can be called at
       // a later date once the visitor has given consent
@@ -117,6 +118,14 @@ export class Squeaky {
 
   private magicErasureEnabled(site?: Site) {
     return site?.magicErasureEnabled;
+  }
+
+  private shouldInitServices(settings: SiteSessionSettings): boolean {
+    return (
+      settings.ingestEnabled && 
+      !settings.invalidOrExceededPlan &&
+      settings.url.replace('www.', '') === location.origin.replace('www.', '')
+    );
   }
 
   private poll(callback: Function, interval = 500): void {
