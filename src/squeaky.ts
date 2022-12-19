@@ -7,7 +7,6 @@ import { Consent } from 'services/consent';
 import { Api } from './api';
 import type { Feedback } from 'types/feedback';
 import type { ExternalAttributes } from 'types/visitor';
-import type { Site } from 'types/site';
 import type { SiteSessionSettings } from 'types/api';
 
 export class Squeaky {
@@ -83,21 +82,21 @@ export class Squeaky {
       // a later date once the visitor has given consent
       this.__initAllServices = () => {
         if (this.recordingEnabled()) this.recording.init(data.siteSessionSettings);
-        if (this.magicErasureEnabled(data.siteByUuid)) this.magicErasure.init();
-        if (data.feedback && this.npsEnabled(data.feedback)) this.nps.init(data.feedback);
-        if (data.feedback && this.sentimentEnabled(data.feedback)) this.sentiment.init(data.feedback);
+        if (data.siteSessionSettings.magicErasureEnabled) this.magicErasure.init();
+        if (data.siteSessionSettings.feedback && this.npsEnabled(data.siteSessionSettings.feedback)) this.nps.init(data.siteSessionSettings.feedback);
+        if (data.siteSessionSettings.feedback && this.sentimentEnabled(data.siteSessionSettings.feedback)) this.sentiment.init(data.siteSessionSettings.feedback);
       };
 
       // If the visitor has previously consented, or gaining consent is
       // disabled then init everything immediately
-      if (this.visitor.consent || data.consent.consentMethod === 'disabled') {
+      if (this.visitor.consent || data.siteSessionSettings.consent.consentMethod === 'disabled') {
         return this.__initAllServices();
       }
 
       // They've opened to use our widget to gain consent, so init that
       // service
-      if (data.consent.consentMethod === 'widget') {
-        return this.consent.init(data.consent);
+      if (data.siteSessionSettings.consent.consentMethod === 'widget') {
+        return this.consent.init(data.siteSessionSettings.consent);
       }
     } catch (error) {
       console.error('[Squeaky] Failed to fetch site configuration', error);
@@ -114,10 +113,6 @@ export class Squeaky {
 
   private sentimentEnabled(feedback: Feedback): boolean {
     return feedback.sentimentEnabled && feedback.sentimentDevices.includes(this.visitor.deviceType);
-  }
-
-  private magicErasureEnabled(site?: Site) {
-    return site?.magicErasureEnabled;
   }
 
   private shouldInitServices(settings: SiteSessionSettings): boolean {

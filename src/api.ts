@@ -10,21 +10,24 @@ export class Api {
 
   public async getSessionConfig(): Promise<SessionConfig> {
     const res = await this.getSettingsData();
+
+    if (!res.ok) {
+      throw new Error('API returned non 200');
+    }
+
     const { data } = await res.json() as { data: SessionConfig };
 
     // These checks all exist in the gateway anyway,
     // this is just to reduce the load if we don't need
     // to call
-    data.siteSessionSettings ||= {
-      url: location.origin,
-      anonymiseFormInputs: true,
-      anonymiseText: false,
-      cssSelectorBlacklist: [],
-      ingestEnabled: true,
-      invalidOrExceededPlan: false,
-    };
+    data.siteSessionSettings.url ||= location.origin;
+    data.siteSessionSettings.anonymiseFormInputs ||= true;
+    data.siteSessionSettings.anonymiseText ||= false;
+    data.siteSessionSettings.cssSelectorBlacklist ||= [];
+    data.siteSessionSettings.ingestEnabled ||= true;
+    data.siteSessionSettings.invalidOrExceededPlan ||= false;
 
-    data.consent ||= {
+    data.siteSessionSettings.consent ||= {
       layout: 'bottom_left',
       consentMethod: 'disabled',
     };
@@ -37,29 +40,6 @@ export class Api {
 
     const query = `
       {
-        feedback(siteId: \"${siteId}\") {
-          npsEnabled
-          npsAccentColor
-          npsSchedule
-          npsPhrase
-          npsFollowUpEnabled
-          npsContactConsentEnabled
-          npsLayout
-          npsExcludedPages
-          sentimentEnabled
-          sentimentAccentColor
-          sentimentExcludedPages
-          sentimentLayout
-          sentimentDevices
-          sentimentSchedule
-        }
-        siteByUuid(siteId: \"${siteId}\") {
-          magicErasureEnabled
-        }
-        consent(siteId: \"${siteId}\") {
-          consentMethod
-          layout
-        }
         siteSessionSettings(siteId: \"${siteId}\") {
           url
           cssSelectorBlacklist
@@ -67,6 +47,27 @@ export class Api {
           anonymiseText
           ingestEnabled
           invalidOrExceededPlan
+          magicErasureEnabled
+          feedback {
+            npsEnabled
+            npsAccentColor
+            npsSchedule
+            npsPhrase
+            npsFollowUpEnabled
+            npsContactConsentEnabled
+            npsLayout
+            npsExcludedPages
+            sentimentEnabled
+            sentimentAccentColor
+            sentimentExcludedPages
+            sentimentLayout
+            sentimentDevices
+            sentimentSchedule
+          }
+          consent {
+            consentMethod
+            layout
+          }
         }
       }
     `;

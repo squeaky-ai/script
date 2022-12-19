@@ -1,4 +1,3 @@
-import type { Site } from 'types/site';
 import type { Feedback } from 'types/feedback';
 import type { ConsentConfig } from 'types/consent';
 
@@ -9,11 +8,11 @@ export interface SiteSessionSettings {
   anonymiseText: boolean;
   ingestEnabled: boolean;
   invalidOrExceededPlan: boolean;
+  magicErasureEnabled: boolean;
+  feedback?: Feedback;
+  consent: ConsentConfig;
 }
 
 export interface SessionConfig {
-  siteByUuid?: Site;
-  feedback?: Feedback;
-  consent: ConsentConfig;
   siteSessionSettings: SiteSessionSettings;
 };
