@@ -90,7 +90,7 @@ export class Consent {
     const iframe = document.createElement('iframe');
 
     iframe.id = 'squeaky__consent_frame';
-    iframe.src = `${WEB_HOST}/feedback/consent?${this.visitor.params.toString()}`;
+    iframe.src = `${PROTOCOL}://${HOST}/feedback/consent?${this.visitor.params.toString()}`;
     iframe.scrolling = 'no';
 
     iframe.onload = () => {

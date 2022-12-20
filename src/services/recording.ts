@@ -46,7 +46,7 @@ export class Recording {
 
   public init = (sessionSettings: SiteSessionSettings) => {
     this.sessionSettings = sessionSettings;
-    this.socket = new WebSocket(`${WEBSOCKET_SERVER_HOST}/in?${this.visitor.params.toString()}`);
+    this.socket = new WebSocket(`wss://${HOST}/gateway/in?${this.visitor.params.toString()}`);
 
     this.socket.addEventListener('open', () => {
       this.install();

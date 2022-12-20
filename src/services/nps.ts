@@ -125,7 +125,7 @@ export class Nps {
     const iframe = document.createElement('iframe');
 
     iframe.id = 'squeaky__nps_frame';
-    iframe.src = `${WEB_HOST}/feedback/nps?${this.visitor.params.toString()}`;
+    iframe.src = `${PROTOCOL}://${HOST}/feedback/nps?${this.visitor.params.toString()}`;
     iframe.scrolling = 'no';
 
     iframe.onload = () => {
