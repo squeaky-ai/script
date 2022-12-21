@@ -2,8 +2,9 @@ import './styles/main.scss';
 import { Squeaky } from './squeaky';
 
 declare global {
-  const PROTOCOL: string;
-  const HOST: string;
+  const WEB_HOST: string;
+  const API_HOST: string;
+  const WSS_HOST: string;
   const SESSION_CUT_OFF_MS: number;
 
   interface Window {

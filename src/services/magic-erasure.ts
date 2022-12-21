@@ -113,7 +113,7 @@ export class MagicErasure {
     const iframe = document.createElement('iframe');
 
     iframe.id = 'squeaky__magic_erasure_frame';
-    iframe.src = `${PROTOCOL}://${HOST}/app/widget/magic-erasure?${this.visitor.params.toString()}`;
+    iframe.src = `${WEB_HOST}/app/widget/magic-erasure?${this.visitor.params.toString()}`;
 
     return iframe;
   }
