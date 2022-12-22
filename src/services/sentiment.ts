@@ -91,6 +91,11 @@ export class Sentiment {
     iframe.src = `${WEB_HOST}/feedback/sentiment?${this.visitor.params.toString()}`;
     iframe.scrolling = 'no';
 
+    iframe.onload = () => {
+      const spinner = document.getElementById('spinner');
+      if (spinner) spinner.remove();
+    };
+
     return iframe;
   }
 
@@ -110,6 +115,22 @@ export class Sentiment {
     return button;
   }
 
+  private get spinner(): HTMLDivElement {
+    const spinner = document.createElement('div');
+
+    spinner.id = 'spinner';
+    spinner.innerHTML = `
+      <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
+          <path fill="none" d="M0 0h24v24H0z"/>
+          <path fill="#0074E0" d="M18.364 5.636L16.95 7.05A7 7 0 1 0 19 12h2a9 9 0 1 1-2.636-6.364z"/>
+        </svg>
+      </div>
+    `;
+
+    return spinner;
+  }
+
   private handleSentimentOpen = (event: MouseEvent): void => {
     const target = event.target as HTMLButtonElement;
 
@@ -120,6 +141,7 @@ export class Sentiment {
     const modal = this.modal;
 
     modal.appendChild(this.closeButton);
+    modal.appendChild(this.spinner);
     modal.appendChild(this.iframe);
 
     target.classList.add('open');

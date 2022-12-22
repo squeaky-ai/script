@@ -164,6 +164,20 @@
   }
 }
 
+#spinner {
+  height: 2rem;
+  left: 50%;
+  margin: -1rem 0 0 -1rem;
+  position: absolute;
+  top: 50%;
+  width: 2rem;
+
+  .icon {
+    animation: rotate 1s linear infinite;
+    transform-origin: center center;
+  }
+}
+
 #squeaky__sentiment_frame {
   border: none;
   height: 100%;
