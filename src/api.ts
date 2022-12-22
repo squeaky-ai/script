@@ -20,14 +20,14 @@ export class Api {
     // These checks all exist in the gateway anyway,
     // this is just to reduce the load if we don't need
     // to call
-    data.siteSessionSettings.url ||= location.origin;
-    data.siteSessionSettings.anonymiseFormInputs ||= true;
-    data.siteSessionSettings.anonymiseText ||= false;
-    data.siteSessionSettings.cssSelectorBlacklist ||= [];
-    data.siteSessionSettings.ingestEnabled ||= true;
-    data.siteSessionSettings.invalidOrExceededPlan ||= false;
+    data.siteSessionSettings.url ??= location.origin;
+    data.siteSessionSettings.anonymiseFormInputs ??= true;
+    data.siteSessionSettings.anonymiseText ??= false;
+    data.siteSessionSettings.cssSelectorBlacklist ??= [];
+    data.siteSessionSettings.ingestEnabled ??= true;
+    data.siteSessionSettings.invalidOrExceededPlan ??= false;
 
-    data.siteSessionSettings.consent ||= {
+    data.siteSessionSettings.consent ??= {
       layout: 'bottom_left',
       consentMethod: 'disabled',
     };
