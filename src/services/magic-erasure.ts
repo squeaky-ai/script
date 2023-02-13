@@ -1,6 +1,7 @@
 import { clamp } from 'utils/maths';
 import { cssPath } from 'utils/css-path';
 import { getMessageFromEvent } from 'utils/messages';
+import { Logger } from 'utils/logger';
 import type { Visitor } from 'models/visitor';
 import type { SqueakyMagicErasureMessage } from 'types/message';
 
@@ -255,7 +256,7 @@ export class MagicErasure {
     const selector = cssPath(element);
 
     if (!selector) {
-      console.warn('Unable to determine selector for element: ', element);
+      Logger.warn('Unable to determine selector for element: ', element);
       return;
     };
 

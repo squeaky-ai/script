@@ -5,6 +5,7 @@ import { Recording } from 'services/recording';
 import { MagicErasure } from 'services/magic-erasure';
 import { Consent } from 'services/consent';
 import { Api } from './api';
+import { Logger } from 'utils/logger';
 import type { Feedback } from 'types/feedback';
 import type { ExternalAttributes } from 'types/visitor';
 import type { SiteSessionSettings } from 'types/api';
@@ -21,6 +22,7 @@ export class Squeaky {
   private pathname: string = location.pathname;
 
   public __initAllServices?: VoidFunction;
+  public debugLoggingEnabled: boolean = false;
 
   public constructor(siteId: string) {
     this.visitor = new Visitor(siteId);
@@ -99,7 +101,7 @@ export class Squeaky {
         return this.consent.init(data.siteSessionSettings.consent);
       }
     } catch (error) {
-      console.error('[Squeaky] Failed to fetch site configuration', error);
+      Logger.error('Failed to fetch site configuration', error);
     }
   };
 

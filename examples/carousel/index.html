@@ -35,13 +35,13 @@
   <link href="/examples/carousel/style.css" rel="stylesheet">
 
   <script>
-    (function (s, q, e, a, u, k, y) {
-      s._sqSettings = { site_id: 'eba391ce-cc12-41d7-8f8a-ddee1e624a74' };
-      u = q.getElementsByTagName('head')[0];
-      k = q.createElement('script');
-      k.src = e + s._sqSettings.site_id;
-      u.appendChild(k);
-    })(window, document, '/.build/script.js?');
+    (function(s,q,u,e,a,k,y){
+      s._sqSettings={site_id:'eba391ce-cc12-41d7-8f8a-ddee1e624a74'};
+      e=q.getElementsByTagName('head')[0];
+      a=q.createElement('script');
+      a.src=u+s._sqSettings.site_id;
+      e.appendChild(a);
+    })(window,document,'/.build/script.js?');
   </script>
 </head>
 
@@ -133,7 +133,7 @@
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Previous</span>
       </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#myCarousel" data-bs-slide="next">
+      <button class="carousel-control-next" type="button" data-bs-target="#myCarousel" data-bs-slide="next" onclick="squeaky.addEvent('NextCarouselButton', { foo: 'bar', bar: 'baz', clickedAt: new Date().valueOf() })">
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Next</span>
       </button>

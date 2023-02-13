@@ -4,6 +4,7 @@ import { getRrwebConfig } from 'config';
 import { cssPath, getNodeInnerText, getCoordinatesOfNode } from 'utils/css-path';
 import { Visitor } from 'models/visitor';
 import { throttle } from '../utils/helpers';
+import { Logger } from 'utils/logger';
 import { isClickEvent, isPageViewEvent, isMouseMoveEvent, isUserInteractionEvent, isScrollEvent, isMutationEvent, isProbablyJustAnimatingSomething } from 'utils/events';
 import type { SiteSessionSettings } from 'types/api';
 import type { ExternalAttributes } from 'types/visitor';
@@ -84,7 +85,8 @@ export class Recording {
     // events
     window.addEventListener('blur', () => {
       if (this.recording && !this.terminated) {
-        this.stopRecording();
+        // Give the last few things a chance to sneak in
+        setTimeout(() => this.stopRecording(), 100);
       }
     });
 
@@ -118,7 +120,7 @@ export class Recording {
     try {
       this.stop?.();
     } catch(error) {
-      console.error('[Squeaky] Failed to stop recording', error);
+      Logger.error('Failed to stop recording', error);
     }
   };
 
@@ -231,6 +233,7 @@ export class Recording {
     window.clearTimeout(this.cutOffTimer!);
     
     this.cutOffTimer = setTimeout(() => {
+      Logger.info('Terminating session due to inactivity');
       this.terminateSession();
     }, SESSION_CUT_OFF_MS);
   };
