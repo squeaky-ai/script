@@ -85,8 +85,7 @@ export class Recording {
     // events
     window.addEventListener('blur', () => {
       if (this.recording && !this.terminated) {
-        // Give the last few things a chance to sneak in
-        setTimeout(() => this.stopRecording(), 100);
+        this.stopRecording();
       }
     });
 
