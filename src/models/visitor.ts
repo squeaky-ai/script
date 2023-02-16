@@ -11,8 +11,8 @@ export class Visitor {
   public isNewSession: boolean;
 
   public constructor(siteId: string) {
-    const [visitorId, isNewVisitor] = this.getOrCreateId('visitor', localStorage);
-    const [sessionId, isNewSession] = this.getOrCreateId('session', sessionStorage);
+    const [visitorId, isNewVisitor] = this.getOrCreateId('visitor');
+    const [sessionId, isNewSession] = this.getOrCreateId('session');
 
     this.key = `${siteId}::${visitorId}::${sessionId}`;
 
@@ -50,7 +50,7 @@ export class Visitor {
   }
 
   public deleteSessionId = () => {
-    sessionStorage.removeItem('squeaky_session_id');
+    localStorage.removeItem('squeaky_session_id');
   };
 
   public get deviceX(): number {
@@ -160,14 +160,8 @@ export class Visitor {
     return parameters;
   }
 
-  // A user can leave part of the site we are recording, but
-  // stay on the same domain, in the same session. For example
-  // a user may sign up on squeaky.ai, and be redirected to
-  // squeaky.ai/app where we don't record. This means that the
-  // session_id is still the same, but there will be a huge
-  // time where they are off site. This causes hours inbetween events
-  // that all count as the same session and ruin the average time
-  // on site stats.
+  // If the last event happened more than X time ago then
+  // we should start a new session
   private get shouldStartNewSession(): boolean {
     const now = new Date().valueOf();
 
@@ -178,8 +172,8 @@ export class Visitor {
     return (now - this.lastEventAt) > SESSION_CUT_OFF_MS;
   }
 
-  private getOrCreateId(type: 'session' | 'visitor', storage: Storage): [string, boolean] {
-    let id = storage.getItem(`squeaky_${type}_id`);
+  private getOrCreateId(type: 'session' | 'visitor'): [string, boolean] {
+    let id = localStorage.getItem(`squeaky_${type}_id`);
 
     if (type === 'session' && this.shouldStartNewSession) {
       id = null;
@@ -190,7 +184,7 @@ export class Visitor {
     }
 
     id = Math.random().toString(36).slice(2);
-    storage.setItem(`squeaky_${type}_id`, id);
+    localStorage.setItem(`squeaky_${type}_id`, id);
     return [id, true];
   }
 }

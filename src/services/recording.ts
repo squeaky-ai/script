@@ -172,15 +172,13 @@ export class Recording {
 
     if (isUserInteractionEvent(event)) {
       this.setCutOff();
-      // This belongs here because we don't want animations and other
-      // continuous page updates stamping the recordings
-      this.visitor.setLastEventAt();
     }
 
     if (this.visitor.externalAttributes) {
       this.setExternalAttributes();
     }
 
+    this.visitor.setLastEventAt();
     this.send('event', event);
   };
 
