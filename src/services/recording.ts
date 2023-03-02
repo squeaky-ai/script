@@ -55,7 +55,7 @@ export class Recording {
     });
 
     this.socket.addEventListener('close', () => {
-      if (this.retries < MAX_RETRIES) {
+      if (this.retries < MAX_RETRIES && !this.terminated) {
         setTimeout(() => {
           this.retries++;
           this.init(sessionSettings);
@@ -178,7 +178,10 @@ export class Recording {
       this.setExternalAttributes();
     }
 
-    this.visitor.setLastEventAt();
+    if (!isMutationEvent(event)) {
+      this.visitor.setLastEventAt();
+    }
+
     this.send('event', event);
   };
 
@@ -225,14 +228,18 @@ export class Recording {
   };
 
   private setCutOff = () => {
-    // If a user does absolutely nothing for 30 minutes
-    // then we need to cut them off
     window.clearTimeout(this.cutOffTimer!);
     
     this.cutOffTimer = setTimeout(() => {
-      Logger.info('Terminating session due to inactivity');
-      this.terminateSession();
-    }, SESSION_CUT_OFF_MS);
+      Logger.debug('Checking inactivity status...');
+
+      if (this.visitor.shouldStartNewSession) {
+        Logger.info('Terminating session due to inactivity');
+        return this.terminateSession();
+      }
+
+      this.setCutOff();
+    }, 10000);
   };
 
   private handleError = (error: ErrorEvent) => {

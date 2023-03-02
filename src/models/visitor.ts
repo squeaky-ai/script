@@ -145,6 +145,18 @@ export class Visitor {
       : undefined;
   }
 
+  // If the last event happened more than X time ago then
+  // we should start a new session
+  public get shouldStartNewSession(): boolean {
+    const now = new Date().valueOf();
+
+    if (this.lastEventAt === null) {
+      return false;
+    }
+
+    return (now - this.lastEventAt) > SESSION_CUT_OFF_MS;
+  }
+
   private get utmParameters(): Record<string, string> {
     const parameters: Record<string, string> = {};
     const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
@@ -158,18 +170,6 @@ export class Visitor {
     });
 
     return parameters;
-  }
-
-  // If the last event happened more than X time ago then
-  // we should start a new session
-  private get shouldStartNewSession(): boolean {
-    const now = new Date().valueOf();
-
-    if (this.lastEventAt === null) {
-      return false;
-    }
-
-    return (now - this.lastEventAt) > SESSION_CUT_OFF_MS;
   }
 
   private getOrCreateId(type: 'session' | 'visitor'): [string, boolean] {
