@@ -50,7 +50,7 @@ export class Recording {
     this.socket = new WebSocket(`${WSS_HOST}/in?${this.visitor.params.toString()}`);
 
     this.socket.addEventListener('open', () => {
-      this.install();
+      this.startRecording();
       this.setCutOff();
     });
 
@@ -70,34 +70,6 @@ export class Recording {
     const payload = JSON.stringify({ key, value });
     if (this.socket?.readyState === 1 && this.recording) this.socket.send(payload);
   }
-
-  private install = () => {
-    // There's no point in starting the recording if the user is
-    // not looking at the page. They might have opened a bunch of
-    // tabs in the background, and we're going to have a session
-    // with a bunch of dead time at the start
-    if (document.hasFocus()) {
-      this.startRecording();
-    }
-
-    // If the user blurs the page we should stop the recording as
-    // for pages with animations, we'll be collecting thousands of
-    // events
-    window.addEventListener('blur', () => {
-      if (this.recording && !this.terminated) {
-        this.stopRecording();
-      }
-    });
-
-    // If the user does eventually come to the page after being
-    // away during the initial load, then we should start the
-    // recording only if it hasn't already started
-    window.addEventListener('focus', () => {
-      if (!this.recording && !this.terminated) {
-        this.startRecording();
-      }
-    });
-  };
 
   private startRecording = (): void => {
     this.recording = true;
