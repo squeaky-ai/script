@@ -46,6 +46,8 @@ export class Visitor {
       utm_medium: this.utmMedium,
       utm_source: this.utmSource,
       utm_term: this.utmTerm,
+      gad: this.gad,
+      gclid: this.gclid,
     };
   }
 
@@ -107,23 +109,31 @@ export class Visitor {
   }
 
   public get utmSource(): string | null {
-    return this.utmParameters.utm_source || null;
+    return this.searchParameters.utm_source || null;
   }
 
   public get utmMedium(): string | null {
-    return this.utmParameters.utm_medium || null;
+    return this.searchParameters.utm_medium || null;
   }
 
   public get utmCampaign(): string | null {
-    return this.utmParameters.utm_campaign || null;
+    return this.searchParameters.utm_campaign || null;
   }
 
   public get utmContent(): string | null {
-    return this.utmParameters.utm_content || null;
+    return this.searchParameters.utm_content || null;
   }
 
   public get utmTerm(): string | null {
-    return this.utmParameters.utm_term || null;
+    return this.searchParameters.utm_term || null;
+  }
+
+  public get gad(): string | null {
+    return this.searchParameters.gad || null;
+  }
+
+  public get gclid(): string | null {
+    return this.searchParameters.gclid || null;
   }
 
   public get deviceType(): Device {
@@ -157,14 +167,14 @@ export class Visitor {
     return (now - this.lastEventAt) > SESSION_CUT_OFF_MS;
   }
 
-  private get utmParameters(): Record<string, string> {
+  private get searchParameters(): Record<string, string> {
     const parameters: Record<string, string> = {};
-    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+    const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gad', 'gclid'];
 
     const params = new URLSearchParams(location.search);
 
     params.forEach((value, key) => {
-      if (utmKeys.includes(key)) {
+      if (keys.includes(key)) {
         parameters[key] = value;
       }
     });

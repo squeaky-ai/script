@@ -12,6 +12,8 @@ export interface VisitorObject {
   utm_campaign: string | null;
   utm_content: string | null;
   utm_term: string | null;
+  gad: string | null;
+  gclid: string | null;
 }
 
 export type ExternalAttributes = Record<string, string | number>;
