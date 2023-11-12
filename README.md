@@ -23,7 +23,7 @@ $ yarn install
 ### Running locally
 Firstly you will need the gateway running at `ws://localhost:5000`, you'll also need to create a site locally with the uuid of `eba391ce-cc12-41d7-8f8a-ddee1e624a74`.
 
-Run `yarn watch` to watch and build the script, and run `yarn serve` to start the dev server.
+Run `yarn dev` to watch and build the script, and run `yarn serve` to start the dev server.
 
 There are example websites in the `examples/` folder, they can be accessed by visiting their path for example:
 - http://localhost:8080/examples/album/

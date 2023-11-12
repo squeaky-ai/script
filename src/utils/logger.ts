@@ -12,7 +12,7 @@ export class Logger {
   }
 
   public static debug(message?: any, ...optionalParams: any[]) {
-    if (window.squeaky.debugLoggingEnabled) {
+    if (window.squeaky?.debugLoggingEnabled) {
       console.debug(`[Squeaky] ${message}`, ...optionalParams);
     }
   }
