@@ -60,7 +60,7 @@ export class Recording {
       },
 
       disconnected: () => {
-        this.onUninstall();
+        this.uninstall();
       },
     });
 
@@ -217,7 +217,7 @@ export class Recording {
     }, 10000);
   };
 
-  private onUninstall = () => {
+  private uninstall = () => {
     if (this.retries < MAX_RETRIES && !this.terminated) {
       setTimeout(() => {
         this.retries++;
