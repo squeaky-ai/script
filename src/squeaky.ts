@@ -18,7 +18,7 @@ export class Squeaky {
   public magicErasure: MagicErasure;
   public consent: Consent;
 
-  private timer!: NodeJS.Timer;
+  private timer!: ReturnType<typeof setTimeout>;
   private pathname: string = location.pathname;
 
   public __initAllServices?: VoidFunction;

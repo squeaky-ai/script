@@ -16,7 +16,7 @@ const ATTRIBUTE_MUTATION_THROTTLE_MS = 50;
 export class Recording {
   private recording: boolean = false;
   private terminated: boolean = false;
-  private cutOffTimer?: NodeJS.Timer;
+  private cutOffTimer?: ReturnType<typeof setTimeout>;
   private visitor: Visitor;
   private retries: number = 0;
   private sessionSettings!: SiteSessionSettings;
