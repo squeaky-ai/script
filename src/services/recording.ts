@@ -1,3 +1,4 @@
+import actioncable from 'actioncable';
 import { record, EventType } from 'rrweb';
 import { eventWithTime } from 'rrweb/typings/types';
 import { getRrwebConfig } from 'config';
@@ -13,7 +14,6 @@ const MAX_RETRIES = 5;
 const ATTRIBUTE_MUTATION_THROTTLE_MS = 50;
 
 export class Recording {
-  private socket!: WebSocket;
   private recording: boolean = false;
   private terminated: boolean = false;
   private cutOffTimer?: NodeJS.Timer;
@@ -21,6 +21,9 @@ export class Recording {
   private retries: number = 0;
   private sessionSettings!: SiteSessionSettings;
   private stop?: VoidFunction;
+
+  private consumer!: actioncable.Cable;
+  private subscription!: actioncable.Channel & actioncable.CreateMixin;
 
   public constructor(visitor: Visitor) {
     this.visitor = visitor;
@@ -47,28 +50,27 @@ export class Recording {
 
   public init = (sessionSettings: SiteSessionSettings) => {
     this.sessionSettings = sessionSettings;
-    this.socket = new WebSocket(`${WSS_HOST}/in?${this.visitor.params.toString()}`);
 
-    this.socket.addEventListener('open', () => {
-      this.startRecording();
-      this.setCutOff();
-    });
+    this.consumer = actioncable.createConsumer(`${WSS_HOST}/api/in?${this.visitor.params.toString()}`);
 
-    this.socket.addEventListener('close', () => {
-      if (this.retries < MAX_RETRIES && !this.terminated) {
-        setTimeout(() => {
-          this.retries++;
-          this.init(sessionSettings);
-        }, this.retries * 100);
-      }
+    this.subscription = this.consumer.subscriptions.create('EventChannel', {
+      connected: () => {
+        this.startRecording();
+        this.setCutOff();
+      },
+
+      disconnected: () => {
+        this.onUninstall();
+      },
     });
 
     window.addEventListener('error', this.handleError);
   };
 
   private send<T>(key: string, value: T) {
-    const payload = JSON.stringify({ key, value });
-    if (this.socket?.readyState === 1 && this.recording) this.socket.send(payload);
+    if (this.recording) {
+      this.subscription.perform('event', { key, value });
+    }
   }
 
   private startRecording = (): void => {
@@ -188,7 +190,8 @@ export class Recording {
       timestamp: new Date().valueOf(),
     });
 
-    this.socket.close();
+    this.consumer.disconnect();
+    this.recording = false;
     this.terminated = true;
 
     if (this.stopRecording) this.stopRecording();
@@ -212,6 +215,15 @@ export class Recording {
 
       this.setCutOff();
     }, 10000);
+  };
+
+  private onUninstall = () => {
+    if (this.retries < MAX_RETRIES && !this.terminated) {
+      setTimeout(() => {
+        this.retries++;
+        this.init(this.sessionSettings);
+      }, this.retries * 100);
+    }
   };
 
   private handleError = (error: ErrorEvent) => {

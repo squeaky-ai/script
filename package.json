@@ -1,6 +1,6 @@
 {
   "name": "script",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Squeaky Script",
   "main": "src/index.ts",
   "repository": "git@github.com:squeaky-ai/script.git",
@@ -10,11 +10,13 @@
   "scripts": {
     "build": "webpack",
     "serve": "http-server -p 8081",
-    "watch": "webpack --env development",
+    "dev": "webpack --env development",
     "test": "jest"
   },
   "devDependencies": {
+    "@types/actioncable": "^5.2.11",
     "@types/jest": "^27.5.1",
+    "actioncable": "^5.2.8-1",
     "css-loader": "^6.7.1",
     "http-server": "^14.1.0",
     "jest": "^28.1.0",
