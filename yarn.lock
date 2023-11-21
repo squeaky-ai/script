@@ -550,6 +550,11 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@rails/actioncable@^7.1.2":
+  version "7.1.2"
+  resolved "https://registry.npmjs.org/@rails/actioncable/-/actioncable-7.1.2.tgz#d261ff4b72844f5af496671346ec478798f4ac2c"
+  integrity sha512-KGziTZfbmGm8/fHOpj515xupbYU+49hsp4etfdpoDJ/CEY2bRZR0cyFcJkpK6n0t/sxOHNWY6bo9vSgXZvT7Mg==
+
 "@sinclair/typebox@^0.27.8":
   version "0.27.8"
   resolved "https://registry.npmjs.org/@sinclair/typebox/-/typebox-0.27.8.tgz#6667fac16c436b5434a387a34dedb013198f6e6e"
@@ -568,11 +573,6 @@
   integrity sha512-V4BG07kuYSUkTCSBHG8G8TNhM+F19jXFWnQtzj+we8DrkpSBCee9Z3Ms8yiGer/dlmhe35/Xdgyo3/0rQKg7YA==
   dependencies:
     "@sinonjs/commons" "^3.0.0"
-
-"@types/actioncable@^5.2.11":
-  version "5.2.11"
-  resolved "https://registry.npmjs.org/@types/actioncable/-/actioncable-5.2.11.tgz#4b563cec68f00973dc0c5e2cc6c3810d6169a38b"
-  integrity sha512-aGzv5JS3razLvv4ZJW+wlDuNS5y1IFFVlm1EkZq3ZHs6txju7/2iee1e6sdK6DE4zsz8cIREs1K4BtfF5RMESQ==
 
 "@types/babel__core@^7.1.14":
   version "7.20.4"
@@ -678,6 +678,11 @@
   integrity sha512-nekiGu2NDb1BcVofVcEKMIwzlx4NjHlcjhoxxKBNLtz15Y1z7MYf549DFvkHSId02Ax6kGwWntIBPC3l/JZcmw==
   dependencies:
     undici-types "~5.26.4"
+
+"@types/rails__actioncable@^6.1.9":
+  version "6.1.9"
+  resolved "https://registry.npmjs.org/@types/rails__actioncable/-/rails__actioncable-6.1.9.tgz#42cba0ef6095e724968d0a5b4c307a90aed142c6"
+  integrity sha512-jgRBhXIt551LydwnT0t0NngV96hBsqF8lR1y37DtPzewlPUZCgDvv3NyZjj3gI3KpILC7i2/T/42h4mzNv52Lw==
 
 "@types/stack-utils@^2.0.0":
   version "2.0.3"
@@ -856,11 +861,6 @@ acorn@^8.7.1, acorn@^8.8.2:
   version "8.11.2"
   resolved "https://registry.npmjs.org/acorn/-/acorn-8.11.2.tgz#ca0d78b51895be5390a5903c5b3bdcdaf78ae40b"
   integrity sha512-nc0Axzp/0FILLEVsm4fNwLCwMttvhEI263QtVPQcbpfZZ3ts0hLsZGOpE6czNlid7CJ9MlyH8reXkpsf3YUY4w==
-
-actioncable@^5.2.8-1:
-  version "5.2.8-1"
-  resolved "https://registry.npmjs.org/actioncable/-/actioncable-5.2.8-1.tgz#1b01df0c7f4928b1b9646323705e8a0196ccf3c1"
-  integrity sha512-p/a9jeFs3KB3SWZ9w/T5HLyztooYSufOG++Uhau9YzprdBNyjFfsqrtN1roVVEzNDBGZJVr/2SSWwofvavPL1w==
 
 ajv-keywords@^3.5.2:
   version "3.5.2"

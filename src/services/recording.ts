@@ -1,29 +1,23 @@
-import actioncable from 'actioncable';
+import { Consumer, Subscription, createConsumer } from '@rails/actioncable';
 import { record, EventType } from 'rrweb';
 import { eventWithTime } from 'rrweb/typings/types';
 import { getRrwebConfig } from 'config';
 import { cssPath, getNodeInnerText, getCoordinatesOfNode } from 'utils/css-path';
 import { Visitor } from 'models/visitor';
 import { throttle } from '../utils/helpers';
-import { Logger } from 'utils/logger';
 import { isClickEvent, isPageViewEvent, isMouseMoveEvent, isUserInteractionEvent, isScrollEvent, isMutationEvent, isProbablyJustAnimatingSomething } from 'utils/events';
 import type { SiteSessionSettings } from 'types/api';
 import type { ExternalAttributes } from 'types/visitor';
 
-const MAX_RETRIES = 5;
 const ATTRIBUTE_MUTATION_THROTTLE_MS = 50;
 
 export class Recording {
-  private recording: boolean = false;
-  private terminated: boolean = false;
-  private cutOffTimer?: ReturnType<typeof setTimeout>;
   private visitor: Visitor;
-  private retries: number = 0;
   private sessionSettings!: SiteSessionSettings;
   private stop?: VoidFunction;
 
-  private consumer!: actioncable.Cable;
-  private subscription!: actioncable.Channel & actioncable.CreateMixin;
+  private consumer!: Consumer;
+  private subscription!: Subscription<Consumer>;
 
   public constructor(visitor: Visitor) {
     this.visitor = visitor;
@@ -51,15 +45,18 @@ export class Recording {
   public init = (sessionSettings: SiteSessionSettings) => {
     this.sessionSettings = sessionSettings;
 
-    this.consumer = actioncable.createConsumer(`${WSS_HOST}/api/in?${this.visitor.params.toString()}`);
+    this.consumer = createConsumer(`${WSS_HOST}/api/in?${this.visitor.params.toString()}`);
 
     this.subscription = this.consumer.subscriptions.create('EventChannel', {
       connected: () => {
-        this.startRecording();
-        this.setCutOff();
+        this.install();
       },
 
       disconnected: () => {
+        this.uninstall();
+      },
+
+      rejected: () => {
         this.uninstall();
       },
     });
@@ -68,14 +65,14 @@ export class Recording {
   };
 
   private send<T>(key: string, value: T) {
-    if (this.recording) {
-      this.subscription.perform('event', { key, value });
-    }
+    this.subscription.perform('event', { key, value });
   }
 
-  private startRecording = (): void => {
-    this.recording = true;
+  private ping() {
+    this.subscription.perform('ping', {});
+  }
 
+  private install = (): void => {
     const config = getRrwebConfig(this.sessionSettings);
 
     this.stop = record({ ...config, emit: this.onEmit });
@@ -85,16 +82,6 @@ export class Recording {
       data: this.visitor.toObject(),
       timestamp: new Date().valueOf(),
     });
-  };
-
-  private stopRecording = (): void => {
-    this.recording = false;
-
-    try {
-      this.stop?.();
-    } catch(error) {
-      Logger.error('Failed to stop recording', error);
-    }
   };
 
   private onEmit = (event: eventWithTime) => {
@@ -145,7 +132,7 @@ export class Recording {
     }
 
     if (isUserInteractionEvent(event)) {
-      this.setCutOff();
+      this.ping();
     }
 
     if (this.visitor.externalAttributes) {
@@ -183,47 +170,8 @@ export class Recording {
     delete this.visitor.externalAttributes;
   };
 
-  private terminateSession = () => {
-    this.send('inactivity', {
-      type: EventType.Custom,
-      data: {},
-      timestamp: new Date().valueOf(),
-    });
-
-    this.consumer.disconnect();
-    this.recording = false;
-    this.terminated = true;
-
-    if (this.stopRecording) this.stopRecording();
-
-    // If you don't delete the session then it will keep
-    // adding to the old one when they return
-    this.visitor.deleteSessionId();
-    (window as any).squeaky = null;
-  };
-
-  private setCutOff = () => {
-    window.clearTimeout(this.cutOffTimer!);
-    
-    this.cutOffTimer = setTimeout(() => {
-      Logger.debug('Checking inactivity status...');
-
-      if (this.visitor.shouldStartNewSession) {
-        Logger.info('Terminating session due to inactivity');
-        return this.terminateSession();
-      }
-
-      this.setCutOff();
-    }, 10000);
-  };
-
   private uninstall = () => {
-    if (this.retries < MAX_RETRIES && !this.terminated) {
-      setTimeout(() => {
-        this.retries++;
-        this.init(this.sessionSettings);
-      }, this.retries * 100);
-    }
+    this.stop?.();
   };
 
   private handleError = (error: ErrorEvent) => {
