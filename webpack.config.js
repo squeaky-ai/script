@@ -47,8 +47,8 @@ module.exports = ({ development }) => ({
   plugins: [
     new DefinePlugin({
       WEB_HOST: JSON.stringify(development ? 'http://localhost:3333' : 'https://squeaky.ai'),
-      API_HOST: JSON.stringify(development ? 'http://localhost:3333' : 'https://squeaky.ai'),
-      WSS_HOST: JSON.stringify(development ? 'ws://localhost:4000' : 'wss://squeaky.ai'),
+      API_HOST: JSON.stringify(development ? 'http://localhost:3333' : 'https://api.squeaky.ai'),
+      WSS_HOST: JSON.stringify(development ? 'ws://localhost:4000' : 'wss://api.squeaky.ai'),
       SESSION_CUT_OFF_MS : JSON.stringify(1000 * 60 * 30), // 30 minutes
     })
   ]
