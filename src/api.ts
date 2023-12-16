@@ -72,7 +72,7 @@ export class Api {
       }
     `;
 
-    return fetch(`${API_HOST}/api/graphql`, {
+    return fetch(`${API_HOST}/graphql`, {
       method: 'POST',
       body: JSON.stringify({ query }),
       headers: {

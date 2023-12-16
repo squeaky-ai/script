@@ -45,7 +45,7 @@ export class Recording {
   public init = (sessionSettings: SiteSessionSettings) => {
     this.sessionSettings = sessionSettings;
 
-    this.consumer = createConsumer(`${WSS_HOST}/api/in?${this.visitor.params.toString()}`);
+    this.consumer = createConsumer(`${WSS_HOST}/in?${this.visitor.params.toString()}`);
 
     this.subscription = this.consumer.subscriptions.create('EventChannel', {
       connected: () => {
