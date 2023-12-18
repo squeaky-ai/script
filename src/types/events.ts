@@ -30,3 +30,5 @@ export type ScrollEvent = eventWithTime & incrementalSnapshotEvent & {
 export type MutationEvent = eventWithTime & incrementalSnapshotEvent & {
   data: mutationData;
 }
+
+export type SnapshotEvent = eventWithTime;

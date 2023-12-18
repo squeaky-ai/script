@@ -5,7 +5,7 @@ import { getRrwebConfig } from 'config';
 import { cssPath, getNodeInnerText, getCoordinatesOfNode } from 'utils/css-path';
 import { Visitor } from 'models/visitor';
 import { throttle } from '../utils/helpers';
-import { isClickEvent, isPageViewEvent, isMouseMoveEvent, isUserInteractionEvent, isScrollEvent, isMutationEvent, isProbablyJustAnimatingSomething } from 'utils/events';
+import { isClickEvent, isPageViewEvent, isMouseMoveEvent, isUserInteractionEvent, isScrollEvent, isMutationEvent, isProbablyJustAnimatingSomething, isSnapshotEvent } from 'utils/events';
 import type { SiteSessionSettings } from 'types/api';
 import type { ExternalAttributes } from 'types/visitor';
 
@@ -85,6 +85,12 @@ export class Recording {
   };
 
   private onEmit = (event: eventWithTime) => {
+    if (!this.sessionSettings.recordingsEnabled && isSnapshotEvent(event)) {
+      // Recordings are disabled for this site so it's as waste of 
+      // time recording the page data
+      return;
+    }
+
     if (isMutationEvent(event)) {
       // Nothing is added or removed, only modified. This is hopefully
       // an animation or something and we can throttle them

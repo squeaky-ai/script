@@ -11,6 +11,7 @@ export interface SiteSessionSettings {
   magicErasureEnabled: boolean;
   feedback?: Feedback;
   consent: ConsentConfig;
+  recordingsEnabled: boolean;
 }
 
 export interface SessionConfig {

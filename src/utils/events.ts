@@ -1,6 +1,26 @@
 import { eventWithTime } from 'rrweb/typings/types';
 import { EventType, IncrementalSource } from 'rrweb';
-import type { ClickEvent, PageViewEvent, MouseMoveEvent, ScrollEvent, MutationEvent } from 'types/events';
+import type { ClickEvent, PageViewEvent, MouseMoveEvent, ScrollEvent, MutationEvent, SnapshotEvent } from 'types/events';
+
+export const isSnapshotEvent = (
+  event: eventWithTime,
+): event is SnapshotEvent => (
+  event.type === EventType.FullSnapshot ||
+  (
+    event.type === EventType.IncrementalSnapshot && 
+    [
+      IncrementalSource.Mutation,
+      IncrementalSource.ViewportResize,
+      IncrementalSource.Input,
+      IncrementalSource.MediaInteraction,
+      IncrementalSource.StyleSheetRule,
+      IncrementalSource.CanvasMutation,
+      IncrementalSource.Font,
+      IncrementalSource.Log,
+      IncrementalSource.StyleDeclaration,
+    ].includes(event.data.source)
+  )
+);
 
 export const isClickEvent = (
   event: eventWithTime,

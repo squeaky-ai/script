@@ -68,6 +68,7 @@ export class Api {
             consentMethod
             layout
           }
+          recordingsEnabled
         }
       }
     `;
