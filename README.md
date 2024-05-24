@@ -1,5 +1,7 @@
 # Squeaky Script
 
+**NOTE**: Squeaky was sunsetted at the end of May 2024.
+
 The public scripts that are used to get data into Squeaky. These are:
 
 - `./src/nps` is loaded into the NPS iframe that's served by the gateway
